@@ -1,5 +1,6 @@
 package org.makka.greenfarm.controller;
 
+import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.User;
 import org.makka.greenfarm.service.UserService;
 import org.makka.greenfarm.service.impl.UserServiceImpl;
@@ -16,35 +17,21 @@ public class UserController {
     private UserServiceImpl userService;
 
     @PostMapping("/accounts/login")
-    public String login(@RequestParam String username, @RequestParam String password) {
-        // Perform authentication and get the authenticated username
-
-        String token = JwtUtil.generateToken(username);
-        System.out.println(token);
-        return token;
-    }
-
-    @GetMapping("/user")
-    public ResponseEntity<User> getUser(@RequestHeader("Authorization") String token) {
-        if (JwtUtil.validateToken(token)) {
-            String username = JwtUtil.getUsernameFromToken(token);
-            // Retrieve user information based on the username
-            User user = userService.getUserByUsername(username);
-            return ResponseEntity.ok(user);
+    public CommonResponse<String> login(@RequestParam String username, @RequestParam String password) {
+        // 验证是否登录成功并返回token
+        if (userService.validation(username, password)) {
+            String token = JwtUtil.generateToken(username);
+            return CommonResponse.creatForSuccess(token);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return CommonResponse.creatForError("用户名或密码错误");
         }
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
-        // Perform user registration and account creation
-
-        // Generate JWT token
-        String token = JwtUtil.generateToken(user.getUsername());
+    @PostMapping("/accounts/register")
+    public CommonResponse<String> registerUser(@RequestBody User user) {
 
         // Return the token to the frontend
-        return ResponseEntity.ok(token);
+        return userService.register(user);
     }
 }
 

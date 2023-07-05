@@ -1,5 +1,6 @@
 package org.makka.greenfarm.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -30,8 +31,9 @@ public class User {
 
     private String email;       //邮箱
 
-    private String desc;        //个人简介
+    private String description;        //个人简介
 
+    @TableField(value = "isPremium")
     private int isPremium;      //是否是会员 0：否 1：是
 
     private int state;      //状态 0：下线 1：登录
@@ -41,8 +43,6 @@ public class User {
     private String voiceprint;      //声纹识别ID
 
     private String nickname;        //昵称
-
-    private String address;     //地址
 
     private int credit;     //积分
 }

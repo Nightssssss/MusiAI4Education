@@ -1,10 +1,15 @@
 package org.makka.greenfarm.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.User;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface UserService extends IService<User> {
-    @Transactional
     public User getUserByUsername(String username);
+
+    public boolean validation(String username, String password);
+
+    //注册
+    public CommonResponse<String> register(User user);
 }
