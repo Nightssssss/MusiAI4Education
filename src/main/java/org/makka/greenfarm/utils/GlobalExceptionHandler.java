@@ -1,4 +1,4 @@
-package org.makka.greenfarm.util;
+package org.makka.greenfarm.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.makka.greenfarm.common.CommonResponse;

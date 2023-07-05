@@ -10,22 +10,21 @@ import java.util.Date;
 @Data
 @TableName(value = "order")
 public class Order {
-        @TableId
-        private String oid;
-        @TableId
-        private String pid;
+        private String oid;     // 订单id
 
-        private String uid;
+        private String pid;     // 产品id
 
-        private String aid;
+        private String uid;     // 用户id
 
-        private Date orderDate;
+        private String aid;     // 地址id
 
-        private int quantity;
+        private Date orderDate; // 订单日期
 
-        private Double uniprice;
+        private int quantity;   // 数量
 
-        private int type;
+        private Double uniprice;        // 单价
 
-        private int status;
+        private int type;       // 类型
+
+        private int status;     // 状态
 }

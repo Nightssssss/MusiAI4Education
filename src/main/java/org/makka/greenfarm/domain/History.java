@@ -8,7 +8,6 @@ import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 @Data
 @TableName(value = "history")
 public class History {
-    @TableId
     private String hid;     //历史记录id
 
     private String uid;     //用户id
