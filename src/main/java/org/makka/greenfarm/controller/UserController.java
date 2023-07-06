@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class UserController {
     @Autowired
-    private UserServiceImpl userService;
+    private UserService userService;
 
     @PostMapping("/accounts/login")
     public CommonResponse<String> login(@RequestParam String username, @RequestParam String password) {

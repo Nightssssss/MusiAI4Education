@@ -9,6 +9,7 @@ public interface UserService extends IService<User> {
 
     public User getUserByUsername(String username);
 
+    //验证用户名和密码是否匹配
     public boolean validation(String username, String password);
     //注册
     public CommonResponse<String> register(User user);
