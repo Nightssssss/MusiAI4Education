@@ -7,6 +7,7 @@ import lombok.Data;
 import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @TableName(value = "farm_comment")
@@ -15,7 +16,8 @@ public class FarmComment {
     @TableId
     private String cid;     //评论ID
 
-    private Timestamp commentTime;     //评论时间
+    @TableField(value = "commentTime")
+    private LocalDateTime commentTime;     //评论时间
 
     private String uid;     //用户ID
 

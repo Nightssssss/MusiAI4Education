@@ -56,4 +56,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return CommonResponse.creatForSuccess("注册成功");
         }
     }
+
+    public String getUidByUsername(String username) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("username", username);
+        User user = userMapper.selectOne(wrapper);
+        return user.getUid();
+    }
 }
