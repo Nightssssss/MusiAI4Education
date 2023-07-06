@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @TableName(value = "reserve_product")
 public class ReserveProduct {
@@ -27,4 +29,8 @@ public class ReserveProduct {
     private int choice;
 
     private String picture;
+
+    @TableField(exist = false)
+    private List<ReserveProductComment> reserveProductCommentList;      //评论列表
+
 }

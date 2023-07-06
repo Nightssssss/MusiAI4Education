@@ -7,6 +7,7 @@ import javax.xml.stream.events.Comment;
 import java.util.List;
 
 public interface FarmService extends IService<Farm> {
+
     public List<Farm> getFarmList();
 
     public Farm getFarmDetail(String farmId);

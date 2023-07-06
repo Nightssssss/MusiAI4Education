@@ -1,6 +1,7 @@
 package org.makka.greenfarm.controller;
 
 import org.makka.greenfarm.common.CommonResponse;
+import org.makka.greenfarm.domain.Farm;
 import org.makka.greenfarm.domain.ReserveProduct;
 import org.makka.greenfarm.service.ReserveProductService;
 import org.makka.greenfarm.utils.JwtUtil;
@@ -18,7 +19,6 @@ public class ReserveProductsController {
 
     @GetMapping("/reserve/{farmId}")
     public CommonResponse<List<ReserveProduct>> login(@PathVariable("farmId") String farmId) {
-
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         List<ReserveProduct> reserveProductList = reserveProductService.getReserveProductsByFarmId(farmId);
 
@@ -27,7 +27,15 @@ public class ReserveProductsController {
         }else{
             return CommonResponse.creatForError("该农场可种植农产品列表为空！");
         }
-
     }
+
+    @GetMapping("/reserve/details/{productId}")
+    public CommonResponse<ReserveProduct> getReserveProductDetail(@PathVariable String productId){
+        System.out.println("this is reserveProduct!");
+        // Return the token to the frontend
+        return CommonResponse.creatForSuccess(reserveProductService.getReserveProductDetail(productId));
+    }
+
+
 
 }
