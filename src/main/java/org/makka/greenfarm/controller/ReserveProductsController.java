@@ -21,7 +21,6 @@ public class ReserveProductsController {
     public CommonResponse<List<ReserveProduct>> login(@PathVariable("farmId") String farmId) {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         List<ReserveProduct> reserveProductList = reserveProductService.getReserveProductsByFarmId(farmId);
-
         if (reserveProductList.size()!=0){
             return CommonResponse.creatForSuccess(reserveProductList);
         }else{
@@ -31,8 +30,6 @@ public class ReserveProductsController {
 
     @GetMapping("/reserve/details/{productId}")
     public CommonResponse<ReserveProduct> getReserveProductDetail(@PathVariable String productId){
-        System.out.println("this is reserveProduct!");
-        // Return the token to the frontend
         return CommonResponse.creatForSuccess(reserveProductService.getReserveProductDetail(productId));
     }
 

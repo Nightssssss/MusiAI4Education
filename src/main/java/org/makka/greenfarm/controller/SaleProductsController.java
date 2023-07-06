@@ -31,8 +31,6 @@ public class SaleProductsController {
 
     @GetMapping("/sale/details/{productId}")
     public CommonResponse<SaleProduct> getSaleProductDetail(@PathVariable String productId){
-        System.out.println("this is saleProduct!");
-        // Return the token to the frontend
         return CommonResponse.creatForSuccess(saleProductService.getSaleProductDetail(productId));
     }
 

@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName(value = "reserve_product_favorite")
+@TableName(value = "sale_product_favorite")
 public class ReserveProductFavorite {
     @TableId
     private String fid;     //收藏ID
