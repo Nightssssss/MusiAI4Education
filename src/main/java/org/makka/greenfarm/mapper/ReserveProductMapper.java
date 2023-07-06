@@ -12,7 +12,7 @@ import java.util.List;
 
 @Mapper
 public interface ReserveProductMapper extends BaseMapper<ReserveProduct> {
-    @Select("select reserve_product_comment.cid,reserve_product_comment.commentTime,reserve_product_comment.uid,reserve_product_comment.content,user.avatar,user.nickname" +
+    @Select("select reserve_product_comment.cid,reserve_product_comment.commentTime,reserve_product_comment.uid,reserve_product_comment.rpid,reserve_product_comment.content,user.avatar,user.nickname" +
             " from reserve_product_comment,user " +
             "where reserve_product_comment.rpid = #{productId} and reserve_product_comment.uid = user.uid")
     @Results({

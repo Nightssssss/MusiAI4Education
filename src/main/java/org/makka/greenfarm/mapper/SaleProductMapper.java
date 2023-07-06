@@ -13,7 +13,7 @@ import java.util.List;
 @Mapper
 public interface SaleProductMapper extends BaseMapper<SaleProduct> {
 
-    @Select("select sale_product_comment.cid,sale_product_comment.commentTime,sale_product_comment.uid,sale_product_comment.content,user.avatar,user.nickname" +
+    @Select("select sale_product_comment.cid,sale_product_comment.commentTime,sale_product_comment.uid,sale_product_comment.spid,sale_product_comment.content,user.avatar,user.nickname" +
             " from sale_product_comment,user " +
             "where sale_product_comment.spid = #{productId} and sale_product_comment.uid = user.uid")
     @Results({
