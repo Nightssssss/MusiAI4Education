@@ -13,16 +13,8 @@ import java.util.List;
 
 @Mapper
 public interface FarmMapper extends BaseMapper<Farm> {
-    @Select("select farm_comment.cid,farm_comment.commentTime,farm_comment.uid,farm_comment.content,user.avatar,user.nickname" +
+    @Select("select farm_comment.cid,farm_comment.commentTime,farm_comment.uid,farm_comment.fid,farm_comment.content,user.avatar,user.nickname" +
             " from farm_comment,user " +
             "where farm_comment.fid = #{farmId} and farm_comment.uid = user.uid")
-    @Results({
-            @Result(property = "cid", column = "cid"),
-            @Result(property = "commentTime", column = "commentTime"),
-            @Result(property = "uid", column = "uid"),
-            @Result(property = "content", column = "content"),
-            @Result(property = "avatar", column = "avatar"),
-            @Result(property = "nickname", column = "nickname")
-    })
     public List<FarmComment> getFarmComment(String farmId);
 }

@@ -20,7 +20,8 @@ public class UserController {
     public CommonResponse<String> login(@RequestParam String username, @RequestParam String password) {
         // 验证是否登录成功并返回token
         if (userService.validation(username, password)) {
-            String token = JwtUtil.generateToken(username);
+            String uid = userService.getUidByUsername(username);
+            String token = JwtUtil.generateToken(uid);
             return CommonResponse.creatForSuccess(token);
         } else {
             return CommonResponse.creatForError("用户名或密码错误");

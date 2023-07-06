@@ -13,4 +13,6 @@ public interface UserService extends IService<User> {
 
     //注册
     public CommonResponse<String> register(User user);
+
+    public String getUidByUsername(String username);
 }
