@@ -7,5 +7,6 @@ import org.makka.greenfarm.domain.ReserveProductComment;
 import java.util.List;
 
 public interface ReserveProductCommentService extends IService<ReserveProductComment> {
+    //发表评论
     public List<ReserveProductComment> PostReserveProductComment(String uid, String rpid, String content);
 }
