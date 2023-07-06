@@ -10,6 +10,9 @@ import java.util.Date;
 @Data
 @TableName(value = "user")
 public class User {
+    User() {
+    }
+
     @TableId
     private String uid;     //用户ID
 

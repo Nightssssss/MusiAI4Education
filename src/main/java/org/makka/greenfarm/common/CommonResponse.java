@@ -3,6 +3,7 @@ package org.makka.greenfarm.common;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
+import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
 
@@ -31,6 +32,12 @@ public class CommonResponse<T> implements Serializable
     {
         this.status = status;
         this.msg = msg;
+        this.data = data;
+    }
+
+    private CommonResponse(int status, T data, T commentList)
+    {
+        this.status = status;
         this.data = data;
     }
 
@@ -80,5 +87,4 @@ public class CommonResponse<T> implements Serializable
     {
         return new CommonResponse<T>(code, msg);
     }
-
 }
