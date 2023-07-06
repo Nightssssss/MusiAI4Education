@@ -1,5 +1,6 @@
 package org.makka.greenfarm.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.User;
 import org.makka.greenfarm.service.UserService;
@@ -21,8 +22,8 @@ public class UserController {
         // 验证是否登录成功并返回token
         if (userService.validation(username, password)) {
             String uid = userService.getUidByUsername(username);
-            String token = JwtUtil.generateToken(uid);
-            return CommonResponse.creatForSuccess(token);
+            StpUtil.login(uid);
+            return CommonResponse.creatForSuccess("success");
         } else {
             return CommonResponse.creatForError("用户名或密码错误");
         }

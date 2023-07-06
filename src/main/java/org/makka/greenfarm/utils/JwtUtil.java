@@ -34,8 +34,6 @@ public class JwtUtil {
 
     public static String extractUid(String token) {
         // 提取令牌
-//        String token = Authorization.substring(7);
-        System.out.println(token);
         try {
             Jws<Claims> claims = Jwts.parser()
                     .setSigningKey(SECRET_KEY)
