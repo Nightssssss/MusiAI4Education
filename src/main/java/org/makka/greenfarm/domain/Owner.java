@@ -18,7 +18,7 @@ public class Owner {
 
     private int experience;     //农场主经验
 
-    private String desc;        //农场主描述
+    private String description;        //农场主描述
 
     private String avatar;      //农场主头像
 

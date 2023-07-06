@@ -1,5 +1,6 @@
 package org.makka.greenfarm.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -15,4 +16,10 @@ public class SaleProductComment {
     private String spid;    //可购买产品ID
 
     private String content;    //评论内容
+
+    @TableField(exist = false)
+    private String avatar;      //用户头像
+
+    @TableField(exist = false)
+    private String nickname;        //用户昵称
 }

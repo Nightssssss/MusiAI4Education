@@ -1,5 +1,6 @@
 package org.makka.greenfarm.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -18,4 +19,10 @@ public class ReserveProductComment {
     private String rpid;    //可种植产品ID
 
     private String content;    //评论内容
+
+    @TableField(exist = false)
+    private String avatar;      //用户头像
+
+    @TableField(exist = false)
+    private String nickname;        //用户昵称
 }

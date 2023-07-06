@@ -1,8 +1,11 @@
 package org.makka.greenfarm.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @TableName(value = "reserve_product")
@@ -18,11 +21,16 @@ public class ReserveProduct {
 
     private int yield;
 
+    @TableField("costTime")
     private int costTime;
 
-    private String desc;
+    private String description;
 
     private int choice;
 
     private String picture;
+
+    @TableField(exist = false)
+    private List<ReserveProductComment> reserveProductCommentList;      //评论列表
+
 }
