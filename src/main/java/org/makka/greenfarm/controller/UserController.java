@@ -29,7 +29,6 @@ public class UserController {
 
     @PostMapping("/accounts/register")
     public CommonResponse<String> registerUser(@RequestBody User user) {
-
         // Return the token to the frontend
         return userService.register(user);
     }

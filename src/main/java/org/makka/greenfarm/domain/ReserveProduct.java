@@ -1,5 +1,6 @@
 package org.makka.greenfarm.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -18,9 +19,10 @@ public class ReserveProduct {
 
     private int yield;
 
+    @TableField("costTime")
     private int costTime;
 
-    private String desc;
+    private String description;
 
     private int choice;
 

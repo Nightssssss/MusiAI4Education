@@ -33,7 +33,7 @@ public class Farm {
 
     private Blob video;     //农场视频
 
-    private String desc;        //农场描述
+    private String description;        //农场描述
 
     private Date createdDate;       //创建时间
 

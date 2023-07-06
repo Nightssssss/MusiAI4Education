@@ -20,7 +20,7 @@ public class SaleProduct {
 
     private int sales;      //销量
 
-    private String desc;        //产品描述
+    private String description;        //产品描述
 
     private String picture;     //产品图片
 
