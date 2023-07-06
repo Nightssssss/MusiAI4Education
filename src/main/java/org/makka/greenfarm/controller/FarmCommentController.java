@@ -4,10 +4,8 @@ import cn.dev33.satoken.stp.StpUtil;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.FarmComment;
 import org.makka.greenfarm.service.FarmCommentService;
-import org.makka.greenfarm.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 

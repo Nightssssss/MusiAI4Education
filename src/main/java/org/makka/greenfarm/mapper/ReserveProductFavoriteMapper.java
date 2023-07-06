@@ -12,6 +12,6 @@ import java.util.List;
 public interface ReserveProductFavoriteMapper extends BaseMapper<ReserveProductFavorite> {
     @Select("select reserve_product_favorite.fid,reserve_product_favorite.uid,reserve_product_favorite.rpid,reserve_product_favorite.favoriteDate" +
             " from reserve_product_favorite " +
-            "where reserve_product_comment.uid = #{uid}")
+            "where reserve_product_favorite.uid = #{uid}")
     List<ReserveProductFavorite> getReserveFavoriteList(String uid);
 }

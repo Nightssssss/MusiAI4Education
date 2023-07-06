@@ -4,11 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.User;
 import org.makka.greenfarm.service.UserService;
-import org.makka.greenfarm.service.impl.UserServiceImpl;
-import org.makka.greenfarm.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
