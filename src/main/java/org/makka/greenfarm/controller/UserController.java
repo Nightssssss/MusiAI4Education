@@ -34,5 +34,12 @@ public class UserController {
         // Return the token to the frontend
         return userService.register(user);
     }
+
+    @PostMapping("/accounts/logout")
+    public CommonResponse<String> logout() {
+        // Return the token to the frontend
+        StpUtil.logout();
+        return CommonResponse.creatForSuccess("success");
+    }
 }
 
