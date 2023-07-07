@@ -33,6 +33,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         List<Order> orderList = new ArrayList<Order>(productList.size());
 
+        String oid = String.valueOf(System.currentTimeMillis());
+
         for (Product product : productList) {
 
             if (product.getType() == 0) {
@@ -41,7 +43,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 String uid = StpUtil.getLoginIdAsString();
                 order.setUid(uid);
                 order.setAid(aid);
-                String oid = String.valueOf(System.currentTimeMillis()+1);
                 order.setOid(oid);
 
                 Date orderDate = new Date();
@@ -49,7 +50,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 order.setStatus(0);
 
                 // 4.1 如果是在售农产品，获取对应的产品信息，存入在售农产品列表
-                String pid = String.valueOf(System.currentTimeMillis());
+                String pid = product.getProductId();
                 order.setPid(pid);
 
                 SaleProduct saleProduct = searchSaleProductUnitPriceById(product.getProductId());
@@ -72,7 +73,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
                 order.setUid(uid);
                 order.setAid(aid);
-                String oid = String.valueOf(System.currentTimeMillis());
                 order.setOid(oid);
 
                 Date orderDate = new Date();
@@ -80,7 +80,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 order.setStatus(0);
 
                 // 4.2 如果是可种植农产品，获取对应的产品信息，存入可种植农产品列表
-                String pid = String.valueOf(System.currentTimeMillis()+1);
+                String pid = product.getProductId();
                 order.setPid(pid);
                 order.setQuantity(product.getQuantity());
                 order.setType(product.getType());
@@ -109,5 +109,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         QueryWrapper<SaleProduct> wrapper = new QueryWrapper<>();
         wrapper.eq("spid", spid);
         return saleProductMapper.selectOne(wrapper);
+    }
+
+    @Override
+    public List<Order> researchOrder() {
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        return orderMapper.selectList(wrapper);
     }
 }

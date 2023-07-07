@@ -19,4 +19,6 @@ public interface OrderService extends IService<Order> {
     //根据在售农产品ID查询在售农产品单价
     public SaleProduct searchSaleProductUnitPriceById(String spid);
 
+    //查询所有订单
+    public List<Order> researchOrder();
 }
