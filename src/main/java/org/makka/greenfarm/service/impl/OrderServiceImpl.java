@@ -20,54 +20,78 @@ import java.util.List;
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
 
     @Autowired
-    private ReserveProductMapper reserveProductMapper; // 注入reserveProductMapper接口
+    private ReserveProductMapper reserveProductMapper;
 
     @Autowired
-    private SaleProductMapper saleProductMapper; // 注入saleProductMapper接口
+    private SaleProductMapper saleProductMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
 
     @Override
     public List<Order> initOrder(List<Product> productList, String aid) {
 
-        List<Order> orderList = new ArrayList<>();
+        List<Order> orderList = new ArrayList<Order>(productList.size());
 
+        for (Product product : productList) {
 
-        for (Order order : orderList) {
-            // 1.根据uid获取用户信息
-            String uid = StpUtil.getLoginIdAsString();
-            order.setAid(uid);
+            if (product.getType() == 0) {
 
-            // 2.获取用户地址信息
-            order.setAid(aid);
+                Order order = new Order();
+                String uid = StpUtil.getLoginIdAsString();
+                order.setUid(uid);
+                order.setAid(aid);
+                String oid = String.valueOf(System.currentTimeMillis()+1);
+                order.setOid(oid);
 
-            // 3.生成订单编号与下单时间，设置订单状态为“未支付”
-            String oid = String.valueOf(System.currentTimeMillis());
-            order.setOid(oid);
+                Date orderDate = new Date();
+                order.setOrderDate(orderDate);
+                order.setStatus(0);
 
-            Date orderDate = new Date();
-            order.setOrderDate(orderDate);
-            order.setStatus(0);
+                // 4.1 如果是在售农产品，获取对应的产品信息，存入在售农产品列表
+                String pid = String.valueOf(System.currentTimeMillis());
+                order.setPid(pid);
 
-            // 4.用增强for循环获取每个农产品的信息
-            for (Product product : productList) {
+                SaleProduct saleProduct = searchSaleProductUnitPriceById(product.getProductId());
+                order.setUniprice(saleProduct.getUniprice());
 
-                if (product.getType() == 0) {
-                    // 4.1 如果是在售农产品，获取对应的产品信息，存入在售农产品列表
-                    String pid = String.valueOf(System.currentTimeMillis());
-                    order.setPid(pid);
-                    order.setQuantity(product.getQuantity());
-                    order.setType(product.getType());
-                    SaleProduct saleProduct = searchSaleProductUnitPriceById(product.getProductId());
-                    order.setUniprice(saleProduct.getUniprice());
+                order.setQuantity(product.getQuantity());
+                order.setType(product.getType());
 
-                } else {
-                    // 4.2 如果是可种植农产品，获取对应的产品信息，存入可种植农产品列表
-                    String pid = String.valueOf(System.currentTimeMillis());
-                    order.setPid(pid);
-                    order.setQuantity(product.getQuantity());
-                    order.setType(product.getType());
-                    ReserveProduct reserveProduct = searchReserveProductUnitPriceById(product.getProductId());
-                    order.setUniprice(reserveProduct.getUniprice());
-                }
+                System.out.println(order);
+
+                orderMapper.insert(order);
+
+                orderList.add(order);
+
+            } else {
+
+                Order order = new Order();
+
+                String uid = StpUtil.getLoginIdAsString();
+
+                order.setUid(uid);
+                order.setAid(aid);
+                String oid = String.valueOf(System.currentTimeMillis());
+                order.setOid(oid);
+
+                Date orderDate = new Date();
+                order.setOrderDate(orderDate);
+                order.setStatus(0);
+
+                // 4.2 如果是可种植农产品，获取对应的产品信息，存入可种植农产品列表
+                String pid = String.valueOf(System.currentTimeMillis()+1);
+                order.setPid(pid);
+                order.setQuantity(product.getQuantity());
+                order.setType(product.getType());
+                ReserveProduct reserveProduct = searchReserveProductUnitPriceById(product.getProductId());
+                order.setUniprice(reserveProduct.getUniprice());
+
+                System.out.println(order);
+
+                baseMapper.insert(order);
+
+                orderList.add(order);
             }
         }
         return orderList;
