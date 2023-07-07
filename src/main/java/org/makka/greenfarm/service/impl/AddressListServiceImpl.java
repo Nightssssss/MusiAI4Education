@@ -56,4 +56,26 @@ public class AddressListServiceImpl extends ServiceImpl<AddressListMapper, Addre
             return true;
         }
     }
+
+    public boolean updateDefaultAddress(String aid) {
+        //把用户所有地址设为非默认
+        QueryWrapper wrapper1 = new QueryWrapper();
+        wrapper1.eq("isDefault", 1);
+        List<AddressList> addressListList = addressListMapper.selectList(wrapper1);
+        for (AddressList addressList : addressListList) {
+            addressList.setIsDefault(0);
+            addressListMapper.update(addressList, wrapper1);
+        }
+        //更新用户默认地址
+        QueryWrapper wrapper = new QueryWrapper();
+        wrapper.eq("aid", aid);
+        AddressList addressList = addressListMapper.selectOne(wrapper);
+        addressList.setIsDefault(1);
+        int result = addressListMapper.update(addressList, wrapper);
+        if (result == 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

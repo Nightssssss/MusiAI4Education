@@ -97,4 +97,21 @@ public class AddressListController {
             return CommonResponse.creatForError("请先登录！");
         }
     }
+
+    @PutMapping("/default")
+    public CommonResponse<List<AddressList>> updateDefaultAddress(@RequestParam String addressId) {
+        if(StpUtil.isLogin()){
+            String uid = StpUtil.getLoginIdAsString();
+            if (addressListService.updateDefaultAddress(addressId)){
+                List<AddressList> addressLists = addressListService.getAddressListByUid(uid);
+                return CommonResponse.creatForSuccess(addressLists);
+            }
+            else {
+                return CommonResponse.creatForError("修改失败！");
+            }
+        }
+        else {
+            return CommonResponse.creatForError("请先登录！");
+        }
+    }
 }

@@ -13,4 +13,6 @@ public interface AddressListService extends IService<AddressList> {
     public boolean addAddress(AddressList addressList);
 
     public boolean updateAddress(AddressList addressList);
+
+    public boolean updateDefaultAddress(String aid);
 }
