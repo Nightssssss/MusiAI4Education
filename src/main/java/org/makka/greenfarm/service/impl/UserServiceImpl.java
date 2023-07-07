@@ -7,9 +7,15 @@ import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.User;
 import org.makka.greenfarm.mapper.UserMapper;
 import org.makka.greenfarm.service.UserService;
+import org.makka.greenfarm.utils.UploadAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -40,7 +46,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     //注册
-    public CommonResponse<String> register(User user) {
+    public CommonResponse<String> register(@RequestBody User user) {
        // 先判断用户名是否在数据库中存在
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("username", user.getUsername());

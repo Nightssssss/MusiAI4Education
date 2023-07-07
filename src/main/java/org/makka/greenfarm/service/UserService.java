@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.User;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 
 public interface UserService extends IService<User> {
 

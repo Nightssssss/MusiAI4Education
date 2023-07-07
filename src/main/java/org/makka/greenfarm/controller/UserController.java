@@ -4,8 +4,12 @@ import cn.dev33.satoken.stp.StpUtil;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.User;
 import org.makka.greenfarm.service.UserService;
+import org.makka.greenfarm.utils.UploadAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api")
@@ -25,10 +29,22 @@ public class UserController {
         }
     }
 
+    @PostMapping("/accounts/upload/avatar")
+    public String uploadAvatar(HttpServletRequest request, @RequestParam MultipartFile file) {
+        return UploadAction.uploadHandler(request, file) + "";
+    }
+
     @PostMapping("/accounts/register")
-    public CommonResponse<String> registerUser(@RequestBody User user) {
+    public CommonResponse<String> registerUser(@RequestBody User user, HttpServletRequest request, MultipartFile file) {
         // Return the token to the frontend
         return userService.register(user);
+    }
+
+    @PostMapping("/accounts/logout")
+    public CommonResponse<String> logout() {
+        // Return the token to the frontend
+        StpUtil.logout();
+        return CommonResponse.creatForSuccess("success");
     }
 }
 
