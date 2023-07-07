@@ -11,4 +11,6 @@ public interface SaleProductFavoriteService extends IService<SaleProductFavorite
     public List<SaleProductFavorite> addSaleProductFavorite(String uid, String spid);
     //取消收藏
     public List<SaleProductFavorite> cancelSaleProductFavorite(String uid, String spid);
+
+    public List<SaleProductFavorite> getSaleFavoriteList(String uid);
 }

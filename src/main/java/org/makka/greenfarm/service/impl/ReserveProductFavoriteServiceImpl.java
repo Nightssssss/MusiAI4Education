@@ -50,4 +50,8 @@ public class ReserveProductFavoriteServiceImpl extends ServiceImpl<ReserveProduc
         //获取该用户的所有收藏
         return reserveProductFavoriteMapper.getReserveFavoriteList(uid);
     }
+
+    public List<ReserveProductFavorite> getReserveFavoriteList(String uid) {
+        return reserveProductFavoriteMapper.getReserveFavoriteList(uid);
+    }
 }

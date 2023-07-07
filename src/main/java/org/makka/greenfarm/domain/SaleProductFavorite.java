@@ -17,4 +17,19 @@ public class SaleProductFavorite {
 
     @TableField(value = "favoriteDate")
     private LocalDateTime favoriteDate;    //收藏时间
+
+    @TableField(exist = false)
+    private String picture;     //产品图片
+
+    @TableField(exist = false)
+    private String shelves;      //产品上架状态
+
+    @TableField(exist = false)
+    private String farmId;     //农场ID
+
+    @TableField(exist = false)
+    private String name;        //产品名称
+
+    @TableField(exist = false)
+    private double uniprice;    //产品单价
 }

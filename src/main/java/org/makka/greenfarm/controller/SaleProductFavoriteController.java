@@ -18,7 +18,7 @@ public class SaleProductFavoriteController {
     @Autowired
     private SaleProductFavoriteService saleProductFavoriteService;
 
-    @PostMapping("/sail/favorites")
+    @PostMapping("/sale/favorites")
     public CommonResponse<List<SaleProductFavorite>> postSaleProductFavorite(@RequestParam String spid) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
@@ -36,7 +36,7 @@ public class SaleProductFavoriteController {
         }
     }
 
-    @DeleteMapping("/sail/favorites")
+    @DeleteMapping("/sale/favorites")
     public CommonResponse<List<SaleProductFavorite>> cancelSaleProductFavorite(@RequestParam String spid) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
@@ -54,4 +54,21 @@ public class SaleProductFavoriteController {
         }
     }
 
+    @GetMapping("/sale/favorites")
+    public CommonResponse<List<SaleProductFavorite>> getSaleProductFavorite() {
+        // Return the token to the frontend
+        if (StpUtil.isLogin()) {
+            String uid = StpUtil.getLoginIdAsString();
+            List<SaleProductFavorite> saleProductFavorites = saleProductFavoriteService.getSaleFavoriteList(uid);
+            //如果返回为空，则代表用户已经没有收藏了
+            if(saleProductFavorites.size()==0){
+                return CommonResponse.creatForError("收藏列表为空！");
+            }else{
+                return CommonResponse.creatForSuccess(saleProductFavorites);
+            }
+        } else {
+            // 令牌无效或解码错误
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
 }

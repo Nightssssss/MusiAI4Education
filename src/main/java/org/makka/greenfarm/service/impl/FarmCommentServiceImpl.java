@@ -28,7 +28,7 @@ public class FarmCommentServiceImpl extends ServiceImpl<FarmCommentMapper, FarmC
         farmComment.setUid(uid);
         farmComment.setFid(farmId);
         farmComment.setContent(content);
-        baseMapper.insert(farmComment);
+        farmCommentMapper.insert(farmComment);
         //获取所有评论
         List<FarmComment> commentList = farmCommentMapper.getFarmCommentList(farmId);
         return commentList;

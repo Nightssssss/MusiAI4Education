@@ -53,4 +53,8 @@ public class SaleProductFavoriteServiceImpl extends ServiceImpl<SaleProductFavor
         //获取该用户的所有收藏
         return saleProductFavoriteMapper.getSaleFavoriteList(uid);
     }
+
+    public List<SaleProductFavorite> getSaleFavoriteList(String uid) {
+        return saleProductFavoriteMapper.getSaleFavoriteList(uid);
+    }
 }
