@@ -1,5 +1,6 @@
 package org.makka.greenfarm.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class Order {
 
         private String aid;     // 地址id
 
+        @TableField(value = "orderDate")
         private Date orderDate; // 订单日期
 
         private int quantity;   // 数量
