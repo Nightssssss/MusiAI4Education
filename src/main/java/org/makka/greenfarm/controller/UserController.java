@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/api/acccounts")
+@RequestMapping("/api/accounts")
 public class UserController {
     @Autowired
     private UserService userService;

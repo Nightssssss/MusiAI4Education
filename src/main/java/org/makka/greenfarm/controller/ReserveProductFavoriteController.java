@@ -52,4 +52,17 @@ public class ReserveProductFavoriteController {
         }
     }
 
+    @GetMapping("/reserve/favorites")
+    public CommonResponse<List<ReserveProductFavorite>> getReserveProductFavorite() {
+        // Return the token to the frontend
+        if (StpUtil.isLogin()) {
+            String uid = StpUtil.getLoginIdAsString();
+            List<ReserveProductFavorite> reserveProductFavorites = reserveProductFavoriteService.getReserveFavoriteList(uid);
+            return CommonResponse.creatForSuccess(reserveProductFavorites);
+        } else {
+            // 令牌无效或解码错误
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
 }
