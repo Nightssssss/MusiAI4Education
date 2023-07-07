@@ -1,9 +1,9 @@
 package org.makka.greenfarm.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.ReserveProductComment;
 import org.makka.greenfarm.service.ReserveProductCommentService;
-import org.makka.greenfarm.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -20,20 +20,16 @@ public class ReserveProductCommentController {
                                                                        @RequestParam String rpid,
                                                                        @RequestParam String content) {
         // Return the token to the frontend
-        if (Authorization == null || Authorization.length() == 0) {
-            return CommonResponse.creatForError("Authorization is required.");
+        if (StpUtil.isLogin()) {
+            // 根据uid获取用户信息
+            String uid = StpUtil.getLoginIdAsString();
+            List<ReserveProductComment> reserveProductComments = reserveProductCommentService.PostReserveProductComment(uid, rpid, content);
+            return CommonResponse.creatForSuccess(reserveProductComments);
         } else {
-            // 提取uid
-            String uid = JwtUtil.extractUid(Authorization);
-            if (uid != null) {
-                // 根据uid获取用户信息
-                List<ReserveProductComment> reserveProductComments = reserveProductCommentService.PostReserveProductComment(uid, rpid, content);
-                return CommonResponse.creatForSuccess(reserveProductComments);
-            } else {
-                // 令牌无效或解码错误
-                return CommonResponse.creatForError("Authorization is invalid.");
-            }
+            // 令牌无效或解码错误
+            return CommonResponse.creatForError("Authorization is invalid.");
         }
+
     }
 
 

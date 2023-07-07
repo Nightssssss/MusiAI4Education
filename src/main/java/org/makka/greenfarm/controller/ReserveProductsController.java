@@ -1,10 +1,8 @@
 package org.makka.greenfarm.controller;
 
 import org.makka.greenfarm.common.CommonResponse;
-import org.makka.greenfarm.domain.Farm;
 import org.makka.greenfarm.domain.ReserveProduct;
 import org.makka.greenfarm.service.ReserveProductService;
-import org.makka.greenfarm.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

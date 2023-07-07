@@ -15,7 +15,6 @@ import java.util.List;
 
 @Service
 public class ReserveProductCommentServiceImpl extends ServiceImpl<ReserveProductCommentMapper, ReserveProductComment> implements ReserveProductCommentService {
-
     @Autowired
     private ReserveProductCommentMapper reserveProductCommentMapper;
     @Override
