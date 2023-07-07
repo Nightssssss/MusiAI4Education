@@ -16,9 +16,7 @@ public class ReserveProductCommentController {
     private ReserveProductCommentService reserveProductCommentService;
 
     @PostMapping("/reserve/comments")
-    public CommonResponse<List<ReserveProductComment>> postReserveProductComment(@RequestHeader String Authorization,
-                                                                       @RequestParam String rpid,
-                                                                       @RequestParam String content) {
+    public CommonResponse<List<ReserveProductComment>> postReserveProductComment(@RequestParam String rpid,@RequestParam String content) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
             // 根据uid获取用户信息
@@ -29,8 +27,5 @@ public class ReserveProductCommentController {
             // 令牌无效或解码错误
             return CommonResponse.creatForError("Authorization is invalid.");
         }
-
     }
-
-
 }
