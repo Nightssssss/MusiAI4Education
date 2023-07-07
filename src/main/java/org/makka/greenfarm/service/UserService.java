@@ -18,4 +18,10 @@ public interface UserService extends IService<User> {
     public CommonResponse<String> register(User user);
 
     public String getUidByUsername(String username);
+
+    public boolean updateAvatar(String uid, HttpServletRequest request, MultipartFile file);
+
+    public boolean updateUserInfo(User user);
+
+    public User getUserInfo(String uid);
 }

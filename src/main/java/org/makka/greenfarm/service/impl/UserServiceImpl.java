@@ -57,6 +57,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 生成不重复的uid
             String uid = String.valueOf(System.currentTimeMillis());
             user.setUid(uid);
+            user.setAvatar("http://localhost:8080/images/user/avatar/default.png");
             // 不存在则插入
             userMapper.insert(user);
             return CommonResponse.creatForSuccess("注册成功");
@@ -68,5 +69,40 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         wrapper.eq("username", username);
         User user = userMapper.selectOne(wrapper);
         return user.getUid();
+    }
+
+    public boolean updateAvatar(String uid, HttpServletRequest request, MultipartFile file) {
+        String avatar = UploadAction.uploadAvatar(request, file) + "";
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid", uid);
+        User user = userMapper.selectOne(wrapper);
+        user.setAvatar(avatar);
+        int result = userMapper.updateById(user);
+        if (result == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean updateUserInfo(User user) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid", user.getUid());
+        User user1 = userMapper.selectOne(wrapper);
+        user.setUsername(user1.getUsername());
+        user.setPassword(user1.getAvatar());
+        user.setAvatar(user1.getAvatar());
+        int result = userMapper.updateById(user);
+        if (result == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public User getUserInfo(String uid) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid", uid);
+        return userMapper.selectOne(wrapper);
     }
 }

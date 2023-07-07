@@ -8,7 +8,7 @@ import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import java.util.Date;
 
 @Data
-@TableName(value = "order")
+@TableName(value = "orders")
 public class Order {
         private String oid;     // 订单id
 

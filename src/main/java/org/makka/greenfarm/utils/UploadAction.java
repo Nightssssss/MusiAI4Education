@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class UploadAction {
-    public static Object uploadHandler(HttpServletRequest request, MultipartFile file) {
+    public static Object uploadAvatar(HttpServletRequest request, MultipartFile file) {
         Map<String, Object> resultMap = new LinkedHashMap<>();
         resultMap.put("fileName", file.getName()); // ⽂件名
         resultMap.put("originalFilename",
@@ -26,13 +26,12 @@ public class UploadAction {
             String serverPath = request.getScheme() +
                     "://" + request.getServerName()
                     + ":" + request.getServerPort() +
-                    request.getContextPath() + "/file/upload/";
-//            String fileName = UUID.randomUUID() + "." + etc;
-            String fileName = file.getOriginalFilename();
+                    request.getContextPath() + "/images/avatar/";
+            String fileName = UUID.randomUUID() + "." + etc;
             resultMap.put("filePath", serverPath + fileName); // ⽂件地址(服务器访问地址)
             System.out.println("filePath: " + resultMap.get("filePath"));
 // ⽂件保存再真实路径下
-            File saveFile = new File(request.getServletContext().getRealPath("/file/upload/") + fileName);
+            File saveFile = new File(request.getServletContext().getRealPath("/images/avatar") + fileName);
             if (!saveFile.getParentFile().exists()) { // ⽬录不存在，创建⽬录
                 saveFile.mkdirs();
             }
