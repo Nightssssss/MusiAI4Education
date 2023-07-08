@@ -2,6 +2,7 @@ package org.makka.greenfarm.controller;
 
 
 import cn.dev33.satoken.stp.StpUtil;
+import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.Order;
 import org.makka.greenfarm.service.OrderService;
 import org.makka.greenfarm.service.PayService;
@@ -31,11 +32,14 @@ public class PayController {
 
     // 处理支付宝回调URL的方法
     @RequestMapping("/return")
-    public String handleReturn() {
+    public CommonResponse<List<Order>> handleReturn(@RequestParam("orderId") String oid) {
+        System.out.println(oid);
 
+        // 更新数据库中的订单状态
+        List<Order> orderList = orderService.updateOrdersStatusByOrderId(oid);
+        return CommonResponse.creatForSuccess(orderList);
         // 更新订单状态
         // 处理支付宝回调的业务逻辑
-        return "this is greenfarm, welcome";
     }
 
     // 处理支付宝异步通知URL的方法

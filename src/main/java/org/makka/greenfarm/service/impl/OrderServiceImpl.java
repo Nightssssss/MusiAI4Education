@@ -123,4 +123,18 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         wrapper.eq("oid", oid);
         return orderMapper.selectList(wrapper);
     }
+
+    @Override
+    public List<Order> updateOrdersStatusByOrderId(String oid) {
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.eq("oid", oid);
+        List<Order> orderList = orderMapper.selectList(wrapper);
+        System.out.println(orderList);
+        for(Order order:orderList){
+            order.setStatus(1);
+            //这里无法更新
+            orderMapper.updateById(order);
+        }
+        return orderMapper.selectList(wrapper);
+    }
 }

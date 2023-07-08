@@ -44,23 +44,15 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, Pay> implements PaySe
 
         //设置请求参数
         AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
-        alipayRequest.setReturnUrl(AlipayConfig.return_url);
-        alipayRequest.setNotifyUrl(AlipayConfig.notify_url);
+        alipayRequest.setReturnUrl(AlipayConfig.return_url + "?orderId=" + orderId);
+        alipayRequest.setNotifyUrl(AlipayConfig.notify_url + "?orderId=" + orderId);
 
         //商户订单号，商户网站订单系统中唯一订单号，必填
-//        String out_trade_no = Arrays.toString(orderId.getBytes(StandardCharsets.UTF_8));
-//        //付款金额，必填
-//        String total_amount = Arrays.toString(Double.toString(totalPrice).getBytes(StandardCharsets.UTF_8));
-//        //订单名称，必填
-//        String subject = new String(("this is order").getBytes(StandardCharsets.UTF_8));
-//        //商品描述，可空
-//        String body = new String(("444").getBytes(StandardCharsets.UTF_8));
-
-        String out_trade_no = new String(("666").getBytes("ISO-8859-1"),"UTF-8");
+        String out_trade_no = new String((orderId).getBytes("ISO-8859-1"),"UTF-8");
         //付款金额，必填
-        String total_amount = new String(("222").getBytes("ISO-8859-1"),"UTF-8");
+        String total_amount = new String((Double.toString(totalPrice)).getBytes("ISO-8859-1"),"UTF-8");
         //订单名称，必填
-        String subject = new String(("333").getBytes("ISO-8859-1"),"UTF-8");
+        String subject = new String(("this is order").getBytes("ISO-8859-1"),"UTF-8");
         //商品描述，可空
         String body = new String(("444").getBytes("ISO-8859-1"),"UTF-8");
 

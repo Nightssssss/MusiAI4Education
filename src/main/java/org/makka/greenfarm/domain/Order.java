@@ -1,5 +1,6 @@
 package org.makka.greenfarm.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -11,6 +12,8 @@ import java.util.Date;
 @Data
 @TableName(value = "orders")
 public class Order {
+
+        @TableId(value = "oid",type = IdType.INPUT)
         private String oid;     // 订单id
 
         private String pid;     // 产品id
