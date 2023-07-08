@@ -112,8 +112,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
 
     @Override
-    public List<Order> researchOrder() {
+    public List<Order> selectOrder() {
         QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        return orderMapper.selectList(wrapper);
+    }
+
+    @Override
+    public List<Order> selectOrdersByOrderId(String oid) {
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.eq("oid", oid);
         return orderMapper.selectList(wrapper);
     }
 }

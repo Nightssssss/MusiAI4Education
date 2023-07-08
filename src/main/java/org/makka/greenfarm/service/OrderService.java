@@ -20,5 +20,8 @@ public interface OrderService extends IService<Order> {
     public SaleProduct searchSaleProductUnitPriceById(String spid);
 
     //查询所有订单
-    public List<Order> researchOrder();
+    public List<Order> selectOrder();
+
+    //查询同一个订单
+    public List<Order> selectOrdersByOrderId(String oid);
 }

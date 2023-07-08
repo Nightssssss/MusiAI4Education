@@ -52,7 +52,7 @@ public class OrderController {
     public CommonResponse<List<Order>> searchOrder() {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
-            List<Order> orderList = orderService.researchOrder();
+            List<Order> orderList = orderService.selectOrder();
             return CommonResponse.creatForSuccess(orderList);
         } else {
             // 令牌无效或解码错误
