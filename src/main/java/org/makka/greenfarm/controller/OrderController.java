@@ -21,6 +21,7 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    //新增订单
     @PostMapping("")
     public CommonResponse<List<Order>> initOrder(@RequestBody Map<String,Object> map) {
         // Return the token to the frontend
@@ -45,4 +46,18 @@ public class OrderController {
             return CommonResponse.creatForError("请先登录");
         }
     }
+
+    //查询所有订单
+    @GetMapping("")
+    public CommonResponse<List<Order>> searchOrder() {
+        // Return the token to the frontend
+        if (StpUtil.isLogin()) {
+            List<Order> orderList = orderService.selectOrder();
+            return CommonResponse.creatForSuccess(orderList);
+        } else {
+            // 令牌无效或解码错误
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
 }

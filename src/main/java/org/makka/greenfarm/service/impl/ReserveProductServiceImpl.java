@@ -29,10 +29,8 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
     public ReserveProduct getReserveProductDetail(String productId) {
         //获取可种植农产品详细信息
         ReserveProduct reserveProduct = reserveProductMapper.selectById(productId);
-        System.out.println("the reserve porduct is"+reserveProduct);
         //设置评论
         reserveProduct.setReserveProductCommentList(getReserveProductComment(productId));
-        System.out.println("the reserve porduct is"+reserveProduct);
         return reserveProduct;
     }
 
