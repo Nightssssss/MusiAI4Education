@@ -19,7 +19,7 @@ public class SaleProductFavoriteController {
     private SaleProductFavoriteService saleProductFavoriteService;
 
     @PostMapping("/sale/favorites")
-    public CommonResponse<List<SaleProductFavorite>> postSaleProductFavorite(@RequestParam String spid) {
+    public CommonResponse<List<SaleProductFavorite>> addSaleProductFavorite(@RequestParam String spid) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
             String uid = StpUtil.getLoginIdAsString();
