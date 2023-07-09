@@ -14,4 +14,10 @@ public interface ForumService extends IService<Forum> {
 
     public boolean addForum(String uid, String title, String content,
                             MultipartFile image, HttpServletRequest request);
+
+    public List<Forum> getForumByUid(String uid);
+
+    public boolean updateForum(String forumId, String title, String content, MultipartFile image, HttpServletRequest request);
+
+    public boolean deleteForum(String forumId);
 }

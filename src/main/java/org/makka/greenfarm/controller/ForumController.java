@@ -35,12 +35,56 @@ public class ForumController {
 
     @PostMapping("")
     public CommonResponse<List<Forum>> postForum(@RequestParam String title, @RequestParam String content,
-                                                 HttpServletRequest request, @RequestParam MultipartFile file){
+                                                 HttpServletRequest request, @RequestParam MultipartFile image){
         if(StpUtil.isLogin()){
             String uid = StpUtil.getLoginIdAsString();
-            if(forumService.addForum(uid, title, content, file, request)){
+            if(forumService.addForum(uid, title, content, image, request)){
                 // 成功返回所有帖子
                 return CommonResponse.creatForSuccess(forumService.getForumList());
+            }else{
+                return CommonResponse.creatForError("fail");
+            }
+        } else{
+            return CommonResponse.creatForError("请先登录！");
+        }
+    }
+
+    @GetMapping("/mime")
+    // 获取当前用户的所有帖子
+    public CommonResponse<List<Forum>> getForumListByUid(){
+        if(StpUtil.isLogin()){
+            String uid = StpUtil.getLoginIdAsString();
+            return CommonResponse.creatForSuccess(forumService.getForumByUid(uid));
+        } else{
+            return CommonResponse.creatForError("请先登录！");
+        }
+    }
+
+    @PutMapping("/{forumId}")
+    // 修改帖子
+    public CommonResponse<List<Forum>> updateForum(@PathVariable String forumId, @RequestParam String title, @RequestParam String content,
+                                                   HttpServletRequest request, @RequestParam MultipartFile image){
+        if(StpUtil.isLogin()){
+            String uid = StpUtil.getLoginIdAsString();
+            if(forumService.updateForum(forumId, title, content, image, request)){
+                // 成功返回所有帖子
+                return CommonResponse.creatForSuccess(forumService.getForumByUid(uid));
+            }else{
+                return CommonResponse.creatForError("fail");
+            }
+        } else{
+            return CommonResponse.creatForError("请先登录！");
+        }
+    }
+
+    @DeleteMapping("/{forumId}")
+    // 删除帖子
+    public CommonResponse<List<Forum>> deleteForum(@PathVariable String forumId){
+        if(StpUtil.isLogin()){
+            String uid = StpUtil.getLoginIdAsString();
+            if(forumService.deleteForum(forumId)){
+                // 成功返回所有帖子
+                return CommonResponse.creatForSuccess(forumService.getForumByUid(uid));
             }else{
                 return CommonResponse.creatForError("fail");
             }

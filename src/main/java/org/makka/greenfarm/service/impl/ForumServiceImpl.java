@@ -47,4 +47,32 @@ public class ForumServiceImpl extends ServiceImpl<ForumMapper, Forum> implements
         //返回是否成功
         return result == 1;
     }
+
+    public List<Forum> getForumByUid(String uid){
+        QueryWrapper<Forum> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid", uid);
+        List<Forum> forumList = forumMapper.selectList(wrapper);
+        return forumList;
+    }
+
+    public boolean updateForum(String forumId,String title, String content, MultipartFile image, HttpServletRequest request){
+        //获取标题图的url
+        String imageUrl = UploadAction.uploadForumImage(request,image) + "";
+        Forum forum = new Forum();
+        //设置帖子的各个属性
+        forum.setFid(forumId);
+        forum.setTitle(title);
+        forum.setContent(content);
+        forum.setPicture(imageUrl);
+        forum.setPostTime(LocalDateTime.now());
+        QueryWrapper<Forum> wrapper = new QueryWrapper<>();
+        int result = forumMapper.update(forum, wrapper.eq("fid", forumId));
+        return result == 1;
+    }
+
+    public boolean deleteForum(String forumId){
+        QueryWrapper<Forum> wrapper = new QueryWrapper<>();
+        int result = forumMapper.delete(wrapper.eq("fid", forumId));
+        return result == 1;
+    }
 }
