@@ -19,6 +19,10 @@ public class AddressList {
 
     private String detail;     //详细地址
 
+    private String longitude;       //经度
+
+    private String latitude;        //纬度
+
     private String phone;       //联系电话
 
     private String name;        //收货人姓名
