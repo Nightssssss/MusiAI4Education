@@ -16,8 +16,10 @@ public class ProgressServiceImpl extends ServiceImpl<ProgressMapper, Progress> i
     private ProgressMapper progressMapper;
 
     public List<Progress> getProgressList(String uid) {
-        QueryWrapper<Progress> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("uid", uid);
-        return progressMapper.selectList(queryWrapper);
+        return progressMapper.getProgressList(uid);
+    }
+
+    public Progress getProgressByPid(String pid) {
+        return progressMapper.getProgress(pid);
     }
 }

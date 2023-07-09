@@ -37,4 +37,15 @@ public class Progress {
     private String rpid;    //种植产品ID
 
     private int area;   //种植面积
+
+    private String uid;     //用户ID
+
+    @TableField(exist = false)
+    private String name;    //商品名称
+
+    @TableField(exist = false)
+    private String picture;     //商品图片
+
+    @TableField(exist = false)
+    private String fid;     //农场ID
 }
