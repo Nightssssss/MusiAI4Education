@@ -1,11 +1,14 @@
 package org.makka.greenfarm.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.Forum;
 import org.makka.greenfarm.service.ForumService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -30,5 +33,19 @@ public class ForumController {
         }
     }
 
-//    @PostMapping
+    @PostMapping("")
+    public CommonResponse<List<Forum>> postForum(@RequestParam String title, @RequestParam String content,
+                                                 HttpServletRequest request, @RequestParam MultipartFile file){
+        if(StpUtil.isLogin()){
+            String uid = StpUtil.getLoginIdAsString();
+            if(forumService.addForum(uid, title, content, file, request)){
+                // 成功返回所有帖子
+                return CommonResponse.creatForSuccess(forumService.getForumList());
+            }else{
+                return CommonResponse.creatForError("fail");
+            }
+        } else{
+            return CommonResponse.creatForError("请先登录！");
+        }
+    }
 }
