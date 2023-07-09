@@ -19,8 +19,6 @@ public class Farm {
 
     private String name;    //农场名称
 
-    private  String address;    //农场地址
-
     private Double score;     //农场评分
 
     private int tot_area;       //农场总面积
@@ -38,6 +36,16 @@ public class Farm {
     private Blob video;     //农场视频
 
     private String description;        //农场描述
+
+    private String province;     //省份
+
+    private String city;     //城市
+
+    private String detail;     //详细地址
+
+    private String longitude;       //经度
+
+    private String latitude;        //纬度
 
     @TableField(value = "createDate")
     private Date createDate;       //创建时间
