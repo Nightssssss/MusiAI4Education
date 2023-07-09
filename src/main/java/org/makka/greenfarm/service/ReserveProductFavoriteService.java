@@ -12,6 +12,6 @@ public interface ReserveProductFavoriteService extends IService<ReserveProductFa
     public List<ReserveProductFavorite> ReserveProductFavorite(String uid, String rpid);
     //取消收藏
     public List<ReserveProductFavorite> cancelReserveProductFavorite(String uid, String rpid);
-
+    //获得收藏
     public List<ReserveProductFavorite> getReserveFavoriteList(String uid);
 }

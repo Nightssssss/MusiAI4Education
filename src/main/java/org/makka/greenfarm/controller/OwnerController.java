@@ -24,7 +24,7 @@ public class OwnerController {
         if (ownerService.validation(username, password)) {
             String oid = ownerService.getOidByOwnername(username);
             StpUtil.login(oid);
-            return CommonResponse.creatForSuccess("success");
+            return CommonResponse.creatForSuccess("农场主登陆成功!");
         } else {
             return CommonResponse.creatForError("用户名或密码错误");
         }

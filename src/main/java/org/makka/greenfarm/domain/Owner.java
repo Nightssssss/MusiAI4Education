@@ -12,8 +12,6 @@ public class Owner {
 
     private String name;        //农场主姓名
 
-    private String address;     //农场主地址
-
     private String phone;       //农场主电话
 
     private int experience;     //农场主经验

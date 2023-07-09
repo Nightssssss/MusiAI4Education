@@ -18,7 +18,7 @@ public class ReserveProductFavoriteController {
     private ReserveProductFavoriteService reserveProductFavoriteService;
 
     @PostMapping("/reserve/favorites")
-    public CommonResponse<List<ReserveProductFavorite>> postReserveProductFavorite(@RequestParam String rpid) {
+    public CommonResponse<List<ReserveProductFavorite>> addReserveProductFavorite(@RequestParam String rpid) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
             String uid = StpUtil.getLoginIdAsString();
