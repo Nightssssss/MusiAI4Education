@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/farms")
+@RequestMapping("/api/farms/favorites")
 public class FarmFavoriteController {
 
     @Autowired
     private FarmFavoriteService farmFavoriteService;
 
-    @PostMapping("/favorites")
+    @PostMapping("")
     public CommonResponse<List<FarmFavorite>> addFarmFavorite(@RequestParam String fid) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
@@ -35,7 +35,7 @@ public class FarmFavoriteController {
         }
     }
 
-    @DeleteMapping("/favorites")
+    @DeleteMapping("")
     public CommonResponse<List<FarmFavorite>> cancelFarmFavorite(@RequestParam String fid) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
@@ -53,7 +53,7 @@ public class FarmFavoriteController {
         }
     }
 
-    @GetMapping("/favorites")
+    @GetMapping("")
     public CommonResponse<List<FarmFavorite>> getFarmFavorite() {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
