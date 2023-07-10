@@ -61,7 +61,12 @@ public class ReserveProductsController {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
             String uid = StpUtil.getLoginIdAsString();
-            return CommonResponse.creatForSuccess(reserveProductService.getReserveProductRecommendList(uid));
+            List<ReserveProduct> reserveProductRecommendList = reserveProductService.getReserveProductRecommendList(uid);
+            if (reserveProductRecommendList.size()!=0){
+                return CommonResponse.creatForSuccess(reserveProductRecommendList);
+            }else{
+                return CommonResponse.creatForSuccess(reserveProductService.getReserveProductTop3List());
+            }
         } else {
             // 获取销量前三的农产品
             return CommonResponse.creatForSuccess(reserveProductService.getReserveProductTop3List());

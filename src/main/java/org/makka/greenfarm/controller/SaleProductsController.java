@@ -60,7 +60,12 @@ public class SaleProductsController {
     public CommonResponse<List<SaleProduct>> getSaleProductFavoriteRecommend() {
         if (StpUtil.isLogin()) {
             String uid = StpUtil.getLoginIdAsString();
-            return CommonResponse.creatForSuccess(saleProductService.getSaleProductRecommendList(uid));
+            List<SaleProduct> saleProductRecommendList = saleProductService.getSaleProductRecommendList(uid);
+            if (saleProductRecommendList.size()!=0){
+                return CommonResponse.creatForSuccess(saleProductRecommendList);
+            }else{
+                return CommonResponse.creatForSuccess(saleProductService.getSaleProductTop3List());
+            }
         } else {
             return CommonResponse.creatForSuccess(saleProductService.getSaleProductTop3List());
         }
