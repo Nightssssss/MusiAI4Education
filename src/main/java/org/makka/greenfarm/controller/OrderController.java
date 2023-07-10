@@ -53,6 +53,32 @@ public class OrderController {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
             List<Order> orderList = orderService.selectOrder();
+            System.out.println(orderList);
+            System.out.println(orderService.selectOrder());
+            return CommonResponse.creatForSuccess(orderList);
+        } else {
+            // 令牌无效或解码错误
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @PutMapping("/reserve")
+    public CommonResponse<List<Order>> updateReserveOrderStatus(@RequestParam String oid) {
+        // Return the token to the frontend
+        if (StpUtil.isLogin()) {
+            List<Order>orderList = orderService.updateReserveOrdersStatusByOrderId(oid);
+            return CommonResponse.creatForSuccess(orderList);
+        } else {
+            // 令牌无效或解码错误
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @PutMapping("/sale")
+    public CommonResponse<List<Order>> updateSaleOrderStatus(@RequestParam String oid) {
+        // Return the token to the frontend
+        if (StpUtil.isLogin()) {
+            List<Order>orderList = orderService.updateSaleOrdersStatusByOrderId(oid);
             return CommonResponse.creatForSuccess(orderList);
         } else {
             // 令牌无效或解码错误
