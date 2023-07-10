@@ -34,12 +34,9 @@ public class PayController {
     @RequestMapping("/return")
     public CommonResponse<List<Order>> handleReturn(@RequestParam("orderId") String oid) {
         System.out.println(oid);
-
         // 更新数据库中的订单状态
-        List<Order> orderList = orderService.updateOrdersStatusByOrderId(oid);
+        List<Order> orderList = orderService.updatePayOrdersStatusByOrderId(oid);
         return CommonResponse.creatForSuccess(orderList);
-        // 更新订单状态
-        // 处理支付宝回调的业务逻辑
     }
 
     // 处理支付宝异步通知URL的方法

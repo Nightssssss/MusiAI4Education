@@ -13,7 +13,6 @@ import java.util.Date;
 @TableName(value = "orders")
 public class Order {
 
-        @TableId(value = "oid",type = IdType.INPUT)
         private String oid;     // 订单id
 
         private String pid;     // 产品id
@@ -31,5 +30,5 @@ public class Order {
 
         private int type;       // 类型
 
-        private int status;     // 状态
+        private String status;     // 状态
 }

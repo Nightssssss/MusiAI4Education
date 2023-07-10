@@ -7,7 +7,6 @@ import org.makka.greenfarm.domain.*;
 import org.makka.greenfarm.mapper.OrderMapper;
 import org.makka.greenfarm.mapper.ReserveProductMapper;
 import org.makka.greenfarm.mapper.SaleProductMapper;
-import org.makka.greenfarm.mapper.UserMapper;
 import org.makka.greenfarm.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,64 +20,43 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     @Autowired
     private ReserveProductMapper reserveProductMapper;
-
     @Autowired
     private SaleProductMapper saleProductMapper;
-
     @Autowired
     private OrderMapper orderMapper;
 
     @Override
     public List<Order> initOrder(List<Product> productList, String aid) {
-
         List<Order> orderList = new ArrayList<Order>(productList.size());
-
         String oid = String.valueOf(System.currentTimeMillis());
-
         for (Product product : productList) {
-
             if (product.getType() == 0) {
-
                 Order order = new Order();
                 String uid = StpUtil.getLoginIdAsString();
                 order.setUid(uid);
                 order.setAid(aid);
                 order.setOid(oid);
-
                 Date orderDate = new Date();
                 order.setOrderDate(orderDate);
-                order.setStatus(0);
-
+                order.setStatus("未支付");
                 // 4.1 如果是在售农产品，获取对应的产品信息，存入在售农产品列表
                 String pid = product.getProductId();
                 order.setPid(pid);
-
                 SaleProduct saleProduct = searchSaleProductUnitPriceById(product.getProductId());
                 order.setUniprice(saleProduct.getUniprice());
-
                 order.setQuantity(product.getQuantity());
                 order.setType(product.getType());
-
-                System.out.println(order);
-
                 orderMapper.insert(order);
-
                 orderList.add(order);
-
             } else {
-
                 Order order = new Order();
-
                 String uid = StpUtil.getLoginIdAsString();
-
                 order.setUid(uid);
                 order.setAid(aid);
                 order.setOid(oid);
-
                 Date orderDate = new Date();
                 order.setOrderDate(orderDate);
-                order.setStatus(0);
-
+                order.setStatus("未支付");
                 // 4.2 如果是可种植农产品，获取对应的产品信息，存入可种植农产品列表
                 String pid = product.getProductId();
                 order.setPid(pid);
@@ -86,11 +64,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 order.setType(product.getType());
                 ReserveProduct reserveProduct = searchReserveProductUnitPriceById(product.getProductId());
                 order.setUniprice(reserveProduct.getUniprice());
-
-                System.out.println(order);
-
                 baseMapper.insert(order);
-
                 orderList.add(order);
             }
         }
@@ -125,16 +99,63 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
 
     @Override
-    public List<Order> updateOrdersStatusByOrderId(String oid) {
+    public List<Order> updatePayOrdersStatusByOrderId(String oid) {
         QueryWrapper<Order> wrapper = new QueryWrapper<>();
         wrapper.eq("oid", oid);
         List<Order> orderList = orderMapper.selectList(wrapper);
         System.out.println(orderList);
         for(Order order:orderList){
-            order.setStatus(1);
-            //这里无法更新
-            orderMapper.updateById(order);
+            QueryWrapper<Order> wrapper1 = new QueryWrapper<>();
+            order.setStatus("已支付");
+            wrapper1.eq("oid", oid);
+            wrapper1.eq("pid", order.getPid());
+            orderMapper.update(order,wrapper1);
         }
-        return orderMapper.selectList(wrapper);
+        QueryWrapper<Order> wrapper2 = new QueryWrapper<>();
+        wrapper2.eq("oid", oid);
+        System.out.println(orderMapper.selectList(wrapper2));
+        return orderMapper.selectList(wrapper2);
     }
+
+    @Override
+    public List<Order> updateReserveOrdersStatusByOrderId(String oid) {
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.eq("oid", oid);
+        List<Order> orderList = orderMapper.selectList(wrapper);
+        for(Order order:orderList){
+            if(order.getType()==1){
+            QueryWrapper<Order> wrapper1 = new QueryWrapper<>();
+            order.setStatus("种植中");
+            wrapper1.eq("oid", oid);
+            wrapper1.eq("pid", order.getPid());
+            orderMapper.update(order,wrapper1);
+            }
+        }
+        QueryWrapper<Order> wrapper2 = new QueryWrapper<>();
+        wrapper2.eq("oid", oid);
+        System.out.println(orderMapper.selectList(wrapper2));
+        return orderMapper.selectList(wrapper2);
+    }
+
+    @Override
+    public List<Order> updateSaleOrdersStatusByOrderId(String oid) {
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.eq("oid", oid);
+        List<Order> orderList = orderMapper.selectList(wrapper);
+        for(Order order:orderList){
+            if(order.getType()==0){
+                QueryWrapper<Order> wrapper1 = new QueryWrapper<>();
+                order.setStatus("配送中");
+                wrapper1.eq("oid", oid);
+                wrapper1.eq("pid", order.getPid());
+                orderMapper.update(order,wrapper1);
+            }
+        }
+        QueryWrapper<Order> wrapper2 = new QueryWrapper<>();
+        wrapper2.eq("oid", oid);
+        System.out.println(orderMapper.selectList(wrapper2));
+        return orderMapper.selectList(wrapper2);
+    }
+
+
 }

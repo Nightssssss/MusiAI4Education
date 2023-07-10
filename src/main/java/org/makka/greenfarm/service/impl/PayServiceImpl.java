@@ -37,7 +37,6 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, Pay> implements PaySe
 
         //获取订单ID
         String orderId = orderList.get(0).getOid();
-        System.out.println(orderId);
 
         //获得初始化的AlipayClient
         AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.gatewayUrl, AlipayConfig.APP_ID, AlipayConfig.APP_PRIVATE_KEY, "json", AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.sign_type);
@@ -68,9 +67,6 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, Pay> implements PaySe
         } catch (AlipayApiException e) {
             e.printStackTrace();
         }
-        //输出
-
-        System.out.println(result);
         return result;
     }
 }
