@@ -5,8 +5,10 @@ import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.makka.greenfarm.common.CommonResponse;
+import org.makka.greenfarm.domain.AddressList;
 import org.makka.greenfarm.domain.Order;
 import org.makka.greenfarm.domain.Product;
+import org.makka.greenfarm.service.AddressListService;
 import org.makka.greenfarm.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,8 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private AddressListService addressListService;
 
     //新增订单
     @PostMapping("")
@@ -34,8 +38,9 @@ public class OrderController {
             try {
                 List<Product> productList = objectMapper.readValue(json, new TypeReference<List<Product>>() {});
                 String aid = (String) map.get("aid");
-                List<Order> OrderList = orderService.initOrder(productList,aid);
-                System.out.println(OrderList);
+                AddressList addressList = addressListService.getAddressByAid(aid);
+                System.out.println(addressList);
+                List<Order> OrderList = orderService.initOrder(productList,addressList);
                 return CommonResponse.creatForSuccess(OrderList);
             }catch(Exception e){
                 e.printStackTrace();

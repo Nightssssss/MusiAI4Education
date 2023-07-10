@@ -30,8 +30,6 @@ public class ReserveProduct {
 
     private String picture;
 
-    private int sales;
-
     @TableField(exist = false)
     private List<ReserveProductComment> reserveProductCommentList;      //评论列表
 

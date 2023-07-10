@@ -8,6 +8,7 @@ import lombok.Data;
 import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @TableName(value = "orders")
@@ -31,4 +32,7 @@ public class Order {
         private int type;       // 类型
 
         private String status;     // 状态
+
+        @TableField(exist = false)
+        private AddressList addressList;      //地址列表
 }
