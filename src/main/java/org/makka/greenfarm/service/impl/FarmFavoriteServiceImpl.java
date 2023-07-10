@@ -43,10 +43,9 @@ public class FarmFavoriteServiceImpl extends ServiceImpl<FarmFavoriteMapper, Far
     }
 
     @Override
-    public List<FarmFavorite> cancelFarmFavorite(String uid, String fid) {
+    public List<FarmFavorite> cancelFarmFavorite(String uid, String ffid) {
         QueryWrapper<FarmFavorite> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("fid", fid);
-        queryWrapper.eq("uid", uid);
+        queryWrapper.eq("ffid", ffid);
         farmFavoriteMapper.delete(queryWrapper);
         //获取该用户的所有收藏
         return farmFavoriteMapper.getFarmFavoriteList(uid);

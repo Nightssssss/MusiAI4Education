@@ -36,11 +36,11 @@ public class FarmFavoriteController {
     }
 
     @DeleteMapping("/favorites")
-    public CommonResponse<List<FarmFavorite>> cancelFarmFavorite(@RequestParam String fid) {
+    public CommonResponse<List<FarmFavorite>> cancelFarmFavorite(@RequestParam String ffid) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
             String uid = StpUtil.getLoginIdAsString();
-            List<FarmFavorite> farmFavorites = farmFavoriteService.cancelFarmFavorite(uid, fid);
+            List<FarmFavorite> farmFavorites = farmFavoriteService.cancelFarmFavorite(uid, ffid);
             //如果返回为空，则代表用户已经没有收藏了
             if(farmFavorites.size()==0){
                 return CommonResponse.creatForError("收藏列表已清空！");
@@ -58,7 +58,6 @@ public class FarmFavoriteController {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
             String uid = StpUtil.getLoginIdAsString();
-            System.out.println(uid);
             List<FarmFavorite> farmFavorites = farmFavoriteService.getFarmFavoriteList(uid);
             return CommonResponse.creatForSuccess(farmFavorites);
         } else {

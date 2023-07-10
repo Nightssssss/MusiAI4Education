@@ -10,7 +10,7 @@ public interface FarmFavoriteService extends IService<FarmFavorite> {
     //添加收藏
     public List<FarmFavorite> addFarmFavorite(String uid, String fid);
     //取消收藏
-    public List<FarmFavorite> cancelFarmFavorite(String uid, String fid);
+    public List<FarmFavorite> cancelFarmFavorite(String uid, String ffid);
     //获得收藏
     public List<FarmFavorite> getFarmFavoriteList(String uid);
 
