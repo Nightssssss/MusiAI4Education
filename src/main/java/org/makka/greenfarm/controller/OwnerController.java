@@ -58,7 +58,7 @@ public class OwnerController {
     }
 
     @GetMapping("/details")
-    public CommonResponse<Owner> getUserInfo() {
+    public CommonResponse<Owner> getOwnerInfo() {
         if (StpUtil.isLogin()) {
             String oid = StpUtil.getLoginIdAsString();
             return CommonResponse.creatForSuccess(ownerService.getOwnerInfo(oid));
@@ -68,7 +68,7 @@ public class OwnerController {
     }
 
     @PostMapping("/details")
-    public CommonResponse<Owner> updateUserInfo(@RequestBody Owner owner) {
+    public CommonResponse<Owner> updateOwnerInfo(@RequestBody Owner owner) {
         if (StpUtil.isLogin()) {
             String oid = StpUtil.getLoginIdAsString();
             owner.setOid(oid);
