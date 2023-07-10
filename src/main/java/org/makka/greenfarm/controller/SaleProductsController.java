@@ -5,10 +5,8 @@ import org.makka.greenfarm.domain.ReserveProduct;
 import org.makka.greenfarm.domain.SaleProduct;
 import org.makka.greenfarm.service.SaleProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -34,5 +32,26 @@ public class SaleProductsController {
         return CommonResponse.creatForSuccess(saleProductService.getSaleProductDetail(productId));
     }
 
+    @PostMapping("/sale")
+    public CommonResponse<List<SaleProduct>> addSaleProduct(@RequestBody SaleProduct saleProduct) {
+        //根据传入的农场编号 获取该农场的 可种植农产品列表
+        saleProductService.addSaleProductsBySaleProduct(saleProduct);
+        List<SaleProduct> saleProductList = saleProductService.getSaleProductsByFarmId(saleProduct.getFid());
+        if (saleProductList.size()!=0){
+            return CommonResponse.creatForSuccess(saleProductList);
+        }else{
+            return CommonResponse.creatForError("该农场在售农产品列表为空！");
+        }
+    }
 
+    @PutMapping("/sale")
+    public CommonResponse<List<SaleProduct>> offShelfSaleProduct(@RequestParam String spid) {
+        //根据传入的农场编号 获取该农场的 可种植农产品列表
+        List<SaleProduct> saleProductList = saleProductService.offShelfSaleProductsByProductId(spid);
+        if (saleProductList.size()!=0){
+            return CommonResponse.creatForSuccess(saleProductList);
+        }else{
+            return CommonResponse.creatForError("该农场在售农产品列表为空！");
+        }
+    }
 }

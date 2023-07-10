@@ -1,5 +1,6 @@
 package org.makka.greenfarm.service;
 
+import com.alipay.api.domain.Sale;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.makka.greenfarm.domain.ReserveProduct;
 import org.makka.greenfarm.domain.SaleProduct;
@@ -12,4 +13,10 @@ public interface SaleProductService extends IService<SaleProduct> {
     public List<SaleProduct> getSaleProductsByFarmId(String fid);
 
     public SaleProduct getSaleProductDetail(String productId);
+
+    //新增可种植农产品
+    public List<SaleProduct> addSaleProductsBySaleProduct(SaleProduct saleProduct);
+
+    //下架可种植农产品
+    public List<SaleProduct> offShelfSaleProductsByProductId(String spid);
 }
