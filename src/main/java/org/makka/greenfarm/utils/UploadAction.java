@@ -1,75 +1,64 @@
 package org.makka.greenfarm.utils;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class UploadAction {
-    public static Object uploadAvatar(HttpServletRequest request, MultipartFile file) {
-        Map<String, Object> resultMap = new LinkedHashMap<>();
-        resultMap.put("fileName", file.getName()); // ⽂件名
-        resultMap.put("originalFilename",
-                file.getOriginalFilename()); // 原始名称
-        resultMap.put("content-type",
-                file.getContentType()); // ⽂件类型
-        resultMap.put("fileSize", file.getSize() / 1024 +
-                "K"); // ⽂件⼤⼩
-        try {
-// 保存⽂件
-            String etc = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1);
-            String serverPath = request.getScheme() +
-                    "://" + request.getServerName()
-                    + ":" + request.getServerPort() +
-                    request.getContextPath() + "/images/user/avatar/";
-            String fileName = UUID.randomUUID() + "." + etc;
-            resultMap.put("filePath", serverPath + fileName); // ⽂件地址(服务器访问地址)
-            System.out.println("filePath: " + resultMap.get("filePath"));
-// ⽂件保存再真实路径下
-            File saveFile = new File(request.getServletContext().getRealPath("/images/user/avatar/") + fileName);
-            if (!saveFile.getParentFile().exists()) { // ⽬录不存在，创建⽬录
-                saveFile.mkdirs();
-            }
-            file.transferTo(saveFile); // 保存上传⽂件
-        } catch (IOException e) {
-            System.err.println("error-path: /upload/file, message: " + e.getMessage());
+    private static String fileSavePath="/home/lighthouse/images/";
+
+    public static String uploadAvatar(HttpServletRequest request, MultipartFile file) {
+        System.out.println("图片上传，保存位置：" + fileSavePath);
+        //3.给文件重新设置一个名字
+        //后缀
+        String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+        String newFileName= UUID.randomUUID().toString().replaceAll("-", "")+suffix;
+        //4.创建这个新文件
+        File newFile = new File(fileSavePath + "/user/avatar/" + newFileName);
+        if (!newFile.exists()) {
+            newFile.mkdirs();
         }
-        return resultMap.get("filePath");
+        //5.复制操作
+        try {
+            file.transferTo(newFile);
+            //协议 :// ip地址 ：端口号 / 文件目录(/images/2020/03/15/xxx.jpg)
+            String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/images/user/avatar/"  + newFileName;
+            System.out.println("图片上传，访问URL：" + url);
+            return url;
+        } catch (IOException e) {
+            return null;
+        }
     }
 
-    public static Object uploadForumImage(HttpServletRequest request, MultipartFile file) {
-        Map<String, Object> resultMap = new LinkedHashMap<>();
-        resultMap.put("fileName", file.getName()); // ⽂件名
-        resultMap.put("originalFilename",
-                file.getOriginalFilename()); // 原始名称
-        resultMap.put("content-type",
-                file.getContentType()); // ⽂件类型
-        resultMap.put("fileSize", file.getSize() / 1024 +
-                "K"); // ⽂件⼤⼩
-        try {
-// 保存⽂件
-            String etc = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1);
-            String serverPath = request.getScheme() +
-                    "://" + request.getServerName()
-                    + ":" + request.getServerPort() +
-                    request.getContextPath() + "/images/forum/";
-            String fileName = UUID.randomUUID() + "." + etc;
-            resultMap.put("filePath", serverPath + fileName); // ⽂件地址(服务器访问地址)
-            System.out.println("filePath: " + resultMap.get("filePath"));
-// ⽂件保存再真实路径下
-            File saveFile = new File(request.getServletContext().getRealPath("/images/forum/") + fileName);
-            if (!saveFile.getParentFile().exists()) { // ⽬录不存在，创建⽬录
-                saveFile.mkdirs();
-            }
-            file.transferTo(saveFile); // 保存上传⽂件
-        } catch (IOException e) {
-            System.err.println("error-path: /upload/file, message: " + e.getMessage());
+    public static String uploadForumImage(HttpServletRequest request, MultipartFile file) {
+        File dir = new File(fileSavePath);
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
-        return resultMap.get("filePath");
+        System.out.println("图片上传，保存位置：" + fileSavePath);
+        //3.给文件重新设置一个名字
+        //后缀
+        String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+        String newFileName= UUID.randomUUID().toString().replaceAll("-", "")+suffix;
+        //4.创建这个新文件
+        File newFile = new File(fileSavePath + "/forum/" + newFileName);
+        //5.复制操作
+        try {
+            file.transferTo(newFile);
+            //协议 :// ip地址 ：端口号 / 文件目录(/images/2020/03/15/xxx.jpg)
+            String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/images/forum/"  + newFileName;
+            System.out.println("图片上传，访问URL：" + url);
+            return url;
+        } catch (IOException e) {
+            return null;
+        }
     }
 }

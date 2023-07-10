@@ -57,7 +57,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 生成不重复的uid
             String uid = String.valueOf(System.currentTimeMillis());
             user.setUid(uid);
-            user.setAvatar("http://localhost:8080/images/user/avatar/default.png");
+            // 设置默认头像
+            if (user.getGender().equals("male")){
+                user.setAvatar("http://localhost:8080/images/user/avatar/default_male.png");
+            }else if (user.getGender().equals("female")){
+                user.setAvatar("http://localhost:8080/images/user/avatar/default_female.png");
+            }else{
+                user.setAvatar("http://localhost:8080/images/user/avatar/default.png");
+            }
             // 不存在则插入
             userMapper.insert(user);
             return CommonResponse.creatForSuccess("注册成功");
@@ -72,7 +79,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     public boolean updateAvatar(String uid, HttpServletRequest request, MultipartFile file) {
-        String avatar = UploadAction.uploadAvatar(request, file) + "";
+        String avatar = UploadAction.uploadAvatar(request, file);
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("uid", uid);
         User user = userMapper.selectOne(wrapper);
