@@ -58,4 +58,5 @@ public class Farm {
 
     @TableField(exist = false)
     private List<FarmComment> commentList;      //评论列表
+
 }

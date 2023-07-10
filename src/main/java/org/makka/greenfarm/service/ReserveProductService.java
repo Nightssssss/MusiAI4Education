@@ -15,4 +15,10 @@ public interface ReserveProductService extends IService<ReserveProduct> {
 
     public ReserveProduct getReserveProductDetail(String productId);
 
+    //新增可种植农产品
+    public List<ReserveProduct> addReserveProductsByReserveProduct(ReserveProduct reserveProduct);
+
+    //下架可种植农产品
+    public List<ReserveProduct> offShelfReserveProductsByProductId(String rpid);
+
 }

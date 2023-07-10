@@ -34,6 +34,25 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
         return reserveProduct;
     }
 
+
+    //新增可种植农产品
+    @Override
+    public List<ReserveProduct> addReserveProductsByReserveProduct(ReserveProduct reserveProduct) {
+        reserveProductMapper.insert(reserveProduct);
+        return getReserveProductsByFarmId(reserveProduct.getFid());
+    }
+
+    @Override
+    public List<ReserveProduct> offShelfReserveProductsByProductId(String rpid) {
+        QueryWrapper<ReserveProduct> wrapper = new QueryWrapper<>();
+        wrapper.eq("rpid", rpid);
+        ReserveProduct reserveProduct = reserveProductMapper.selectOne(wrapper);
+        reserveProduct.setChoice(0);
+        reserveProductMapper.updateById(reserveProduct);
+        QueryWrapper<ReserveProduct> wrapper1 = new QueryWrapper<>();
+        return reserveProductMapper.selectList(wrapper1);
+    }
+
     public List<ReserveProductComment> getReserveProductComment(String productId) {
         //级联查询评论信息，获取评论人的信息
         List<ReserveProductComment> commentList = reserveProductMapper.getReserveProductComment(productId);

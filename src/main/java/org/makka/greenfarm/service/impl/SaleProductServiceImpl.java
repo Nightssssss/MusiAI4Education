@@ -40,6 +40,23 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
         return saleProduct;
     }
 
+    @Override
+    public List<SaleProduct> addSaleProductsBySaleProduct(SaleProduct saleProduct) {
+        saleProductMapper.insert(saleProduct);
+        return getSaleProductsByFarmId(saleProduct.getFid());
+    }
+
+    @Override
+    public List<SaleProduct> offShelfSaleProductsByProductId(String spid) {
+        QueryWrapper<SaleProduct> wrapper = new QueryWrapper<>();
+        wrapper.eq("spid", spid);
+        SaleProduct saleProduct = saleProductMapper.selectOne(wrapper);
+        saleProduct.setShelves(0);
+        saleProductMapper.updateById(saleProduct);
+        QueryWrapper<SaleProduct> wrapper1 = new QueryWrapper<>();
+        return saleProductMapper.selectList(wrapper1);
+    }
+
     public List<SaleProductComment> getSaleProductComment(String productId) {
         //级联查询评论信息，获取评论人的信息
         List<SaleProductComment> commentList = saleProductMapper.getSaleProductComment(productId);
