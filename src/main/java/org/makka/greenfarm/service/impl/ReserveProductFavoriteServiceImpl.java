@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+
+import static java.lang.Math.sqrt;
 
 @Service
 public class ReserveProductFavoriteServiceImpl extends ServiceImpl<ReserveProductFavoriteMapper, ReserveProductFavorite> implements ReserveProductFavoriteService {
@@ -41,6 +43,7 @@ public class ReserveProductFavoriteServiceImpl extends ServiceImpl<ReserveProduc
             return reserveProductFavoriteMapper.getReserveFavoriteList(uid);
         }
     }
+
     @Override
     public List<ReserveProductFavorite> cancelReserveProductFavorite(String uid, String rpid) {
         //根据spid删除该商品的收藏

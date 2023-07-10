@@ -23,7 +23,8 @@ public class UserController {
         if (userService.validation(username, password)) {
             String uid = userService.getUidByUsername(username);
             StpUtil.login(uid);
-            return CommonResponse.creatForSuccess("success");
+//            return CommonResponse.creatForSuccess("success");
+            return CommonResponse.creatForSuccess(StpUtil.getTokenValue());
         } else {
             return CommonResponse.creatForError("用户名或密码错误");
         }

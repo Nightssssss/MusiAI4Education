@@ -1,5 +1,6 @@
 package org.makka.greenfarm.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.ReserveProduct;
 import org.makka.greenfarm.service.ReserveProductService;
@@ -7,15 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
-@RequestMapping("/api/farms/products")
+@RequestMapping("/api/farms/products/reserve")
 public class ReserveProductsController {
 
     @Autowired
     private ReserveProductService reserveProductService;
 
-    @GetMapping("/reserve/{farmId}")
+    @GetMapping("/{farmId}")
     public CommonResponse<List<ReserveProduct>> login(@PathVariable("farmId") String farmId) {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         List<ReserveProduct> reserveProductList = reserveProductService.getReserveProductsByFarmId(farmId);
@@ -26,12 +28,12 @@ public class ReserveProductsController {
         }
     }
 
-    @GetMapping("/reserve/details/{productId}")
+    @GetMapping("/details/{productId}")
     public CommonResponse<ReserveProduct> getReserveProductDetail(@PathVariable String productId){
         return CommonResponse.creatForSuccess(reserveProductService.getReserveProductDetail(productId));
     }
 
-    @PostMapping("/reserve")
+    @PostMapping("")
     public CommonResponse<List<ReserveProduct>> addReserveProduct(@RequestBody ReserveProduct reserveProduct) {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         reserveProductService.addReserveProductsByReserveProduct(reserveProduct);
@@ -43,7 +45,7 @@ public class ReserveProductsController {
         }
     }
 
-    @PutMapping("/reserve")
+    @PutMapping("")
     public CommonResponse<List<ReserveProduct>> offShelfReserveProduct(@RequestParam String rpid) {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         List<ReserveProduct> reserveProductList = reserveProductService.offShelfReserveProductsByProductId(rpid);
@@ -54,5 +56,16 @@ public class ReserveProductsController {
         }
     }
 
+    @GetMapping("/recommend")
+    public CommonResponse<List<ReserveProduct>> getReserveProductFavoriteRecommend() {
+        // Return the token to the frontend
+        if (StpUtil.isLogin()) {
+            String uid = StpUtil.getLoginIdAsString();
+            return CommonResponse.creatForSuccess(reserveProductService.getReserveProductRecommendList(uid));
+        } else {
+            // 令牌无效或解码错误
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
 
 }

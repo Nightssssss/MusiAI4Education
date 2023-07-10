@@ -38,11 +38,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         wrapper.eq("username", username);
         wrapper.eq("password", password);
         User user = userMapper.selectOne(wrapper);
-        if (user == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return user != null;
     }
 
     //注册
