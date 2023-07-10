@@ -36,7 +36,7 @@ public class FarmFavoriteController {
     }
 
 
-    @DeleteMapping("/favorites")
+    @DeleteMapping("")
     public CommonResponse<List<FarmFavorite>> cancelFarmFavorite(@RequestParam String ffid) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {

@@ -21,7 +21,7 @@ public class FarmFavoriteServiceImpl extends ServiceImpl<FarmFavoriteMapper, Far
 
     @Override
     public List<FarmFavorite> addFarmFavorite(String uid, String fid) {
-        //如果该用户已经为该产品添加收藏，则不可重复收藏
+        //如果该用户已经为该农场添加收藏，则不可重复收藏
         QueryWrapper<FarmFavorite> wrapper = new QueryWrapper<>();
         wrapper.eq("fid", fid);
         wrapper.eq("uid", uid);
