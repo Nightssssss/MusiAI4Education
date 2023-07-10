@@ -11,9 +11,9 @@ import java.util.Date;
 @Data
 @TableName(value = "farm_favorite")
 public class FarmFavorite {
-    //收藏编号
+
     @TableId
-    private String ffid;
+    private String ffid;//收藏编号
 
     private String uid;
 

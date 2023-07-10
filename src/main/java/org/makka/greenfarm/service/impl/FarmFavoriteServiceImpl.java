@@ -24,6 +24,7 @@ public class FarmFavoriteServiceImpl extends ServiceImpl<FarmFavoriteMapper, Far
         //如果该用户已经为该产品添加收藏，则不可重复收藏
         QueryWrapper<FarmFavorite> wrapper = new QueryWrapper<>();
         wrapper.eq("fid", fid);
+        wrapper.eq("uid", uid);
         FarmFavorite farmFavorite = farmFavoriteMapper.selectOne(wrapper);
         if (farmFavorite != null) {
             return null;

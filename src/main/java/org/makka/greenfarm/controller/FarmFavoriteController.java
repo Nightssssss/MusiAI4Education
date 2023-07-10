@@ -58,6 +58,7 @@ public class FarmFavoriteController {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
             String uid = StpUtil.getLoginIdAsString();
+            System.out.println(uid);
             List<FarmFavorite> farmFavorites = farmFavoriteService.getFarmFavoriteList(uid);
             return CommonResponse.creatForSuccess(farmFavorites);
         } else {
