@@ -1,5 +1,6 @@
 package org.makka.greenfarm.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.ReserveProduct;
 import org.makka.greenfarm.domain.SaleProduct;
@@ -10,12 +11,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/farms/products")
+@RequestMapping("/api/farms/products/sale")
 public class SaleProductsController {
     @Autowired
     private SaleProductService saleProductService;
 
-    @GetMapping("/sale/{farmId}")
+    @GetMapping("/{farmId}")
     public CommonResponse<List<SaleProduct>> login(@PathVariable("farmId") String farmId) {
 
         //根据传入的农场编号 获取该农场的 在售农产品列表
@@ -27,12 +28,12 @@ public class SaleProductsController {
         }
     }
 
-    @GetMapping("/sale/details/{productId}")
+    @GetMapping("/details/{productId}")
     public CommonResponse<SaleProduct> getSaleProductDetail(@PathVariable String productId){
         return CommonResponse.creatForSuccess(saleProductService.getSaleProductDetail(productId));
     }
 
-    @PostMapping("/sale")
+    @PostMapping("")
     public CommonResponse<List<SaleProduct>> addSaleProduct(@RequestBody SaleProduct saleProduct) {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         saleProductService.addSaleProductsBySaleProduct(saleProduct);
@@ -44,7 +45,7 @@ public class SaleProductsController {
         }
     }
 
-    @PutMapping("/sale")
+    @PutMapping("")
     public CommonResponse<List<SaleProduct>> offShelfSaleProduct(@RequestParam String spid) {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         List<SaleProduct> saleProductList = saleProductService.offShelfSaleProductsByProductId(spid);
@@ -52,6 +53,16 @@ public class SaleProductsController {
             return CommonResponse.creatForSuccess(saleProductList);
         }else{
             return CommonResponse.creatForError("该农场在售农产品列表为空！");
+        }
+    }
+
+    @GetMapping("/list/recommend")
+    public CommonResponse<List<SaleProduct>> getSaleProductFavoriteRecommend() {
+        if (StpUtil.isLogin()) {
+            String uid = StpUtil.getLoginIdAsString();
+            return CommonResponse.creatForSuccess(saleProductService.getSaleProductRecommendList(uid));
+        } else {
+            return CommonResponse.creatForError("用户未登录！");
         }
     }
 }

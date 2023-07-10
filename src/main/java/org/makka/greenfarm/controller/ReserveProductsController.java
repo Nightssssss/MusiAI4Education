@@ -56,7 +56,7 @@ public class ReserveProductsController {
         }
     }
 
-    @GetMapping("/recommend")
+    @GetMapping("/list/recommend")
     public CommonResponse<List<ReserveProduct>> getReserveProductFavoriteRecommend() {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
