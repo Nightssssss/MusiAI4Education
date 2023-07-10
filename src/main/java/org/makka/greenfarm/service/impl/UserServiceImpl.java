@@ -108,4 +108,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         wrapper.eq("uid", uid);
         return userMapper.selectOne(wrapper);
     }
+
+    public String getVirtualizationByUid(String uid) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid", uid);
+        User user = userMapper.selectOne(wrapper);
+        return user.getVirtualization();
+    }
 }

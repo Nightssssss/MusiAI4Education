@@ -48,4 +48,6 @@ public class User {
     private String nickname;        //昵称
 
     private int credit;     //积分
+
+    private String virtualization;      //虚拟形象
 }

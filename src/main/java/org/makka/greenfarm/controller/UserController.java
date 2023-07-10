@@ -80,5 +80,15 @@ public class UserController {
             return CommonResponse.creatForError("请先登录！");
         }
     }
+
+    @GetMapping("/virtualization")
+    public CommonResponse<String> virtualization() {
+        if (StpUtil.isLogin()) {
+            String uid = StpUtil.getLoginIdAsString();
+            return CommonResponse.creatForSuccess(userService.getVirtualizationByUid(uid));
+        } else {
+            return CommonResponse.creatForError("请先登录！");
+        }
+    }
 }
 

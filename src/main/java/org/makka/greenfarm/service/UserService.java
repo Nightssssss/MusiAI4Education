@@ -24,4 +24,6 @@ public interface UserService extends IService<User> {
     public boolean updateUserInfo(User user);
 
     public User getUserInfo(String uid);
+
+    public String getVirtualizationByUid(String uid);
 }
