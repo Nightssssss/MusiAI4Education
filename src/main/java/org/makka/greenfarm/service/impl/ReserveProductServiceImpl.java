@@ -2,12 +2,15 @@ package org.makka.greenfarm.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.makka.greenfarm.domain.Order;
 import org.makka.greenfarm.domain.ReserveProduct;
 import org.makka.greenfarm.domain.ReserveProductComment;
 import org.makka.greenfarm.domain.ReserveProductFavorite;
+import org.makka.greenfarm.mapper.OrderMapper;
 import org.makka.greenfarm.mapper.ReserveProductFavoriteMapper;
 import org.makka.greenfarm.mapper.ReserveProductMapper;
 import org.makka.greenfarm.service.ReserveProductService;
+import org.makka.greenfarm.utils.MatrixAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,9 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
 
     @Autowired
     private ReserveProductFavoriteMapper reserveProductFavoriteMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
 
     @Override
     public List<ReserveProduct> getReserveProductsByFarmId(String fid) {
@@ -65,10 +71,11 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
     }
 
     public Set<String> recommendByUser(String uid) {
-        Set<String> recommendReserveProductList = new HashSet<>();
-
         QueryWrapper<ReserveProductFavorite> queryWrapper = new QueryWrapper<>();
         List<ReserveProductFavorite> reserveProductFavoriteList = reserveProductFavoriteMapper.selectList(queryWrapper);
+
+        QueryWrapper<Order> queryWrapper1 = new QueryWrapper<>();
+        List<Order> orderList = orderMapper.selectList(queryWrapper1);
 
         Map<String, Set<String>> userMapList = new HashMap<>();
 
@@ -83,22 +90,20 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
             reserveProductSet.add(reserveProductId);
         }
 
-        // 构造相似度矩阵
-        Set<String> currentUserReserveProducts = userMapList.get(uid);
-        for (Map.Entry<String, Set<String>> entry : userMapList.entrySet()) {
-            String otherUserId = entry.getKey();
-            if (!otherUserId.equals(uid)) {
-                Set<String> otherUserReserveProducts = entry.getValue();
-                double similarity = computeSimilarity(currentUserReserveProducts, otherUserReserveProducts);
-                if (similarity > 0) {
-                    recommendReserveProductList.addAll(otherUserReserveProducts);
-                }
+        // 获取每个用户购买的商品放入userMapList
+        for (Order order : orderList) {
+            String userId = order.getUid();
+            String saleProductId = order.getPid();
+            int type = order.getType();
+            if (type == 1){
+                // 如果userMapList中没有该用户的收藏商品，则新建一个set
+                // 如果有，则直接获取该用户的收藏商品set
+                Set<String> saleProductSet = userMapList.computeIfAbsent(userId, k -> new HashSet<>());
+                saleProductSet.add(saleProductId);
             }
         }
-        // 去掉原本就收藏的商品
-        recommendReserveProductList.removeAll(currentUserReserveProducts);
 
-        return recommendReserveProductList;
+        return MatrixAction.constructMatrix(uid, userMapList);
     }
 
     // 计算两个用户的相似度

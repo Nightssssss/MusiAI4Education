@@ -3,10 +3,12 @@ package org.makka.greenfarm.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.makka.greenfarm.domain.*;
+import org.makka.greenfarm.mapper.OrderMapper;
 import org.makka.greenfarm.mapper.SaleProductMapper;
 import org.makka.greenfarm.mapper.SaleProductFavoriteMapper;
 import org.makka.greenfarm.mapper.SaleProductMapper;
 import org.makka.greenfarm.service.SaleProductService;
+import org.makka.greenfarm.utils.MatrixAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,9 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
 
     @Autowired
     private SaleProductFavoriteMapper saleProductFavoriteMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
 
     @Override
     public List<SaleProduct> getSaleProductsByFarmId(String fid) {
@@ -63,10 +68,11 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
     }
 
     public Set<String> recommendByUser(String uid) {
-        Set<String> recommendSaleProductList = new HashSet<>();
-
         QueryWrapper<SaleProductFavorite> queryWrapper = new QueryWrapper<>();
         List<SaleProductFavorite> saleProductFavoriteList = saleProductFavoriteMapper.selectList(queryWrapper);
+
+        QueryWrapper<Order> queryWrapper1 = new QueryWrapper<>();
+        List<Order> orderList = orderMapper.selectList(queryWrapper1);
 
         Map<String, Set<String>> userMapList = new HashMap<>();
 
@@ -81,34 +87,20 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
             saleProductSet.add(saleProductId);
         }
 
-        // 构造相似度矩阵
-        Set<String> currentUserSaleProducts = userMapList.get(uid);
-        for (Map.Entry<String, Set<String>> entry : userMapList.entrySet()) {
-            String otherUserId = entry.getKey();
-            if (!otherUserId.equals(uid)) {
-                Set<String> otherUserSaleProducts = entry.getValue();
-                double similarity = computeSimilarity(currentUserSaleProducts, otherUserSaleProducts);
-                if (similarity > 0) {
-                    recommendSaleProductList.addAll(otherUserSaleProducts);
-                }
+        // 获取每个用户购买的商品放入userMapList
+        for (Order order : orderList) {
+            String userId = order.getUid();
+            String saleProductId = order.getPid();
+            int type = order.getType();
+            if (type == 0){
+                // 如果userMapList中没有该用户的收藏商品，则新建一个set
+                // 如果有，则直接获取该用户的收藏商品set
+                Set<String> saleProductSet = userMapList.computeIfAbsent(userId, k -> new HashSet<>());
+                saleProductSet.add(saleProductId);
             }
         }
-        // 去掉原本就收藏的商品
-        recommendSaleProductList.removeAll(currentUserSaleProducts);
 
-        return recommendSaleProductList;
-    }
-
-    // 计算两个用户的相似度
-    public double computeSimilarity(Set<String> set1, Set<String> set2) {
-        int commonCount = 0;
-        for (String item : set1) {
-            if (set2.contains(item)) {
-                commonCount++;
-            }
-        }
-        double similarity = commonCount / Math.sqrt(set1.size() * set2.size());
-        return similarity;
+        return MatrixAction.constructMatrix(uid, userMapList);
     }
 
     public List<SaleProduct> getSaleProductRecommendList(String uid) {
