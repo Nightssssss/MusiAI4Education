@@ -9,15 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
-@RequestMapping("/api/farms/products")
+@RequestMapping("/api/farms/products/reserve/favorites")
 public class ReserveProductFavoriteController {
 
     @Autowired
     private ReserveProductFavoriteService reserveProductFavoriteService;
 
-    @PostMapping("/reserve/favorites")
+    @PostMapping("")
     public CommonResponse<List<ReserveProductFavorite>> addReserveProductFavorite(@RequestParam String rpid) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
@@ -34,7 +35,7 @@ public class ReserveProductFavoriteController {
         }
     }
 
-    @DeleteMapping("/reserve/favorites")
+    @DeleteMapping("")
     public CommonResponse<List<ReserveProductFavorite>> cancelReserveProductFavorite(@RequestParam String rpid) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
@@ -52,7 +53,7 @@ public class ReserveProductFavoriteController {
         }
     }
 
-    @GetMapping("/reserve/favorites")
+    @GetMapping("")
     public CommonResponse<List<ReserveProductFavorite>> getReserveProductFavorite() {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {

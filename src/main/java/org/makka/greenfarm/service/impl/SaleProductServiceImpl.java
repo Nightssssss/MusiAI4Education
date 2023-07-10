@@ -2,28 +2,32 @@ package org.makka.greenfarm.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.makka.greenfarm.domain.ReserveProduct;
-import org.makka.greenfarm.domain.ReserveProductComment;
-import org.makka.greenfarm.domain.SaleProduct;
-import org.makka.greenfarm.domain.SaleProductComment;
-import org.makka.greenfarm.mapper.ReserveProductMapper;
+import org.makka.greenfarm.domain.*;
+import org.makka.greenfarm.mapper.OrderMapper;
+import org.makka.greenfarm.mapper.SaleProductMapper;
+import org.makka.greenfarm.mapper.SaleProductFavoriteMapper;
 import org.makka.greenfarm.mapper.SaleProductMapper;
 import org.makka.greenfarm.service.SaleProductService;
+import org.makka.greenfarm.utils.MatrixAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleProduct> implements SaleProductService {
-
-
     @Autowired
     private SaleProductMapper saleProductMapper;
 
+    @Autowired
+    private SaleProductFavoriteMapper saleProductFavoriteMapper;
+
+    @Autowired
+    private OrderMapper orderMapper;
+
     @Override
     public List<SaleProduct> getSaleProductsByFarmId(String fid) {
-        //使用reserveProductMapper获取对应农场可种植农产品列表
+        //使用saleProductMapper获取对应农场可种植农产品列表
         QueryWrapper<SaleProduct> wrapper = new QueryWrapper<>();
         wrapper.eq("fid", fid);
         return saleProductMapper.selectList(wrapper);
@@ -61,6 +65,61 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
         //级联查询评论信息，获取评论人的信息
         List<SaleProductComment> commentList = saleProductMapper.getSaleProductComment(productId);
         return commentList;
+    }
+
+    public Set<String> recommendByUser(String uid) {
+        QueryWrapper<SaleProductFavorite> queryWrapper = new QueryWrapper<>();
+        List<SaleProductFavorite> saleProductFavoriteList = saleProductFavoriteMapper.selectList(queryWrapper);
+
+        QueryWrapper<Order> queryWrapper1 = new QueryWrapper<>();
+        List<Order> orderList = orderMapper.selectList(queryWrapper1);
+
+        Map<String, Set<String>> userMapList = new HashMap<>();
+
+        // 获取每个用户收藏的商品放入userMapList
+        for (SaleProductFavorite saleProductFavorite : saleProductFavoriteList) {
+            String userId = saleProductFavorite.getUid();
+            String saleProductId = saleProductFavorite.getSpid();
+
+            // 如果userMapList中没有该用户的收藏商品，则新建一个set
+            // 如果有，则直接获取该用户的收藏商品set
+            Set<String> saleProductSet = userMapList.computeIfAbsent(userId, k -> new HashSet<>());
+            saleProductSet.add(saleProductId);
+        }
+
+        // 获取每个用户购买的商品放入userMapList
+        for (Order order : orderList) {
+            String userId = order.getUid();
+            String saleProductId = order.getPid();
+            int type = order.getType();
+            if (type == 0){
+                // 如果userMapList中没有该用户的收藏商品，则新建一个set
+                // 如果有，则直接获取该用户的收藏商品set
+                Set<String> saleProductSet = userMapList.computeIfAbsent(userId, k -> new HashSet<>());
+                saleProductSet.add(saleProductId);
+            }
+        }
+
+        return MatrixAction.constructMatrix(uid, userMapList);
+    }
+
+    public List<SaleProduct> getSaleProductRecommendList(String uid) {
+        Set<String> recommendSaleProductList = recommendByUser(uid);
+        List<SaleProduct> saleProductList = new ArrayList<>();
+        for (String rpid : recommendSaleProductList) {
+            SaleProduct saleProduct = saleProductMapper.selectById(rpid);
+            saleProductList.add(saleProduct);
+        }
+        return saleProductList;
+    }
+
+    public List<SaleProduct> getSaleProductTop3List() {
+        // 获取销量前三的商品
+        QueryWrapper<SaleProduct> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("sales");
+        queryWrapper.last("limit 3");
+        List<SaleProduct> saleProductList = saleProductMapper.selectList(queryWrapper);
+        return saleProductList;
     }
 
 }

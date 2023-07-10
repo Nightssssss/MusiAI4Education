@@ -21,4 +21,9 @@ public interface ReserveProductService extends IService<ReserveProduct> {
     //下架可种植农产品
     public List<ReserveProduct> offShelfReserveProductsByProductId(String rpid);
 
+    //获取可种植农产品推荐
+    public List<ReserveProduct> getReserveProductRecommendList(String uid);
+
+    //获取销量前三的农产品
+    public List<ReserveProduct> getReserveProductTop3List();
 }

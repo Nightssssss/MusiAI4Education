@@ -6,6 +6,7 @@ import org.makka.greenfarm.domain.SaleProductComment;
 import org.makka.greenfarm.domain.SaleProductFavorite;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ReserveProductFavoriteService extends IService<ReserveProductFavorite> {
     //添加收藏
@@ -14,4 +15,5 @@ public interface ReserveProductFavoriteService extends IService<ReserveProductFa
     public List<ReserveProductFavorite> cancelReserveProductFavorite(String uid, String rpid);
     //获得收藏
     public List<ReserveProductFavorite> getReserveFavoriteList(String uid);
+
 }
