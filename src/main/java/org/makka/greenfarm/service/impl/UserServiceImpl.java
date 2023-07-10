@@ -61,6 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }else{
                 user.setAvatar("http://localhost:8080/images/user/avatar/default.png");
             }
+            user.setVirtualization("http://175.178.5.157:8080/images/user/virtualization/default.gif");
             // 不存在则插入
             userMapper.insert(user);
             return CommonResponse.creatForSuccess("注册成功");
@@ -95,6 +96,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUsername(user1.getUsername());
         user.setPassword(user1.getAvatar());
         user.setAvatar(user1.getAvatar());
+        user.setVirtualization(user1.getVirtualization());
         int result = userMapper.updateById(user);
         if (result == 1) {
             return true;
@@ -107,5 +109,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("uid", uid);
         return userMapper.selectOne(wrapper);
+    }
+
+    public String getVirtualizationByUid(String uid) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid", uid);
+        User user = userMapper.selectOne(wrapper);
+        return user.getVirtualization();
     }
 }
