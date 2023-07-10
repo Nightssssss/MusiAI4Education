@@ -53,6 +53,8 @@ public class OrderController {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
             List<Order> orderList = orderService.selectOrder();
+            System.out.println(orderList);
+            System.out.println(orderService.selectOrder());
             return CommonResponse.creatForSuccess(orderList);
         } else {
             // 令牌无效或解码错误

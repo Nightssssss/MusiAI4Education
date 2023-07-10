@@ -9,6 +9,7 @@ import org.makka.greenfarm.mapper.ReserveProductMapper;
 import org.makka.greenfarm.mapper.SaleProductMapper;
 import org.makka.greenfarm.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -85,12 +86,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return saleProductMapper.selectOne(wrapper);
     }
 
+    @Cacheable(value = "orders", key = "1")
     @Override
     public List<Order> selectOrder() {
+        System.out.println("this is select ONE !");
         QueryWrapper<Order> wrapper = new QueryWrapper<>();
         return orderMapper.selectList(wrapper);
     }
 
+    @Cacheable(value = "orders", key = "0")
     @Override
     public List<Order> selectOrdersByOrderId(String oid) {
         QueryWrapper<Order> wrapper = new QueryWrapper<>();
