@@ -63,8 +63,8 @@ public class ReserveProductsController {
             String uid = StpUtil.getLoginIdAsString();
             return CommonResponse.creatForSuccess(reserveProductService.getReserveProductRecommendList(uid));
         } else {
-            // 令牌无效或解码错误
-            return CommonResponse.creatForError("请先登录");
+            // 获取销量前三的农产品
+            return CommonResponse.creatForSuccess(reserveProductService.getReserveProductTop3List());
         }
     }
 

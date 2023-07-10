@@ -121,4 +121,13 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
         return saleProductList;
     }
 
+    public List<SaleProduct> getSaleProductTop3List() {
+        // 获取销量前三的商品
+        QueryWrapper<SaleProduct> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("sales");
+        queryWrapper.last("limit 3");
+        List<SaleProduct> saleProductList = saleProductMapper.selectList(queryWrapper);
+        return saleProductList;
+    }
+
 }

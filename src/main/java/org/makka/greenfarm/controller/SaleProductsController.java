@@ -62,7 +62,7 @@ public class SaleProductsController {
             String uid = StpUtil.getLoginIdAsString();
             return CommonResponse.creatForSuccess(saleProductService.getSaleProductRecommendList(uid));
         } else {
-            return CommonResponse.creatForError("用户未登录！");
+            return CommonResponse.creatForSuccess(saleProductService.getSaleProductTop3List());
         }
     }
 }

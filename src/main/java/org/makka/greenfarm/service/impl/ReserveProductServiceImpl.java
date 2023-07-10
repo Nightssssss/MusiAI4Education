@@ -122,4 +122,13 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
         }
         return reserveProductList;
     }
+
+    public List<ReserveProduct> getReserveProductTop3List(){
+        // 获取销量前三的农产品
+        QueryWrapper<ReserveProduct> wrapper = new QueryWrapper<>();
+        wrapper.orderByDesc("sales");
+        wrapper.last("limit 3");
+        List<ReserveProduct> reserveProductList = reserveProductMapper.selectList(wrapper);
+        return reserveProductList;
+    }
 }

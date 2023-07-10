@@ -22,4 +22,7 @@ public interface SaleProductService extends IService<SaleProduct> {
 
     // 推荐
     public List<SaleProduct> getSaleProductRecommendList(String uid);
+
+    // 获取销量前三的农产品
+    public List<SaleProduct> getSaleProductTop3List();
 }
