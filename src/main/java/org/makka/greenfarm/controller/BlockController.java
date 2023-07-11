@@ -2,7 +2,7 @@ package org.makka.greenfarm.controller;
 
 import com.alibaba.fastjson.JSON;
 import org.makka.greenfarm.service.BlockService;
-import org.makka.greenfarm.service.PowService;
+import org.makka.greenfarm.service.impl.PowServiceImpl;
 import org.makka.greenfarm.utils.BlockCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +21,7 @@ public class BlockController {
     BlockCache blockCache;
 
     @Autowired
-    PowService powService;
+    PowServiceImpl powService;
 
     /**
      * 查看当前节点区块链数据

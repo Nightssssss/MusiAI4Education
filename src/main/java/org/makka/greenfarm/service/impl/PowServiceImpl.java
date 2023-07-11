@@ -1,10 +1,9 @@
 package org.makka.greenfarm.service.impl;
 
-import org.makka.greenfarm.service.PowService;
-import org.makka.greenfarm.utils.Block;
-import org.makka.greenfarm.utils.BlockCache;
-import org.makka.greenfarm.utils.CommonUtil;
-import org.makka.greenfarm.utils.Transaction;
+import com.alibaba.fastjson.JSON;
+import org.makka.greenfarm.domain.Message;
+import org.makka.greenfarm.service.BlockService;
+import org.makka.greenfarm.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,18 +17,22 @@ import java.util.List;
  *
  */
 @Service
-public class PowServiceImpl implements PowService {
+public class PowServiceImpl {
 
     @Autowired
     BlockCache blockCache;
 
     @Autowired
-    BlockServiceImpl blockServiceImpl;
+    BlockService blockService;
+
+    @Autowired
+    P2PServiceImpl p2PService;
 
     /**
      * 通过“挖矿”进行工作量证明，实现节点间的共识
      *
      * @return
+     * @throws UnknownHostException
      */
     public Block mine(){
 
@@ -37,7 +40,7 @@ public class PowServiceImpl implements PowService {
         List<Transaction> tsaList = new ArrayList<Transaction>();
         Transaction tsa1 = new Transaction();
         tsa1.setId("1");
-        tsa1.setBusinessInfo("这是IP为："+ CommonUtil.getLocalIp()+"，端口号为："+blockCache.getP2pport()+"的节点挖矿生成的区块");
+        tsa1.setBusinessInfo("这是IP为："+CommonUtil.getLocalIp()+"，端口号为："+blockCache.getP2pport()+"的节点挖矿生成的区块");
         tsaList.add(tsa1);
         Transaction tsa2 = new Transaction();
         tsa2.setId("2");
@@ -51,9 +54,9 @@ public class PowServiceImpl implements PowService {
         System.out.println("开始挖矿");
         while (true) {
             // 计算新区块hash值
-            newBlockHash = blockServiceImpl.calculateHash(blockCache.getLatestBlock().getHash(), tsaList, nonce);
+            newBlockHash = blockService.calculateHash(blockCache.getLatestBlock().getHash(), tsaList, nonce);
             // 校验hash值
-            if (blockServiceImpl.isValidHash(newBlockHash)) {
+            if (blockService.isValidHash(newBlockHash)) {
                 System.out.println("挖矿完成，正确的hash值：" + newBlockHash);
                 System.out.println("挖矿耗费时间：" + (System.currentTimeMillis() - start) + "ms");
                 break;
@@ -62,18 +65,14 @@ public class PowServiceImpl implements PowService {
             nonce++;
         }
         // 创建新的区块
-        Block block = blockServiceImpl.createNewBlock(nonce, blockCache.getLatestBlock().getHash(), newBlockHash, tsaList);
-        return block;
-    }
+        Block block = blockService.createNewBlock(nonce, blockCache.getLatestBlock().getHash(), newBlockHash, tsaList);
 
-    /**
-     * 验证hash值是否满足系统条件
-     * 暂定前4位是0则满足条件
-     * @param hash
-     * @return
-     */
-    public boolean isValidHash(String hash) {
-        //System.out.println("难度系数："+blockCache.getDifficulty());
-        return hash.startsWith("0000");
+        //创建成功后，全网广播出去
+        Message msg = new Message();
+        msg.setType(BlockConstant.RESPONSE_LATEST_BLOCK);
+        msg.setData(JSON.toJSONString(block));
+        p2PService.broatcast(JSON.toJSONString(msg));
+
+        return block;
     }
 }
