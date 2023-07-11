@@ -1,23 +1,23 @@
 package org.makka.greenfarm.controller;
-
 import cn.dev33.satoken.stp.StpUtil;
+import com.baidu.aip.face.AipFace;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.User;
 import org.makka.greenfarm.service.UserService;
-import org.makka.greenfarm.utils.UploadAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -117,7 +117,7 @@ public class UserController {
     }
 
     @PostMapping("/face-register")
-    public String register(String username,String faceBase) throws IOException, JSONException {
+    public String register(String username,String faceBase) throws JSONException {
         if(!StringUtils.isEmpty(username) && !StringUtils.isEmpty(faceBase)) {
             // 文件上传的地址
             System.out.println(filePath);
