@@ -4,10 +4,12 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.makka.greenfarm.domain.*;
+import org.makka.greenfarm.mapper.AddressListMapper;
 import org.makka.greenfarm.mapper.OrderMapper;
 import org.makka.greenfarm.mapper.ReserveProductMapper;
 import org.makka.greenfarm.mapper.SaleProductMapper;
 import org.makka.greenfarm.service.OrderService;
+import org.mockito.internal.matchers.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -25,18 +27,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private SaleProductMapper saleProductMapper;
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private AddressListMapper addressListMapper;
 
     @Override
-    public List<Order> initOrder(List<Product> productList, String aid) {
+    public List<Order> initOrder(List<Product> productList, AddressList addressList) {
         List<Order> orderList = new ArrayList<Order>(productList.size());
         String oid = String.valueOf(System.currentTimeMillis());
+        String aid = addressList.getAid();
         for (Product product : productList) {
             if (product.getType() == 0) {
                 Order order = new Order();
                 String uid = StpUtil.getLoginIdAsString();
                 order.setUid(uid);
-                order.setAid(aid);
                 order.setOid(oid);
+                order.setAid(aid);
                 Date orderDate = new Date();
                 order.setOrderDate(orderDate);
                 order.setStatus("未支付");
@@ -49,12 +54,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 order.setType(product.getType());
                 orderMapper.insert(order);
                 orderList.add(order);
+
             } else {
                 Order order = new Order();
                 String uid = StpUtil.getLoginIdAsString();
                 order.setUid(uid);
-                order.setAid(aid);
                 order.setOid(oid);
+                order.setAid(aid);
                 Date orderDate = new Date();
                 order.setOrderDate(orderDate);
                 order.setStatus("未支付");
@@ -89,9 +95,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Cacheable(value = "orders", key = "1")
     @Override
     public List<Order> selectOrder() {
-        System.out.println("this is select ONE !");
         QueryWrapper<Order> wrapper = new QueryWrapper<>();
-        return orderMapper.selectList(wrapper);
+        List<Order> orderList = orderMapper.selectList(wrapper);
+        for(Order order:orderList){
+            order.setAddressList(addressListMapper.getBasicAddressDetailsByAid(order.getAid()));
+        }
+        return orderList;
     }
 
     @Cacheable(value = "orders", key = "0")
@@ -99,7 +108,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     public List<Order> selectOrdersByOrderId(String oid) {
         QueryWrapper<Order> wrapper = new QueryWrapper<>();
         wrapper.eq("oid", oid);
-        return orderMapper.selectList(wrapper);
+        List<Order> orderList = orderMapper.selectList(wrapper);
+        for(Order order:orderList) {
+            order.setAddressList(addressListMapper.getBasicAddressDetailsByAid(order.getAid()));
+        }
+        return orderList;
     }
 
     @Override

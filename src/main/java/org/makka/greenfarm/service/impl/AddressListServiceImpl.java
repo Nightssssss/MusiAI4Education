@@ -15,6 +15,11 @@ public class AddressListServiceImpl extends ServiceImpl<AddressListMapper, Addre
     @Autowired
     private AddressListMapper addressListMapper;
 
+    @Override
+    public AddressList getAddressByAid(String aid) {
+        return addressListMapper.getBasicAddressDetailsByAid(aid);
+    }
+
     public List<AddressList> getAddressListByUid(String uid) {
         //获取用户地址列表
         QueryWrapper wrapper = new QueryWrapper();

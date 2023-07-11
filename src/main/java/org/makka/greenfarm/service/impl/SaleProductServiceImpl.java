@@ -10,6 +10,7 @@ import org.makka.greenfarm.mapper.SaleProductMapper;
 import org.makka.greenfarm.service.SaleProductService;
 import org.makka.greenfarm.utils.MatrixAction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -103,6 +104,7 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
         return MatrixAction.constructMatrix(uid, userMapList);
     }
 
+    @Cacheable(value = "saleProducts", key = "5")
     public List<SaleProduct> getSaleProductRecommendList(String uid) {
         Set<String> recommendSaleProductList = recommendByUser(uid);
         List<SaleProduct> saleProductList = new ArrayList<>();

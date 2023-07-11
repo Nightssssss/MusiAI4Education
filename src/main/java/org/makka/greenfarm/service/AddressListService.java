@@ -6,6 +6,9 @@ import org.makka.greenfarm.domain.AddressList;
 import java.util.List;
 
 public interface AddressListService extends IService<AddressList> {
+
+    public AddressList getAddressByAid(String aid);
+
     public List<AddressList> getAddressListByUid(String uid);
 
     public boolean deleteAddressByAid(String aid);

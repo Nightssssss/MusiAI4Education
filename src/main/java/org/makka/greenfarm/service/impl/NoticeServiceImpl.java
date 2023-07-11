@@ -6,6 +6,7 @@ import org.makka.greenfarm.domain.Notice;
 import org.makka.greenfarm.mapper.NoticeMapper;
 import org.makka.greenfarm.service.NoticeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +16,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
     @Autowired
     private NoticeMapper noticeMapper;
 
+    @Cacheable(value = "notices", key = "3")
     public List<Notice> getNoticeList() {
         QueryWrapper<Notice> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByDesc("postTime");

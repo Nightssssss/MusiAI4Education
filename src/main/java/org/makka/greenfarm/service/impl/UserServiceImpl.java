@@ -9,6 +9,7 @@ import org.makka.greenfarm.mapper.UserMapper;
 import org.makka.greenfarm.service.UserService;
 import org.makka.greenfarm.utils.UploadAction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -105,6 +106,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    @Cacheable(value = "users", key = "0")
     public User getUserInfo(String uid) {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("uid", uid);
