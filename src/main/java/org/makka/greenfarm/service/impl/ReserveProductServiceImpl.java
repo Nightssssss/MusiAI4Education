@@ -2,10 +2,7 @@ package org.makka.greenfarm.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.makka.greenfarm.domain.Order;
-import org.makka.greenfarm.domain.ReserveProduct;
-import org.makka.greenfarm.domain.ReserveProductComment;
-import org.makka.greenfarm.domain.ReserveProductFavorite;
+import org.makka.greenfarm.domain.*;
 import org.makka.greenfarm.mapper.OrderMapper;
 import org.makka.greenfarm.mapper.ReserveProductFavoriteMapper;
 import org.makka.greenfarm.mapper.ReserveProductMapper;
@@ -137,5 +134,27 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
         wrapper.last("limit 3");
         List<ReserveProduct> reserveProductList = reserveProductMapper.selectList(wrapper);
         return reserveProductList;
+    }
+
+    @Override
+    public List<ReserveProduct> updateReserveProductsByReserveProduct(ReserveProduct reserveProduct) {
+        QueryWrapper<ReserveProduct> wrapper = new QueryWrapper<>();
+        wrapper.eq("rpid", reserveProduct.getRpid());
+        ReserveProduct reserveProduct1 = reserveProductMapper.selectOne(wrapper);
+
+        reserveProduct1.setName(reserveProduct.getName());
+        reserveProduct1.setUniprice(reserveProduct.getUniprice());
+        reserveProduct1.setYield(reserveProduct.getYield());
+        reserveProduct1.setCostTime(reserveProduct.getCostTime());
+        reserveProduct1.setStock(reserveProduct.getStock());
+        reserveProduct1.setDescription(reserveProduct.getDescription());
+
+        //修改商品图片
+
+        //数据库中更新
+        reserveProductMapper.updateById(reserveProduct1);
+
+        QueryWrapper<ReserveProduct> wrapper1 = new QueryWrapper<>();
+        return reserveProductMapper.selectList(wrapper1);
     }
 }
