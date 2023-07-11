@@ -26,4 +26,8 @@ public interface UserService extends IService<User> {
     public User getUserInfo(String uid);
 
     public String getVirtualizationByUid(String uid);
+
+    public int getIsPremiumByUid(String uid);
+
+    public void updateUserState(String uid);
 }

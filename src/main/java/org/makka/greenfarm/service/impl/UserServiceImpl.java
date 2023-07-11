@@ -39,7 +39,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         wrapper.eq("username", username);
         wrapper.eq("password", password);
         User user = userMapper.selectOne(wrapper);
-        return user != null;
+        if (user != null) {
+            user.setState(1);
+            userMapper.updateById(user);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //注册
@@ -118,5 +124,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         wrapper.eq("uid", uid);
         User user = userMapper.selectOne(wrapper);
         return user.getVirtualization();
+    }
+
+    public int getIsPremiumByUid(String uid) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid", uid);
+        User user = userMapper.selectOne(wrapper);
+        return user.getIsPremium();
+    }
+
+    public void updateUserState(String uid) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("uid", uid);
+        User user = userMapper.selectOne(wrapper);
+        user.setState(0);
+        userMapper.updateById(user);
     }
 }
