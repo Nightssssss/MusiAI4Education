@@ -179,4 +179,19 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
         return "success";
     }
 
+    @Override
+    public List<SaleProduct> updateSaleProductImageBySpId(String spid,String ownerid, MultipartFile image, HttpServletRequest request) {
+        QueryWrapper<Farm> wrapper1 = new QueryWrapper<>();
+        wrapper1.eq("ownerid", ownerid);
+        Farm farm = farmMapper.selectOne(wrapper1);
+        String fid = farm.getFid();
+
+        SaleProduct saleProduct = saleProductMapper.selectById(spid);
+        String imageUrl = UploadAction.uploadSaleProductImage(request, image);
+        saleProduct.setPicture(imageUrl);
+        saleProductMapper.updateById(saleProduct);
+        QueryWrapper<SaleProduct> wrapper = new QueryWrapper<>();
+        wrapper.eq("fid", fid);
+        return saleProductMapper.selectList(wrapper);
+    }
 }

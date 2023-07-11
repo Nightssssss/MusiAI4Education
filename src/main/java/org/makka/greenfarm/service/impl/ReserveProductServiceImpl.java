@@ -3,15 +3,19 @@ package org.makka.greenfarm.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.makka.greenfarm.domain.*;
+import org.makka.greenfarm.mapper.FarmMapper;
 import org.makka.greenfarm.mapper.OrderMapper;
 import org.makka.greenfarm.mapper.ReserveProductFavoriteMapper;
 import org.makka.greenfarm.mapper.ReserveProductMapper;
 import org.makka.greenfarm.service.ReserveProductService;
 import org.makka.greenfarm.utils.MatrixAction;
+import org.makka.greenfarm.utils.UploadAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Service
@@ -25,6 +29,9 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private FarmMapper farmMapper;
 
     @Override
     public List<ReserveProduct> getReserveProductsByFarmId(String fid) {
@@ -157,5 +164,21 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
         reserveProduct.setSales(reserveProduct.getSales()+quantity);
         reserveProductMapper.updateById(reserveProduct);
         return "success";
+    }
+
+    @Override
+    public List<ReserveProduct> updateReserveProductImageByRpId(String rpid, String ownerid, MultipartFile image, HttpServletRequest request) {
+        QueryWrapper<Farm> wrapper1 = new QueryWrapper<>();
+        wrapper1.eq("ownerid", ownerid);
+        Farm farm = farmMapper.selectOne(wrapper1);
+        String fid = farm.getFid();
+
+        ReserveProduct reserveProduct = reserveProductMapper.selectById(rpid);
+        String imageUrl = UploadAction.uploadReserveProductImage(request, image);
+        reserveProduct.setPicture(imageUrl);
+        reserveProductMapper.updateById(reserveProduct);
+        QueryWrapper<ReserveProduct> wrapper = new QueryWrapper<>();
+        wrapper.eq("fid", fid);
+        return reserveProductMapper.selectList(wrapper);
     }
 }
