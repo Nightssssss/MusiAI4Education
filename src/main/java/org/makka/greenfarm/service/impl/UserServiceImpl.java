@@ -84,7 +84,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     public boolean updateAvatar(String uid, HttpServletRequest request, MultipartFile file) {
-        String avatar = UploadAction.uploadAvatar(request, file);
+        String avatar = UploadAction.uploadUserAvatar(request, file);
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("uid", uid);
         User user = userMapper.selectOne(wrapper);
