@@ -3,16 +3,17 @@ package org.makka.greenfarm.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.makka.greenfarm.domain.*;
-import org.makka.greenfarm.mapper.OrderMapper;
-import org.makka.greenfarm.mapper.SaleProductMapper;
-import org.makka.greenfarm.mapper.SaleProductFavoriteMapper;
+import org.makka.greenfarm.mapper.*;
 import org.makka.greenfarm.mapper.SaleProductMapper;
 import org.makka.greenfarm.service.SaleProductService;
 import org.makka.greenfarm.utils.MatrixAction;
+import org.makka.greenfarm.utils.UploadAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Service
@@ -25,6 +26,9 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private FarmMapper farmMapper;
 
     @Override
     public List<SaleProduct> getSaleProductsByFarmId(String fid) {
@@ -46,9 +50,26 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
     }
 
     @Override
-    public List<SaleProduct> addSaleProductsBySaleProduct(SaleProduct saleProduct) {
+    public List<SaleProduct> addSaleProductsBySaleProduct(String ownerid,String name,double uniprice,int stock,String description,
+                                                          MultipartFile image, HttpServletRequest request) {
+        QueryWrapper<Farm> wrapper = new QueryWrapper<>();
+        wrapper.eq("ownerid", ownerid);
+        Farm farm = farmMapper.selectOne(wrapper);
+        String fid = farm.getFid();
+
+        SaleProduct saleProduct = new SaleProduct();
+        saleProduct.setSpid(String.valueOf(System.currentTimeMillis()));
+        saleProduct.setName(name);
+        saleProduct.setFid(fid);
+        saleProduct.setUniprice(uniprice);
+        saleProduct.setStock(stock);
+        saleProduct.setDescription(description);
+        saleProduct.setShelves(1);
+        String imageUrl = UploadAction.uploadSaleProductImage(request, image);
+        saleProduct.setPicture(imageUrl);
+
         saleProductMapper.insert(saleProduct);
-        return getSaleProductsByFarmId(saleProduct.getFid());
+        return getSaleProductsByFarmId(fid);
     }
 
     @Override
@@ -144,5 +165,7 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
         QueryWrapper<SaleProduct> wrapper1 = new QueryWrapper<>();
         return saleProductMapper.selectList(wrapper1);
     }
+
+
 
 }

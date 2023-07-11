@@ -7,7 +7,9 @@ import org.makka.greenfarm.domain.SaleProduct;
 import org.makka.greenfarm.service.SaleProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -34,14 +36,19 @@ public class SaleProductsController {
     }
 
     @PostMapping("")
-    public CommonResponse<List<SaleProduct>> addSaleProduct(@RequestBody SaleProduct saleProduct) {
-        //根据传入的农场编号 获取该农场的 可种植农产品列表
-        saleProductService.addSaleProductsBySaleProduct(saleProduct);
-        List<SaleProduct> saleProductList = saleProductService.getSaleProductsByFarmId(saleProduct.getFid());
-        if (saleProductList.size()!=0){
-            return CommonResponse.creatForSuccess(saleProductList);
-        }else{
-            return CommonResponse.creatForError("该农场在售农产品列表为空！");
+    public CommonResponse<List<SaleProduct>> addSaleProduct(@RequestParam String name, @RequestParam Double uniprice, @RequestParam int stock,
+                                                            @RequestParam String description, @RequestParam MultipartFile image, HttpServletRequest request) {
+        if (StpUtil.isLogin()) {
+            String ownerid = StpUtil.getLoginIdAsString();
+            //根据传入的农场编号 获取该农场的 可种植农产品列表
+            List<SaleProduct> saleProductList = saleProductService.addSaleProductsBySaleProduct(ownerid,name,uniprice,stock,description,image,request);
+            if (saleProductList.size()!=0){
+                return CommonResponse.creatForSuccess(saleProductList);
+            } else {
+                return CommonResponse.creatForError("该农场在售农产品列表为空！");
+            }
+        } else{
+            return CommonResponse.creatForError("请先登录！");
         }
     }
 
