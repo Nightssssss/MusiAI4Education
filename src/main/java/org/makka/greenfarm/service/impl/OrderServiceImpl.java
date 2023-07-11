@@ -174,5 +174,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return orderMapper.selectList(wrapper2);
     }
 
+    @Override
+    public List<Order> deleteOrdersByOid(String oid) {
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.eq("oid", oid);
+        List<Order> orderList = orderMapper.selectList(wrapper);
+        System.out.println(orderList);
+        for (Order order:orderList){
+            QueryWrapper<Order> wrapper1 = new QueryWrapper<>();
+            wrapper1.eq("oid", order.getOid());
+            orderMapper.delete(wrapper1);
+        }
+        QueryWrapper<Order> wrapper1 = new QueryWrapper<>();
+        return orderMapper.selectList(wrapper1);
+    }
+
 
 }

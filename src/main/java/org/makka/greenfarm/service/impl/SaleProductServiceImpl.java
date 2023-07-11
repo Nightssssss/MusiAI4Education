@@ -124,4 +124,25 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
         return saleProductList;
     }
 
+    @Override
+    public List<SaleProduct> updateSaleProductsBySaleProduct(SaleProduct saleProduct) {
+        QueryWrapper<SaleProduct> wrapper = new QueryWrapper<>();
+        wrapper.eq("spid", saleProduct.getSpid());
+        SaleProduct saleProduct1 = saleProductMapper.selectOne(wrapper);
+
+        saleProduct1.setName(saleProduct.getName());
+        saleProduct1.setUniprice(saleProduct.getUniprice());
+        saleProduct1.setStock(saleProduct.getStock());
+        saleProduct1.setDescription(saleProduct.getDescription());
+
+        //saleProduct1.setPicture(saleProduct.getPicture());
+
+        //修改商品图片
+
+        //数据库中更新
+        saleProductMapper.updateById(saleProduct1);
+        QueryWrapper<SaleProduct> wrapper1 = new QueryWrapper<>();
+        return saleProductMapper.selectList(wrapper1);
+    }
+
 }

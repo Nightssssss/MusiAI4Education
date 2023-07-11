@@ -25,4 +25,7 @@ public interface SaleProductService extends IService<SaleProduct> {
 
     // 获取销量前三的农产品
     public List<SaleProduct> getSaleProductTop3List();
+
+    //修改在售农产品
+    public List<SaleProduct> updateSaleProductsBySaleProduct(SaleProduct saleProduct);
 }

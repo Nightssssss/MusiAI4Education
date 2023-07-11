@@ -45,7 +45,7 @@ public class SaleProductsController {
         }
     }
 
-    @PutMapping("")
+    @DeleteMapping("")
     public CommonResponse<List<SaleProduct>> offShelfSaleProduct(@RequestParam String spid) {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         List<SaleProduct> saleProductList = saleProductService.offShelfSaleProductsByProductId(spid);
@@ -70,4 +70,16 @@ public class SaleProductsController {
             return CommonResponse.creatForSuccess(saleProductService.getSaleProductTop3List());
         }
     }
+
+    @PutMapping("")
+    public CommonResponse<List<SaleProduct>> updateSaleProduct(@RequestBody SaleProduct saleProduct) {
+        //根据传入的农场编号 获取该农场的 可种植农产品列表
+        List<SaleProduct> saleProductList = saleProductService.updateSaleProductsBySaleProduct(saleProduct);
+        if (saleProductList.size()!=0){
+            return CommonResponse.creatForSuccess(saleProductList);
+        }else{
+            return CommonResponse.creatForError("修改的有问题哦!");
+        }
+    }
+
 }

@@ -26,4 +26,7 @@ public interface ReserveProductService extends IService<ReserveProduct> {
 
     //获取销量前三的农产品
     public List<ReserveProduct> getReserveProductTop3List();
+
+    //修改可种植农产品
+    public List<ReserveProduct> updateReserveProductsByReserveProduct(ReserveProduct reserveProduct);
 }

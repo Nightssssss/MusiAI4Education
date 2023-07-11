@@ -44,7 +44,7 @@ public class ReserveProductController {
         }
     }
 
-    @PutMapping("")
+    @DeleteMapping("")
     public CommonResponse<List<ReserveProduct>> offShelfReserveProduct(@RequestParam String rpid) {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         List<ReserveProduct> reserveProductList = reserveProductService.offShelfReserveProductsByProductId(rpid);
@@ -69,6 +69,17 @@ public class ReserveProductController {
         } else {
             // 获取销量前三的农产品
             return CommonResponse.creatForSuccess(reserveProductService.getReserveProductTop3List());
+        }
+    }
+
+    @PutMapping("")
+    public CommonResponse<List<ReserveProduct>> updateReserveProduct(@RequestBody ReserveProduct reserveProduct) {
+        //根据传入的农场编号 获取该农场的 可种植农产品列表
+        List<ReserveProduct> reserveProductList = reserveProductService.updateReserveProductsByReserveProduct(reserveProduct);
+        if (reserveProductList.size()!=0){
+            return CommonResponse.creatForSuccess(reserveProductList);
+        }else{
+            return CommonResponse.creatForError("修改的有问题哦!");
         }
     }
 

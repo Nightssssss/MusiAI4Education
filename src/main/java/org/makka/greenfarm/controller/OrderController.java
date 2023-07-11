@@ -91,4 +91,16 @@ public class OrderController {
         }
     }
 
+    @DeleteMapping("")
+    public CommonResponse<List<Order>> deleteOrdersByOid(@RequestParam String oid) {
+        // Return the token to the frontend
+        if (StpUtil.isLogin()) {
+            List<Order>orderList = orderService.deleteOrdersByOid(oid);
+            return CommonResponse.creatForSuccess(orderList);
+        } else {
+            // 令牌无效或解码错误
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
 }
