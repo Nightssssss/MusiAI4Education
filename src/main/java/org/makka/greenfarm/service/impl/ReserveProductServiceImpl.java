@@ -12,6 +12,7 @@ import org.makka.greenfarm.mapper.ReserveProductMapper;
 import org.makka.greenfarm.service.ReserveProductService;
 import org.makka.greenfarm.utils.MatrixAction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -118,6 +119,7 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
         return similarity;
     }
 
+    @Cacheable(value = "reserveProducts", key = "4")
     public List<ReserveProduct> getReserveProductRecommendList(String uid) {
         Set<String> recommendReserveProductList = recommendByUser(uid);
         List<ReserveProduct> reserveProductList = new ArrayList<>();

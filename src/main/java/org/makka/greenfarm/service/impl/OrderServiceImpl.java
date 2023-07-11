@@ -98,7 +98,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         QueryWrapper<Order> wrapper = new QueryWrapper<>();
         List<Order> orderList = orderMapper.selectList(wrapper);
         for(Order order:orderList){
-            System.out.println(addressListMapper.getBasicAddressDetailsByAid(order.getAid()));
             order.setAddressList(addressListMapper.getBasicAddressDetailsByAid(order.getAid()));
         }
         return orderList;

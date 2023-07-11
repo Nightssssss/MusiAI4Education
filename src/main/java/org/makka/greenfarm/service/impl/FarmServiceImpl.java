@@ -6,6 +6,7 @@ import org.makka.greenfarm.domain.FarmComment;
 import org.makka.greenfarm.mapper.FarmMapper;
 import org.makka.greenfarm.service.FarmService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.xml.stream.events.Comment;
@@ -17,6 +18,7 @@ public class FarmServiceImpl extends ServiceImpl<FarmMapper, Farm> implements Fa
     @Autowired
     private FarmMapper farmMapper;
 
+    @Cacheable(value = "farms", key = "2")
     //获取农场列表
     public List<Farm> getFarmList() {
         //获取所有农场信息
