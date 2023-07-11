@@ -49,12 +49,12 @@ public class ForumController {
         }
     }
 
-    @GetMapping("/mime")
+    @GetMapping("/mine")
     // 获取当前用户的所有帖子
     public CommonResponse<List<Forum>> getForumListByUid(){
         if(StpUtil.isLogin()){
             String uid = StpUtil.getLoginIdAsString();
-            return CommonResponse.creatForSuccess(forumService.getForumByUid(uid));
+            return CommonResponse.creatForSuccess(forumService.getForumListByUid(uid));
         } else{
             return CommonResponse.creatForError("请先登录！");
         }
@@ -68,7 +68,7 @@ public class ForumController {
             String uid = StpUtil.getLoginIdAsString();
             if(forumService.updateForum(forumId, title, content, image, request)){
                 // 成功返回所有帖子
-                return CommonResponse.creatForSuccess(forumService.getForumByUid(uid));
+                return CommonResponse.creatForSuccess(forumService.getForumListByUid(uid));
             }else{
                 return CommonResponse.creatForError("fail");
             }
@@ -84,7 +84,7 @@ public class ForumController {
             String uid = StpUtil.getLoginIdAsString();
             if(forumService.deleteForum(forumId)){
                 // 成功返回所有帖子
-                return CommonResponse.creatForSuccess(forumService.getForumByUid(uid));
+                return CommonResponse.creatForSuccess(forumService.getForumListByUid(uid));
             }else{
                 return CommonResponse.creatForError("fail");
             }

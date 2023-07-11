@@ -32,7 +32,7 @@ public class ForumServiceImpl extends ServiceImpl<ForumMapper, Forum> implements
     public boolean addForum(String uid, String title, String content,
                                 MultipartFile image, HttpServletRequest request){
         //获取标题图的url
-        String imageUrl = UploadAction.uploadForumImage(request,image) + "";
+        String imageUrl = UploadAction.uploadForumImage(request,image);
         Forum forum = new Forum();
         //设置帖子的各个属性
         //随机编号
@@ -48,14 +48,15 @@ public class ForumServiceImpl extends ServiceImpl<ForumMapper, Forum> implements
         return result == 1;
     }
 
-    public List<Forum> getForumByUid(String uid){
+    public List<Forum> getForumListByUid(String uid){
         QueryWrapper<Forum> wrapper = new QueryWrapper<>();
         wrapper.eq("uid", uid);
         List<Forum> forumList = forumMapper.selectList(wrapper);
         return forumList;
     }
 
-    public boolean updateForum(String forumId,String title, String content, MultipartFile image, HttpServletRequest request){
+    public boolean updateForum(String forumId,String title, String content,
+                               MultipartFile image, HttpServletRequest request){
         //获取标题图的url
         String imageUrl = UploadAction.uploadForumImage(request,image) + "";
         Forum forum = new Forum();

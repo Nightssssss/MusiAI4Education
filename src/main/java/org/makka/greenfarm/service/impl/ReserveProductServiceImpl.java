@@ -107,18 +107,6 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
         return MatrixAction.constructMatrix(uid, userMapList);
     }
 
-    // 计算两个用户的相似度
-    public double computeSimilarity(Set<String> set1, Set<String> set2) {
-        int commonCount = 0;
-        for (String item : set1) {
-            if (set2.contains(item)) {
-                commonCount++;
-            }
-        }
-        double similarity = commonCount / Math.sqrt(set1.size() * set2.size());
-        return similarity;
-    }
-
     @Cacheable(value = "reserveProducts", key = "4")
     public List<ReserveProduct> getReserveProductRecommendList(String uid) {
         Set<String> recommendReserveProductList = recommendByUser(uid);

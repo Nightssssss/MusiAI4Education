@@ -61,7 +61,7 @@ public class SaleProductsController {
         if (StpUtil.isLogin()) {
             String uid = StpUtil.getLoginIdAsString();
             List<SaleProduct> saleProductRecommendList = saleProductService.getSaleProductRecommendList(uid);
-            if (saleProductRecommendList.size()!=0){
+            if (saleProductRecommendList.size()>=3){
                 return CommonResponse.creatForSuccess(saleProductRecommendList);
             }else{
                 return CommonResponse.creatForSuccess(saleProductService.getSaleProductTop3List());
