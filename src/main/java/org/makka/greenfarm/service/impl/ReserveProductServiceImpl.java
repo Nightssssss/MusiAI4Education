@@ -3,15 +3,21 @@ package org.makka.greenfarm.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.makka.greenfarm.domain.*;
+import org.makka.greenfarm.mapper.FarmMapper;
 import org.makka.greenfarm.mapper.OrderMapper;
 import org.makka.greenfarm.mapper.ReserveProductFavoriteMapper;
 import org.makka.greenfarm.mapper.ReserveProductMapper;
 import org.makka.greenfarm.service.ReserveProductService;
 import org.makka.greenfarm.utils.MatrixAction;
+import org.makka.greenfarm.utils.UploadAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import java.time.Year;
 import java.util.*;
 
 @Service
@@ -25,6 +31,9 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private FarmMapper farmMapper;
 
     @Override
     public List<ReserveProduct> getReserveProductsByFarmId(String fid) {
@@ -46,9 +55,33 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
 
     //新增可种植农产品
     @Override
-    public List<ReserveProduct> addReserveProductsByReserveProduct(ReserveProduct reserveProduct) {
+    public List<ReserveProduct> addReserveProductsByReserveProduct(String name, String ownerid,  double uniprice, int yield,
+                                                                   int costTime,  String description,  int stock,
+                                                                    MultipartFile image, HttpServletRequest request) {
+
+        QueryWrapper<Farm> wrapper = new QueryWrapper<>();
+        wrapper.eq("ownerid", ownerid);
+        Farm farm = farmMapper.selectOne(wrapper);
+        String fid = farm.getFid();
+
+        ReserveProduct reserveProduct = new ReserveProduct();
+        reserveProduct.setRpid(String.valueOf(System.currentTimeMillis()));
+        reserveProduct.setName(name);
+        reserveProduct.setFid(fid);
+        reserveProduct.setUniprice(uniprice);
+
+        reserveProduct.setCostTime(costTime);
+        reserveProduct.setYield(yield);
+
+        reserveProduct.setStock(stock);
+        reserveProduct.setDescription(description);
+        reserveProduct.setChoice(1);
+        String imageUrl = UploadAction.uploadSaleProductImage(request, image);
+        reserveProduct.setPicture(imageUrl);
+
         reserveProductMapper.insert(reserveProduct);
-        return getReserveProductsByFarmId(reserveProduct.getFid());
+        return getReserveProductsByFarmId(fid);
+
     }
 
     @Override

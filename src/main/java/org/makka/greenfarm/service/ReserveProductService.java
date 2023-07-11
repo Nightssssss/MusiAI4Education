@@ -5,7 +5,9 @@ import org.makka.greenfarm.domain.Farm;
 import org.makka.greenfarm.domain.ReserveProduct;
 import org.makka.greenfarm.domain.ReserveProductComment;
 import org.makka.greenfarm.domain.User;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface ReserveProductService extends IService<ReserveProduct> {
@@ -16,7 +18,9 @@ public interface ReserveProductService extends IService<ReserveProduct> {
     public ReserveProduct getReserveProductDetail(String productId);
 
     //新增可种植农产品
-    public List<ReserveProduct> addReserveProductsByReserveProduct(ReserveProduct reserveProduct);
+    public List<ReserveProduct> addReserveProductsByReserveProduct(String name, String ownerid, double uniprice, int yield,
+                                                                   int costTime, String description, int stock,
+                                                                   MultipartFile image, HttpServletRequest request);
 
     //下架可种植农产品
     public List<ReserveProduct> offShelfReserveProductsByProductId(String rpid);
