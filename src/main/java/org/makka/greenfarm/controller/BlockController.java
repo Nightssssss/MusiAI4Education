@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 public class BlockController {
 
-    @Resource
+    @Autowired
     BlockService blockService;
 
     @Autowired
@@ -63,6 +63,9 @@ public class BlockController {
     @GetMapping("/mine")
     @ResponseBody
     public String createNewBlock(List<Order> orderList) {
+        if (blockCache.getBlockChain().size() == 0) {
+            blockService.createGenesisBlock();
+        }
         powService.mine(orderList);
         return JSON.toJSONString(blockCache.getBlockChain());
     }
