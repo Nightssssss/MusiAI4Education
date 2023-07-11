@@ -18,7 +18,4 @@ public class Transaction implements Serializable {
      * 业务数据
      */
     private String businessInfo;
-
-    private List<Order> orderList;
-
 }

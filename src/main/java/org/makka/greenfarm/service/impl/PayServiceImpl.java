@@ -39,9 +39,10 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, Pay> implements PaySe
             totalPrice += order.getQuantity()*order.getUniprice();
             System.out.println(totalPrice);
         }
-        blockUtil.createNewBlock(orderList);
         //获取订单ID
         String orderId = orderList.get(0).getOid();
+
+        blockUtil.createNewBlock(orderList);
 
         //获得初始化的AlipayClient
         AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.gatewayUrl, AlipayConfig.APP_ID, AlipayConfig.APP_PRIVATE_KEY, "json", AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.sign_type);
