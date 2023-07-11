@@ -37,4 +37,16 @@ public class NoticeController {
         // Return the token to the frontend
         return CommonResponse.creatForSuccess(noticeService.addNotice(notice));
     }
+
+    @PutMapping("")
+    public CommonResponse<List<Notice>> updateNotice(@RequestBody Notice notice) {
+        // Return the token to the frontend
+        return CommonResponse.creatForSuccess(noticeService.updateNotice(notice));
+    }
+
+    @DeleteMapping("")
+    public CommonResponse<List<Notice>> deleteNoticeByNid(@RequestParam String nid) {
+        // Return the token to the frontend
+        return CommonResponse.creatForSuccess(noticeService.deleteNoticeById(nid));
+    }
 }

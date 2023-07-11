@@ -12,4 +12,8 @@ public interface NoticeService extends IService<Notice> {
     public Notice getNoticeByNid(String nid);
 
     public List<Notice> addNotice(Notice notice);
+
+    public List<Notice> updateNotice(Notice notice);
+
+    public List<Notice> deleteNoticeById(String nid);
 }
