@@ -1,4 +1,4 @@
-package org.makka.greenfarm.utils;
+package org.makka.greenfarm.BlockChain;
 
 /**
  * 常量工具类

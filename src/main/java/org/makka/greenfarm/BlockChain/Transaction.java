@@ -1,8 +1,10 @@
-package org.makka.greenfarm.utils;
+package org.makka.greenfarm.BlockChain;
 
 import lombok.Data;
+import org.makka.greenfarm.domain.Order;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class Transaction implements Serializable {
@@ -16,5 +18,7 @@ public class Transaction implements Serializable {
      * 业务数据
      */
     private String businessInfo;
+
+    private List<Order> orderList;
 
 }

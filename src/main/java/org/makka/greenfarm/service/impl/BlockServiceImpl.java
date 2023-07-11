@@ -1,11 +1,11 @@
 package org.makka.greenfarm.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import org.makka.greenfarm.utils.BlockCache;
+import org.makka.greenfarm.BlockChain.BlockCache;
 import org.makka.greenfarm.service.BlockService;
-import org.makka.greenfarm.utils.Block;
+import org.makka.greenfarm.BlockChain.Block;
 import org.makka.greenfarm.utils.CryptoUtil;
-import org.makka.greenfarm.utils.Transaction;
+import org.makka.greenfarm.BlockChain.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

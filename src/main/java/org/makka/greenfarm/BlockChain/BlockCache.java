@@ -1,8 +1,6 @@
-package org.makka.greenfarm.utils;
+package org.makka.greenfarm.BlockChain;
 
-import lombok.Data;
 import org.java_websocket.WebSocket;
-import org.makka.greenfarm.utils.Block;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

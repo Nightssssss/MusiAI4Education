@@ -1,15 +1,17 @@
 package org.makka.greenfarm.controller;
 
 import com.alibaba.fastjson.JSON;
+import org.makka.greenfarm.domain.Order;
 import org.makka.greenfarm.service.BlockService;
 import org.makka.greenfarm.service.impl.PowServiceImpl;
-import org.makka.greenfarm.utils.BlockCache;
+import org.makka.greenfarm.BlockChain.BlockCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @RestController
 public class BlockController {
@@ -60,8 +62,8 @@ public class BlockController {
      */
     @GetMapping("/mine")
     @ResponseBody
-    public String createNewBlock() {
-        powService.mine();
+    public String createNewBlock(List<Order> orderList) {
+        powService.mine(orderList);
         return JSON.toJSONString(blockCache.getBlockChain());
     }
 }

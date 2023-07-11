@@ -1,7 +1,7 @@
 package org.makka.greenfarm.service;
 
-import org.makka.greenfarm.utils.Block;
-import org.makka.greenfarm.utils.Transaction;
+import org.makka.greenfarm.BlockChain.Block;
+import org.makka.greenfarm.BlockChain.Transaction;
 
 import java.util.List;
 

@@ -6,6 +6,7 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.makka.greenfarm.config.AlipayConfig;
+import org.makka.greenfarm.controller.BlockController;
 import org.makka.greenfarm.domain.Order;
 import org.makka.greenfarm.domain.Pay;
 import org.makka.greenfarm.mapper.PayMapper;
@@ -34,6 +35,8 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, Pay> implements PaySe
             totalPrice += order.getQuantity()*order.getUniprice();
             System.out.println(totalPrice);
         }
+        BlockController blockController = new BlockController();
+        blockController.createNewBlock(orderList);
 
         //获取订单ID
         String orderId = orderList.get(0).getOid();

@@ -1,4 +1,4 @@
-package org.makka.greenfarm.utils;
+package org.makka.greenfarm.BlockChain;
 
 import lombok.Data;
 
