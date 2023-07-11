@@ -11,6 +11,7 @@ import org.makka.greenfarm.domain.Order;
 import org.makka.greenfarm.domain.Pay;
 import org.makka.greenfarm.mapper.PayMapper;
 import org.makka.greenfarm.service.PayService;
+import org.makka.greenfarm.utils.BlockUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,8 +36,7 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, Pay> implements PaySe
             totalPrice += order.getQuantity()*order.getUniprice();
             System.out.println(totalPrice);
         }
-        BlockController blockController = new BlockController();
-        blockController.createNewBlock(orderList);
+        BlockUtil.createNewBlock(orderList);
 
         //获取订单ID
         String orderId = orderList.get(0).getOid();
