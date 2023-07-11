@@ -24,4 +24,7 @@ public class Notice {
     private String content;     //公告内容
 
     private String picture;     //公告图片
+
+    @TableField(exist = false)
+    private String farmName;    //农场名称
 }

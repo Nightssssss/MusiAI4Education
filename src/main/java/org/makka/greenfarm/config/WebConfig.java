@@ -1,6 +1,6 @@
 package org.makka.greenfarm.config;
 
-import lombok.Value;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +12,8 @@ public class WebConfig implements WebMvcConfigurer {
     /**
      * 图片保存路径，自动从yml文件中获取数据
      */
-    private String fileSavePath = "/home/lighthouse/images/";
+    @Value("${file.savePath}")
+    private String fileSavePath;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
