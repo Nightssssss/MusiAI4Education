@@ -4,7 +4,9 @@ import com.alipay.api.domain.Sale;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.makka.greenfarm.domain.ReserveProduct;
 import org.makka.greenfarm.domain.SaleProduct;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface SaleProductService extends IService<SaleProduct> {
@@ -15,7 +17,7 @@ public interface SaleProductService extends IService<SaleProduct> {
     public SaleProduct getSaleProductDetail(String productId);
 
     //新增可种植农产品
-    public List<SaleProduct> addSaleProductsBySaleProduct(SaleProduct saleProduct);
+    public List<SaleProduct> addSaleProductsBySaleProduct(String ownerid,String name,double uniprice,int stock,String description,MultipartFile image, HttpServletRequest request);
 
     //下架可种植农产品
     public List<SaleProduct> offShelfSaleProductsByProductId(String spid);
