@@ -13,7 +13,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class UploadAction {
-    private static String fileSavePath="/home/lighthouse/images/";
+    @Value("${file.savePath}")
+    private static String fileSavePath;
 
     public static String uploadAvatar(HttpServletRequest request, MultipartFile file) {
         System.out.println("图片上传，保存位置：" + fileSavePath);

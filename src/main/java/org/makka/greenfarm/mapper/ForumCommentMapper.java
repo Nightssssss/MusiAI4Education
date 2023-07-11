@@ -13,4 +13,8 @@ import java.util.List;
 
 @Mapper
 public interface ForumCommentMapper extends BaseMapper<ForumComment> {
+    @Select("select forum_comment.cid,forum_comment.commentTime,forum_comment.uid,forum_comment.fid,forum_comment.content,user.avatar,user.nickname" +
+            " from forum_comment,user " +
+            "where forum_comment.fid = #{forumId} and forum_comment.uid = user.uid")
+    public List<ForumComment> getForumCommentList(String forumId);
 }

@@ -4,13 +4,15 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @TableName(value = "forum_comment")
 public class ForumComment {
     private String cid;     //评论ID
 
     @TableField(value = "commentTime")
-    private String commentTime;     //评论时间
+    private LocalDateTime commentTime;     //评论时间
 
     private String uid;     //用户ID
 
