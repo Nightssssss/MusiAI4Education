@@ -26,6 +26,9 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, Pay> implements PaySe
     @Autowired
     private PayMapper payMapper;
 
+    @Autowired
+    private BlockUtil blockUtil;
+
     //获取订单信息
     @Override
     public String getPay(List<Order> orderList) throws UnsupportedEncodingException {
@@ -36,8 +39,7 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, Pay> implements PaySe
             totalPrice += order.getQuantity()*order.getUniprice();
             System.out.println(totalPrice);
         }
-        BlockUtil.createNewBlock(orderList);
-
+        blockUtil.createNewBlock(orderList);
         //获取订单ID
         String orderId = orderList.get(0).getOid();
 

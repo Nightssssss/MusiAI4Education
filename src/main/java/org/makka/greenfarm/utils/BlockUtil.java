@@ -12,12 +12,12 @@ import java.util.List;
 @Component
 public class BlockUtil {
     @Autowired
-    private static PowServiceImpl powService;
+    private PowServiceImpl powService;
 
     @Autowired
-    private static BlockCache blockCache;
+    private BlockCache blockCache;
 
-    public static String createNewBlock(List<Order> orderList) {
+    public String createNewBlock(List<Order> orderList) {
         powService.mine(orderList);
         return JSON.toJSONString(blockCache.getBlockChain());
     }
