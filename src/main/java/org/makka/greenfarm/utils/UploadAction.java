@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class UploadAction {
-    private static final String fileSavePath = "/home/lighthouse/images/";
+    private static final String fileSavePath = "D://images/";
 
     public static String uploadUserAvatar(HttpServletRequest request, MultipartFile file) {
         System.out.println("图片上传，保存位置：" + fileSavePath);
@@ -63,9 +63,7 @@ public class UploadAction {
 
     public static String uploadForumImage(HttpServletRequest request, MultipartFile file) {
         File dir = new File(fileSavePath);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+
         System.out.println("图片上传，保存位置：" + fileSavePath);
         //3.给文件重新设置一个名字
         //后缀
@@ -73,6 +71,9 @@ public class UploadAction {
         String newFileName= UUID.randomUUID().toString().replaceAll("-", "")+suffix;
         //4.创建这个新文件
         File newFile = new File(fileSavePath + "/forum/" + newFileName);
+        if (!newFile.exists()) {
+            newFile.mkdirs();
+        }
         //5.复制操作
         try {
             file.transferTo(newFile);
@@ -87,9 +88,7 @@ public class UploadAction {
 
     public static String uploadNoticeImage(HttpServletRequest request, MultipartFile file) {
         File dir = new File(fileSavePath);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+
         System.out.println("图片上传，保存位置：" + fileSavePath);
         //3.给文件重新设置一个名字
         //后缀
@@ -97,6 +96,9 @@ public class UploadAction {
         String newFileName= UUID.randomUUID().toString().replaceAll("-", "")+suffix;
         //4.创建这个新文件
         File newFile = new File(fileSavePath + "/notice/" + newFileName);
+        if (!newFile.exists()) {
+            newFile.mkdirs();
+        }
         //5.复制操作
         try {
             file.transferTo(newFile);
@@ -111,9 +113,7 @@ public class UploadAction {
 
     public static String uploadSaleProductImage(HttpServletRequest request, MultipartFile file) {
         File dir = new File(fileSavePath);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+
         System.out.println("图片上传，保存位置：" + fileSavePath);
         //3.给文件重新设置一个名字
         //后缀
@@ -121,6 +121,9 @@ public class UploadAction {
         String newFileName= UUID.randomUUID().toString().replaceAll("-", "")+suffix;
         //4.创建这个新文件
         File newFile = new File(fileSavePath + "/product/sale/" + newFileName);
+        if (!newFile.exists()) {
+            newFile.mkdirs();
+        }
         //5.复制操作
         try {
             file.transferTo(newFile);
@@ -135,9 +138,7 @@ public class UploadAction {
 
     public static String uploadReserveProductImage(HttpServletRequest request, MultipartFile file) {
         File dir = new File(fileSavePath);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+
         System.out.println("图片上传，保存位置：" + fileSavePath);
         //3.给文件重新设置一个名字
         //后缀
@@ -145,6 +146,9 @@ public class UploadAction {
         String newFileName= UUID.randomUUID().toString().replaceAll("-", "")+suffix;
         //4.创建这个新文件
         File newFile = new File(fileSavePath + "/product/reserve/" + newFileName);
+        if (!newFile.exists()) {
+            newFile.mkdirs();
+        }
         //5.复制操作
         try {
             file.transferTo(newFile);

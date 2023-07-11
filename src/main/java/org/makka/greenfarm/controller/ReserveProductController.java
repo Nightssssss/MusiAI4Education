@@ -8,11 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/farms/products/reserve")
-public class ReserveProductsController {
+public class ReserveProductController {
 
     @Autowired
     private ReserveProductService reserveProductService;
@@ -21,15 +20,15 @@ public class ReserveProductsController {
     public CommonResponse<List<ReserveProduct>> login(@PathVariable("farmId") String farmId) {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         List<ReserveProduct> reserveProductList = reserveProductService.getReserveProductsByFarmId(farmId);
-        if (reserveProductList.size()!=0){
+        if (reserveProductList.size() != 0) {
             return CommonResponse.creatForSuccess(reserveProductList);
-        }else{
+        } else {
             return CommonResponse.creatForError("该农场可种植农产品列表为空！");
         }
     }
 
     @GetMapping("/details/{productId}")
-    public CommonResponse<ReserveProduct> getReserveProductDetail(@PathVariable String productId){
+    public CommonResponse<ReserveProduct> getReserveProductDetail(@PathVariable String productId) {
         return CommonResponse.creatForSuccess(reserveProductService.getReserveProductDetail(productId));
     }
 
@@ -38,9 +37,9 @@ public class ReserveProductsController {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         reserveProductService.addReserveProductsByReserveProduct(reserveProduct);
         List<ReserveProduct> reserveProductList = reserveProductService.getReserveProductsByFarmId(reserveProduct.getFid());
-        if (reserveProductList.size()!=0){
+        if (reserveProductList.size() != 0) {
             return CommonResponse.creatForSuccess(reserveProductList);
-        }else{
+        } else {
             return CommonResponse.creatForError("该农场可种植农产品列表为空！");
         }
     }
@@ -49,9 +48,9 @@ public class ReserveProductsController {
     public CommonResponse<List<ReserveProduct>> offShelfReserveProduct(@RequestParam String rpid) {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
         List<ReserveProduct> reserveProductList = reserveProductService.offShelfReserveProductsByProductId(rpid);
-        if (reserveProductList.size()!=0){
+        if (reserveProductList.size() != 0) {
             return CommonResponse.creatForSuccess(reserveProductList);
-        }else{
+        } else {
             return CommonResponse.creatForError("该农场可种植农产品列表为空！");
         }
     }
@@ -62,9 +61,9 @@ public class ReserveProductsController {
         if (StpUtil.isLogin()) {
             String uid = StpUtil.getLoginIdAsString();
             List<ReserveProduct> reserveProductRecommendList = reserveProductService.getReserveProductRecommendList(uid);
-            if (reserveProductRecommendList.size()!=0){
-                return CommonResponse.creatForSuccess(reserveProductRecommendList);
-            }else{
+            if (reserveProductRecommendList.size() >= 3) {
+                return CommonResponse.creatForSuccess(reserveProductRecommendList.subList(0, 3));
+            } else {
                 return CommonResponse.creatForSuccess(reserveProductService.getReserveProductTop3List());
             }
         } else {
