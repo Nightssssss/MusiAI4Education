@@ -35,4 +35,8 @@ public interface UserService extends IService<User> {
 
     //通过face_token取到用户信息
     public String getFaceUidByUsername(String username);
+
+    public int getIsPremiumByUid(String uid);
+
+    public void updateUserState(String uid);
 }

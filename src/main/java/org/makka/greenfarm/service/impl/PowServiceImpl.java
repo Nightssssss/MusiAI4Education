@@ -52,8 +52,21 @@ public class PowServiceImpl {
         tsa2.setBusinessInfo("block height："+(blockCache.getLatestBlock().getIndex()+1));
         tsaList.add(tsa2);
         Transaction tsa3 = new Transaction();
-        tsa3.setOrderList(orderList);
+        tsa3.setId("3");
+        tsa3.setBusinessInfo("orderId："+ orderList.get(0).getOid());
         tsaList.add(tsa3);
+        for (Order order : orderList){
+            Transaction tsa4 = new Transaction();
+            tsa4.setBusinessInfo("userId："+ order.getUid());
+            tsaList.add(tsa4);
+            Transaction tsa5 = new Transaction();
+            tsa5.setBusinessInfo("productId："+ order.getPid());
+            tsaList.add(tsa5);
+            Transaction tsa6 = new Transaction();
+            tsa6.setBusinessInfo("totalAmount："+ order.getQuantity()*order.getUniprice());
+            tsaList.add(tsa6);
+        }
+
 
         // 定义每次哈希函数的结果
         String newBlockHash = "";

@@ -1,17 +1,16 @@
 package org.makka.greenfarm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.baidu.aip.face.AipFace;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.User;
 import org.makka.greenfarm.service.UserService;
+import org.makka.greenfarm.utils.UploadAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,12 +35,14 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public CommonResponse<String> login(@RequestParam String username, @RequestParam String password) {
+    public CommonResponse<List<String>> login(@RequestParam String username, @RequestParam String password) {
         // 验证是否登录成功并返回token
         if (userService.validation(username, password)) {
             String uid = userService.getUidByUsername(username);
             StpUtil.login(uid);
-            return CommonResponse.creatForSuccess(StpUtil.getTokenValue());
+            int isPremium = userService.getIsPremiumByUid(uid);
+            List<String> tokenAndIsPremium = List.of(StpUtil.getTokenValue(), String.valueOf(isPremium));
+            return CommonResponse.creatForSuccess(tokenAndIsPremium);
         } else {
             return CommonResponse.creatForError("用户名或密码错误");
         }
@@ -55,9 +56,15 @@ public class UserController {
 
     @PostMapping("/logout")
     public CommonResponse<String> logout() {
-        // Return the token to the frontend
-        StpUtil.logout();
-        return CommonResponse.creatForSuccess("success");
+        if (!StpUtil.isLogin()) {
+            return CommonResponse.creatForError("已经登出！");
+        } else {
+            String uid = StpUtil.getLoginIdAsString();
+            userService.updateUserState(uid);
+            // Return the token to the frontend
+            StpUtil.logout();
+            return CommonResponse.creatForSuccess("success");
+        }
     }
 
     @PostMapping("/avatar")
