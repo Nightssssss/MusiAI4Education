@@ -157,4 +157,17 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
         QueryWrapper<ReserveProduct> wrapper1 = new QueryWrapper<>();
         return reserveProductMapper.selectList(wrapper1);
     }
+
+    @Override
+    public String updateReserveProductsStatusByRpid(String rpid, int quantity) {
+        QueryWrapper<ReserveProduct> wrapper = new QueryWrapper<>();
+        wrapper.eq("rpid", rpid);
+        ReserveProduct reserveProduct = reserveProductMapper.selectOne(wrapper);
+        // 更新可种植农产品库存
+        reserveProduct.setStock(reserveProduct.getStock()-quantity);
+        // 更新可种植农产品销量
+        reserveProduct.setSales(reserveProduct.getSales()+quantity);
+        reserveProductMapper.updateById(reserveProduct);
+        return "success";
+    }
 }

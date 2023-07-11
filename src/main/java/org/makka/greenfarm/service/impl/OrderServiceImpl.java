@@ -9,7 +9,8 @@ import org.makka.greenfarm.mapper.OrderMapper;
 import org.makka.greenfarm.mapper.ReserveProductMapper;
 import org.makka.greenfarm.mapper.SaleProductMapper;
 import org.makka.greenfarm.service.OrderService;
-import org.mockito.internal.matchers.Or;
+import org.makka.greenfarm.service.ReserveProductService;
+import org.makka.greenfarm.service.SaleProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private OrderMapper orderMapper;
     @Autowired
     private AddressListMapper addressListMapper;
+    @Autowired
+    private ReserveProductService reserveProductService;
+    @Autowired
+    private SaleProductService saleProductService;
+
 
     @Override
     public List<Order> initOrder(List<Product> productList, AddressList addressList) {
@@ -74,6 +80,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 baseMapper.insert(order);
                 orderList.add(order);
             }
+        }
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.eq("oid", oid);
+        for(Order order:orderList){
+            order.setAddressList(addressListMapper.getBasicAddressDetailsByAid(order.getAid()));
         }
         return orderList;
     }
@@ -124,6 +135,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         for(Order order:orderList){
             QueryWrapper<Order> wrapper1 = new QueryWrapper<>();
             order.setStatus("已支付");
+            if(order.getType()==0){
+                //是在售农产品
+                saleProductService.updateSaleProductsStatusBySpid(order.getPid(),order.getQuantity());
+            }else{
+                //是可种植农产品
+                reserveProductService.updateReserveProductsStatusByRpid(order.getPid(),order.getQuantity());
+            }
             wrapper1.eq("oid", oid);
             wrapper1.eq("pid", order.getPid());
             orderMapper.update(order,wrapper1);
@@ -133,6 +151,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         System.out.println(orderMapper.selectList(wrapper2));
         return orderMapper.selectList(wrapper2);
     }
+
+
+
 
     @Override
     public List<Order> updateReserveOrdersStatusByOrderId(String oid) {
