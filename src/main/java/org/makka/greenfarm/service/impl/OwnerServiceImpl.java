@@ -17,8 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 
 @Service
 public class OwnerServiceImpl extends ServiceImpl<OwnerMapper, Owner> implements OwnerService {
-
-
     @Autowired
     private OwnerMapper ownerMapper; // 注入UserMapper接口
 
@@ -74,7 +72,7 @@ public class OwnerServiceImpl extends ServiceImpl<OwnerMapper, Owner> implements
 
     @Override
     public boolean updateAvatar(String oid, HttpServletRequest request, MultipartFile file) {
-        String avatar = UploadAction.uploadAvatar(request, file) + "";
+        String avatar = UploadAction.uploadOwnerAvatar(request, file) + "";
         QueryWrapper<Owner> wrapper = new QueryWrapper<>();
         wrapper.eq("oid", oid);
         Owner owner = ownerMapper.selectOne(wrapper);
