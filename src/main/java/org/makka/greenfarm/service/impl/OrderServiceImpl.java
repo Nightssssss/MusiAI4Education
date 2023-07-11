@@ -4,10 +4,8 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.makka.greenfarm.domain.*;
-import org.makka.greenfarm.mapper.AddressListMapper;
-import org.makka.greenfarm.mapper.OrderMapper;
-import org.makka.greenfarm.mapper.ReserveProductMapper;
-import org.makka.greenfarm.mapper.SaleProductMapper;
+import org.makka.greenfarm.mapper.*;
+import org.makka.greenfarm.service.FarmService;
 import org.makka.greenfarm.service.OrderService;
 import org.makka.greenfarm.service.ReserveProductService;
 import org.makka.greenfarm.service.SaleProductService;
@@ -34,6 +32,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private ReserveProductService reserveProductService;
     @Autowired
     private SaleProductService saleProductService;
+    @Autowired
+    private FarmMapper farmMapper;
 
 
     @Override
@@ -210,5 +210,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return orderMapper.selectList(wrapper1);
     }
 
-
+    @Override
+    public List<Order> getSaleOrdersByOwnerId(String ownerid) {
+        QueryWrapper<Farm> wrapper = new QueryWrapper<>();
+        wrapper.eq("ownerid", ownerid);
+        Farm farm = farmMapper.selectOne(wrapper);
+        String fid = farm.getFid();
+        return orderMapper.getSaleOrdersByFid(fid);
+    }
 }
