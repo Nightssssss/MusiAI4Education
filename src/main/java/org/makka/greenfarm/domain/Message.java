@@ -5,17 +5,52 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 
+import java.io.Serializable;
+
+/**
+ * p2p通讯消息
+ *
+ * @author Jared Jia
+ *
+ */
 @Data
-@TableName(value = "message")
-public class Message {
-    @TableId
-    private String mid;     //消息id
+public class Message implements Serializable {
 
-    private DateTimeLiteralExpression.DateTime msgTime;     //消息时间
+    private static final long serialVersionUID = 1L;
+    /**
+     * 消息类型
+     */
+    private int type;
+    /**
+     * 消息内容
+     */
+    private String data;
 
-    private String sid;     //发送方id
+    public Message() {
+    }
 
-    private String rid;     //接收方id
+    public Message(int type) {
+        this.type = type;
+    }
 
-    private String content;     //消息内容
+    public Message(int type, String data) {
+        this.type = type;
+        this.data = data;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
 }
