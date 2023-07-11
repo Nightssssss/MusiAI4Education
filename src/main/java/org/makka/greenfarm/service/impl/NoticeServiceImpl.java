@@ -28,4 +28,19 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
         queryWrapper.eq("nid",nid);
         return noticeMapper.selectOne(queryWrapper);
     }
+
+    @Override
+    public List<Notice> addNotice(Notice notice) {
+
+        //生成公告编号
+
+        //生成公告时间
+        //
+
+
+
+        noticeMapper.insert(notice);
+        QueryWrapper<Notice> queryWrapper = new QueryWrapper<>();
+        return noticeMapper.selectList(queryWrapper);
+    }
 }

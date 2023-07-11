@@ -117,7 +117,7 @@ public class UserController {
     }
 
     @PostMapping("/face-register")
-    public String register(String username,String faceBase) throws JSONException {
+    public CommonResponse<String> register(String username,String faceBase) throws JSONException {
         if(!StringUtils.isEmpty(username) && !StringUtils.isEmpty(faceBase)) {
             // 文件上传的地址
             System.out.println(filePath);
@@ -133,7 +133,7 @@ public class UserController {
             //判断是否已有该用户
             User exitUser = userService.selectUserByName(username);
             if(exitUser != null) {
-                return "2";
+                return CommonResponse.creatForSuccess("数据库中已存在该用户!");
             }
             // 向百度云人脸库插入一张人脸，并将face_token返回
             String face_token = faceSetAddUser(aipFace,faceBase,username);
@@ -145,11 +145,11 @@ public class UserController {
             // 保存上传摄像头捕获的图片
             saveLocalImage(faceBase, file);
         }
-        return "1";
+        return CommonResponse.creatForSuccess("人脸注册成功!");
     }
 
     @PostMapping("/face-login")
-    public String login(String faceBase) throws JSONException {
+    public CommonResponse<List<String>> login(String faceBase) throws JSONException {
         String faceData = faceBase;
         // 进行人像数据对比
         Map<String,Double> map = verifyUser(faceData,aipFace);
@@ -158,10 +158,14 @@ public class UserController {
         Double num = map.get(username);
         //获取UID
         String uid = userService.getUidByUsername(username);
+        StpUtil.login(uid);
+        int isPremium = userService.getIsPremiumByUid(uid);
+        List<String> tokenAndIsPremium = List.of(StpUtil.getTokenValue(), String.valueOf(isPremium));
+
         if( num > 95) {
-            return "1";
+            return CommonResponse.creatForSuccess(tokenAndIsPremium);
         }else {
-            return "2";
+            return CommonResponse.creatForError("人脸匹配失败,请靠近或清洗摄像头!");
         }
     }
 

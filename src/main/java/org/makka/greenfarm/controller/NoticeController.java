@@ -6,10 +6,7 @@ import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.Notice;
 import org.makka.greenfarm.service.NoticeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,5 +30,11 @@ public class NoticeController {
         }else{
             return CommonResponse.creatForSuccess(notice);
         }
+    }
+
+    @PostMapping("")
+    public CommonResponse<List<Notice>> addNotice(@RequestBody Notice notice) {
+        // Return the token to the frontend
+        return CommonResponse.creatForSuccess(noticeService.addNotice(notice));
     }
 }
