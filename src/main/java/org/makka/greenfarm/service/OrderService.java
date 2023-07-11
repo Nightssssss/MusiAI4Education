@@ -31,4 +31,7 @@ public interface OrderService extends IService<Order> {
     //更新数据库中订单状态
     public List<Order> updateSaleOrdersStatusByOrderId(String oid);
 
+    //删除数据库中订单
+    public List<Order> deleteOrdersByOid(String oid);
+
 }
