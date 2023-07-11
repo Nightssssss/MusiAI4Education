@@ -155,7 +155,7 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
         saleProduct1.setUniprice(saleProduct.getUniprice());
         saleProduct1.setStock(saleProduct.getStock());
         saleProduct1.setDescription(saleProduct.getDescription());
-
+        saleProduct1.setShelves(saleProduct.getShelves());
         //saleProduct1.setPicture(saleProduct.getPicture());
 
         //修改商品图片

@@ -1,6 +1,7 @@
 package org.makka.greenfarm.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import org.apache.ibatis.annotations.Param;
 import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.ReserveProduct;
 import org.makka.greenfarm.domain.SaleProduct;
@@ -36,10 +37,12 @@ public class ReserveProductController {
     }
 
     @PostMapping("")
-    public CommonResponse<List<ReserveProduct>> addReserveProduct(@RequestBody ReserveProduct reserveProduct) {
+    public CommonResponse<List<ReserveProduct>> addReserveProduct(@RequestParam String name, @RequestParam Double uniprice, @RequestParam int stock,
+                                                                  @RequestParam String ownerid, @RequestParam int yield, @RequestParam int costTime,
+                                                                  @RequestParam String description, @RequestParam MultipartFile image, HttpServletRequest request) {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
-        reserveProductService.addReserveProductsByReserveProduct(reserveProduct);
-        List<ReserveProduct> reserveProductList = reserveProductService.getReserveProductsByFarmId(reserveProduct.getFid());
+        List<ReserveProduct> reserveProductList = reserveProductService.addReserveProductsByReserveProduct(name,ownerid,uniprice,yield,costTime,description,stock,image,request);
+//        List<ReserveProduct> reserveProductList = reserveProductService.getReserveProductsByFarmId(reserveProduct.getFid());
         if (reserveProductList.size() != 0) {
             return CommonResponse.creatForSuccess(reserveProductList);
         } else {

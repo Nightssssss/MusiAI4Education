@@ -18,7 +18,9 @@ public interface ReserveProductService extends IService<ReserveProduct> {
     public ReserveProduct getReserveProductDetail(String productId);
 
     //新增可种植农产品
-    public List<ReserveProduct> addReserveProductsByReserveProduct(ReserveProduct reserveProduct);
+    public List<ReserveProduct> addReserveProductsByReserveProduct(String name, String ownerid, double uniprice, int yield,
+                                                                   int costTime, String description, int stock,
+                                                                   MultipartFile image, HttpServletRequest request);
 
     //下架可种植农产品
     public List<ReserveProduct> offShelfReserveProductsByProductId(String rpid);
