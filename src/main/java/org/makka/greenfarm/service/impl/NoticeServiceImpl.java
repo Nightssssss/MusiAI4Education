@@ -18,14 +18,10 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
 
     @Cacheable(value = "notices", key = "3")
     public List<Notice> getNoticeList() {
-        QueryWrapper<Notice> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("postTime");
-        return noticeMapper.selectList(queryWrapper);
+        return noticeMapper.getNoticeList();
     }
 
     public Notice getNoticeByNid(String nid){
-        QueryWrapper<Notice> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("nid",nid);
-        return noticeMapper.selectOne(queryWrapper);
+        return noticeMapper.getNoticeByNid(nid);
     }
 }
