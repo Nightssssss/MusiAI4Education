@@ -26,4 +26,13 @@ public interface UserService extends IService<User> {
     public User getUserInfo(String uid);
 
     public String getVirtualizationByUid(String uid);
+
+    //通过人脸信息连接数据库
+    public int addUsersByFace(User user);
+
+    //通过用户名取到用户信息
+    public User selectUserByName(String username);
+
+    //通过face_token取到用户信息
+    public String getFaceUidByUsername(String username);
 }

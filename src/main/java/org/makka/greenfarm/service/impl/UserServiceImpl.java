@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -118,5 +119,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         wrapper.eq("uid", uid);
         User user = userMapper.selectOne(wrapper);
         return user.getVirtualization();
+    }
+
+    @Override
+    public int addUsersByFace(User user) {
+        userMapper.insert(user);
+        System.out.println(user.getUsername());
+        return 1;
+    }
+
+    @Override
+    public User selectUserByName(String username) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("username", username);
+        return userMapper.selectOne(wrapper);
+    }
+
+    @Override
+    public String getFaceUidByUsername(String username) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("username", username);
+        return userMapper.selectOne(wrapper).getUid();
     }
 }

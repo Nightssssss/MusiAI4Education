@@ -13,6 +13,8 @@ public class User {
     User() {
     }
 
+    private static final long serialVersionUID = 1L;
+
     @TableId
     private String uid;     //用户ID
 
