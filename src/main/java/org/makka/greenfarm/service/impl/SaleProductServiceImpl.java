@@ -166,6 +166,17 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
         return saleProductMapper.selectList(wrapper1);
     }
 
-
+    @Override
+    public String updateSaleProductsStatusBySpid(String spid, int quantity) {
+        QueryWrapper<SaleProduct> wrapper = new QueryWrapper<>();
+        wrapper.eq("spid", spid);
+        SaleProduct saleProduct = saleProductMapper.selectOne(wrapper);
+        // 更新可种植农产品库存
+        saleProduct.setStock(saleProduct.getStock()-quantity);
+        // 更新可种植农产品销量
+        saleProduct.setSales(saleProduct.getSales()+quantity);
+        saleProductMapper.updateById(saleProduct);
+        return "success";
+    }
 
 }

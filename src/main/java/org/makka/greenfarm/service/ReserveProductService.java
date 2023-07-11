@@ -29,4 +29,8 @@ public interface ReserveProductService extends IService<ReserveProduct> {
 
     //修改可种植农产品
     public List<ReserveProduct> updateReserveProductsByReserveProduct(ReserveProduct reserveProduct);
+
+    //支付订单后更新可种植农产品的库存和销量
+    public String updateReserveProductsStatusByRpid(String rpid, int quantity);
+
 }

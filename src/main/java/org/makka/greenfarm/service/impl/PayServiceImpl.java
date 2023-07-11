@@ -33,7 +33,7 @@ public class PayServiceImpl extends ServiceImpl<PayMapper, Pay> implements PaySe
     @Override
     public String getPay(List<Order> orderList) throws UnsupportedEncodingException {
 
-        //获取订单总金额
+        //获取订单总金额，更新销量与库存
         Double totalPrice = 0.00;
         for(Order order:orderList){
             totalPrice += order.getQuantity()*order.getUniprice();
