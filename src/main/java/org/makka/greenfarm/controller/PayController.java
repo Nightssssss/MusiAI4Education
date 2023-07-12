@@ -19,8 +19,8 @@ public class PayController {
     @Autowired
     private OrderService orderService;
 
-    @GetMapping("/create")
-    public String payController(@RequestParam String oid) throws IOException {
+    @GetMapping("/create/{oid}")
+    public String payController(@PathVariable("oid") String oid) throws IOException {
         List<Order> orderList = orderService.selectOrdersByOrderId(oid);
         return payService.getPay(orderList);
     }
@@ -31,7 +31,6 @@ public class PayController {
         System.out.println(oid);
         // 更新数据库中的订单状态
         List<Order> orderList = orderService.updatePayOrdersStatusByOrderId(oid);
-
         return CommonResponse.creatForSuccess(orderList);
     }
 
