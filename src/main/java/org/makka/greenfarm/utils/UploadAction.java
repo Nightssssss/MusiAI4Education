@@ -15,6 +15,8 @@ import java.util.UUID;
 public class UploadAction {
     private static final String fileSavePath = "/home/lighthouse/images/";
 
+    private static final String ip = "175.178.5.157:80";
+
     public static String uploadUserAvatar(HttpServletRequest request, MultipartFile file) {
         System.out.println("图片上传，保存位置：" + fileSavePath);
         //3.给文件重新设置一个名字
@@ -30,7 +32,7 @@ public class UploadAction {
         try {
             file.transferTo(newFile);
             //协议 :// ip地址 ：端口号 / 文件目录(/images/2020/03/15/xxx.jpg)
-            String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/images/user/avatar/"  + newFileName;
+            String url = request.getScheme() + "://" + ip + "/images/user/avatar/"  + newFileName;
             System.out.println("图片上传，访问URL：" + url);
             return url;
         } catch (IOException e) {
@@ -53,7 +55,7 @@ public class UploadAction {
         try {
             file.transferTo(newFile);
             //协议 :// ip地址 ：端口号 / 文件目录(/images/2020/03/15/xxx.jpg)
-            String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/images/owner/avatar/"  + newFileName;
+            String url = request.getScheme() + "://" + ip  + "/images/owner/avatar/"  + newFileName;
             System.out.println("图片上传，访问URL：" + url);
             return url;
         } catch (IOException e) {
@@ -78,7 +80,7 @@ public class UploadAction {
         try {
             file.transferTo(newFile);
             //协议 :// ip地址 ：端口号 / 文件目录(/images/2020/03/15/xxx.jpg)
-            String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/images/forum/"  + newFileName;
+            String url = request.getScheme() + "://" + ip + "/images/forum/"  + newFileName;
             System.out.println("图片上传，访问URL：" + url);
             return url;
         } catch (IOException e) {
@@ -103,7 +105,7 @@ public class UploadAction {
         try {
             file.transferTo(newFile);
             //协议 :// ip地址 ：端口号 / 文件目录(/images/2020/03/15/xxx.jpg)
-            String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/images/notice/"  + newFileName;
+            String url = request.getScheme() + "://" + ip + "/images/notice/"  + newFileName;
             System.out.println("图片上传，访问URL：" + url);
             return url;
         } catch (IOException e) {
@@ -128,7 +130,7 @@ public class UploadAction {
         try {
             file.transferTo(newFile);
             //协议 :// ip地址 ：端口号 / 文件目录(/images/2020/03/15/xxx.jpg)
-            String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/images/product/sale/"  + newFileName;
+            String url = request.getScheme() + "://" + ip + "/images/product/sale/"  + newFileName;
             System.out.println("图片上传，访问URL：" + url);
             return url;
         } catch (IOException e) {
@@ -153,7 +155,7 @@ public class UploadAction {
         try {
             file.transferTo(newFile);
             //协议 :// ip地址 ：端口号 / 文件目录(/images/2020/03/15/xxx.jpg)
-            String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/images/product/reserve/"  + newFileName;
+            String url = request.getScheme() + "://" + ip + "/images/product/reserve/"  + newFileName;
             System.out.println("图片上传，访问URL：" + url);
             return url;
         } catch (IOException e) {

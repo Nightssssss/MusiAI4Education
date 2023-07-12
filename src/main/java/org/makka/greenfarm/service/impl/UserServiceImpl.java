@@ -63,13 +63,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setUid(uid);
             // 设置默认头像
             if (user.getGender().equals("male")){
-                user.setAvatar("http://localhost:8080/images/user/avatar/default_male.png");
+                user.setAvatar("http://localhost:80/images/user/avatar/default_male.png");
             }else if (user.getGender().equals("female")){
-                user.setAvatar("http://localhost:8080/images/user/avatar/default_female.png");
+                user.setAvatar("http://localhost:80/images/user/avatar/default_female.png");
             }else{
-                user.setAvatar("http://localhost:8080/images/user/avatar/default.png");
+                user.setAvatar("http://localhost:80/images/user/avatar/default.png");
             }
-            user.setVirtualization("http://175.178.5.157:8080/images/user/virtualization/default.gif");
+            user.setVirtualization("http://175.178.5.157:80/images/user/virtualization/default.gif");
             // 不存在则插入
             userMapper.insert(user);
             return CommonResponse.creatForSuccess("注册成功");
