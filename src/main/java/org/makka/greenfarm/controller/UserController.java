@@ -117,7 +117,7 @@ public class UserController {
     }
 
     @PostMapping("/face-register")
-    public CommonResponse<String> register(String username,String faceBase) throws JSONException {
+    public CommonResponse<String> register(@RequestParam String username,@RequestParam String faceBase) throws JSONException {
         if(!StringUtils.isEmpty(username) && !StringUtils.isEmpty(faceBase)) {
             // 文件上传的地址
             System.out.println(filePath);
