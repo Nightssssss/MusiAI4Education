@@ -36,4 +36,6 @@ public interface OrderService extends IService<Order> {
 
     public List<Order> getSaleOrdersByOwnerId(String ownerid);
 
+    public List<Order> getReserveOrdersByOwnerId(String ownerid);
+
 }

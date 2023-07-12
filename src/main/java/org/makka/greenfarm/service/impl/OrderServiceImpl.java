@@ -238,4 +238,33 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         return orderList;
     }
+
+    @Override
+    public List<Order> getReserveOrdersByOwnerId(String ownerid) {
+        QueryWrapper<Farm> wrapper = new QueryWrapper<>();
+        wrapper.eq("ownerid", ownerid);
+        Farm farm = farmMapper.selectOne(wrapper);
+        String fid = farm.getFid();
+
+        // 查找fid对应的pid
+        QueryWrapper<ReserveProduct> wrapper1 = new QueryWrapper<>();
+        wrapper1.eq("fid", fid);
+        List<ReserveProduct> reserveProductList = reserveProductMapper.selectList(wrapper1);
+
+        List<Order> orderList = new ArrayList<>();
+        // 查找pid对应的orderList
+        for (ReserveProduct reserveProduct : reserveProductList) {
+            QueryWrapper<Order> wrapper2 = new QueryWrapper<>();
+            wrapper2.eq("pid", reserveProduct.getRpid());
+            List<Order> orderListTmp = orderMapper.selectList(wrapper2);
+            for (Order order : orderListTmp) {
+                QueryWrapper<AddressList> wrapper3 = new QueryWrapper<>();
+                wrapper3.eq("aid", order.getAid());
+                order.setAddressList(addressListMapper.selectOne(wrapper3));
+                order.setImage(reserveProduct.getPicture());
+            }
+            orderList.addAll(orderListTmp);
+        }
+        return orderList;
+    }
 }
