@@ -21,11 +21,15 @@ public class ReserveProductController {
     @GetMapping("")
     public CommonResponse<List<ReserveProduct>> getOwnerReserveProduct() {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
+        if (StpUtil.isLogin()) {
         List<ReserveProduct> reserveProductList = reserveProductService.getReserveProducts();
         if (reserveProductList.size() != 0) {
             return CommonResponse.creatForSuccess(reserveProductList);
         } else {
             return CommonResponse.creatForError("尊敬的农场主，该农场可种植农产品列表为空！");
+        }
+        }else{
+            return CommonResponse.creatForError("请先登录！");
         }
     }
 

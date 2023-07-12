@@ -21,11 +21,14 @@ public class SaleProductsController {
     @GetMapping("")
     public CommonResponse<List<SaleProduct>> getOwnerSaleProduct() {
         //根据传入的农场编号 获取该农场的 可种植农产品列表
+        if (StpUtil.isLogin()) {
         List<SaleProduct> saleProductList = saleProductService.getSaleProducts();
         if (saleProductList.size() != 0) {
             return CommonResponse.creatForSuccess(saleProductList);
         } else {
             return CommonResponse.creatForError("尊敬的农场主，该农场在售农产品列表为空！");
+        }}else{
+            return CommonResponse.creatForError("请先登录！");
         }
     }
 
