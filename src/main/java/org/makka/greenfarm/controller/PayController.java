@@ -21,18 +21,19 @@ public class PayController {
 
     @GetMapping("/create/{oid}")
     public String payController(@PathVariable("oid") String oid) throws IOException {
-        List<Order> orderList = orderService.selectOrdersByOrderId(oid);
+        List<Order> orderList = orderService.updatePayOrdersStatusByOrderId(oid);
+//        orderList = orderService.selectOrdersByOrderId(oid);
         return payService.getPay(orderList);
     }
 
-    // 处理支付宝回调URL的方法
-    @RequestMapping("/return")
-    public CommonResponse<List<Order>> handleReturn(@RequestParam("orderId") String oid) {
-        System.out.println(oid);
-        // 更新数据库中的订单状态
-        List<Order> orderList = orderService.updatePayOrdersStatusByOrderId(oid);
-        return CommonResponse.creatForSuccess(orderList);
-    }
+//    // 处理支付宝回调URL的方法
+//    @RequestMapping("/return")
+//    public CommonResponse<List<Order>> handleReturn(@RequestParam("orderId") String oid) {
+//        System.out.println(oid);
+//        // 更新数据库中的订单状态
+//        List<Order> orderList = orderService.updatePayOrdersStatusByOrderId(oid);
+//        return CommonResponse.creatForSuccess(orderList);
+//    }
 
     // 处理支付宝异步通知URL的方法
     @RequestMapping("/notify")
