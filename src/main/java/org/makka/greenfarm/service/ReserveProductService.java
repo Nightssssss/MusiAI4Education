@@ -12,6 +12,9 @@ import java.util.List;
 
 public interface ReserveProductService extends IService<ReserveProduct> {
 
+    //农场主获取该农场的 可种植农产品列表
+    public List<ReserveProduct> getReserveProducts();
+
     //根据传入的农场编号 获取该农场的 可种植农产品列表
     public List<ReserveProduct> getReserveProductsByFarmId(String fid);
 

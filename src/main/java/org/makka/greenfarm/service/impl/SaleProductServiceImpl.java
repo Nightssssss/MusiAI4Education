@@ -1,10 +1,12 @@
 package org.makka.greenfarm.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.makka.greenfarm.domain.*;
 import org.makka.greenfarm.mapper.*;
 import org.makka.greenfarm.mapper.SaleProductMapper;
+import org.makka.greenfarm.service.OwnerService;
 import org.makka.greenfarm.service.SaleProductService;
 import org.makka.greenfarm.utils.MatrixAction;
 import org.makka.greenfarm.utils.UploadAction;
@@ -29,6 +31,18 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
 
     @Autowired
     private FarmMapper farmMapper;
+
+    @Autowired
+    private OwnerService ownerService;
+
+    @Override
+    public List<SaleProduct> getSaleProducts() {
+        String oid = StpUtil.getLoginIdAsString();
+        String fid= ownerService.getFidByOwnerId(oid);
+        QueryWrapper<SaleProduct> wrapper = new QueryWrapper<>();
+        wrapper.eq("fid", fid);
+        return saleProductMapper.selectList(wrapper);
+    }
 
     @Override
     public List<SaleProduct> getSaleProductsByFarmId(String fid) {

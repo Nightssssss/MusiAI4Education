@@ -11,6 +11,9 @@ import java.util.List;
 
 public interface SaleProductService extends IService<SaleProduct> {
 
+    //农场主获取该农场的 在售农产品列表
+    public List<SaleProduct> getSaleProducts();
+
     //根据传入的农场编号 获取该农场的 在售农产品列表
     public List<SaleProduct> getSaleProductsByFarmId(String fid);
 

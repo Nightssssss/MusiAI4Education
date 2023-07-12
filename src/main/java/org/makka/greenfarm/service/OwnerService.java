@@ -25,7 +25,7 @@ public interface OwnerService extends IService<Owner> {
 
     public Owner getOwnerInfo(String oid);
 
-
-
+    //通过农场主id（ownerid）找到农场id(fid)
+    public String getFidByOwnerId(String fid);
 
 }

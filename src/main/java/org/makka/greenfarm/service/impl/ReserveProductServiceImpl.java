@@ -1,12 +1,15 @@
 package org.makka.greenfarm.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.makka.greenfarm.common.CommonResponse;
 import org.makka.greenfarm.domain.*;
 import org.makka.greenfarm.mapper.FarmMapper;
 import org.makka.greenfarm.mapper.OrderMapper;
 import org.makka.greenfarm.mapper.ReserveProductFavoriteMapper;
 import org.makka.greenfarm.mapper.ReserveProductMapper;
+import org.makka.greenfarm.service.OwnerService;
 import org.makka.greenfarm.service.ReserveProductService;
 import org.makka.greenfarm.utils.MatrixAction;
 import org.makka.greenfarm.utils.UploadAction;
@@ -34,6 +37,18 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
 
     @Autowired
     private FarmMapper farmMapper;
+
+    @Autowired
+    private OwnerService ownerService;
+
+    @Override
+    public List<ReserveProduct> getReserveProducts() {
+        String oid = StpUtil.getLoginIdAsString();
+        String fid= ownerService.getFidByOwnerId(oid);
+        QueryWrapper<ReserveProduct> wrapper = new QueryWrapper<>();
+        wrapper.eq("fid", fid);
+        return reserveProductMapper.selectList(wrapper);
+    }
 
     @Override
     public List<ReserveProduct> getReserveProductsByFarmId(String fid) {

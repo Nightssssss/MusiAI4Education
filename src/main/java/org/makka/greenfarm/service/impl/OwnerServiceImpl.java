@@ -107,4 +107,11 @@ public class OwnerServiceImpl extends ServiceImpl<OwnerMapper, Owner> implements
         wrapper.eq("oid", oid);
         return ownerMapper.selectOne(wrapper);
     }
+
+    @Override
+    public String getFidByOwnerId(String ownerid) {
+        QueryWrapper<Owner> wrapper = new QueryWrapper<>();
+        wrapper.eq("oid", ownerid);
+        return ownerMapper.selectOne(wrapper).getFid();
+    }
 }
