@@ -144,8 +144,9 @@ public class UserController {
             userService.addUsersByFace(user);
             // 保存上传摄像头捕获的图片
             saveLocalImage(faceBase, file);
+            return CommonResponse.creatForSuccess("人脸注册成功!");
         }
-        return CommonResponse.creatForSuccess("人脸注册成功!");
+        return CommonResponse.creatForError("人脸注册失败!");
     }
 
     @PostMapping("/face-login")
