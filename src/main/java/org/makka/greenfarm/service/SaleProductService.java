@@ -36,4 +36,6 @@ public interface SaleProductService extends IService<SaleProduct> {
 
     //支付订单后更新在售农产品的库存和销量
     public String updateSaleProductsStatusBySpid(String spid, int quantity);
+
+    public List<SaleProduct> updateSaleProductImageBySpId(String spid,String ownerid, MultipartFile image, HttpServletRequest request);
 }

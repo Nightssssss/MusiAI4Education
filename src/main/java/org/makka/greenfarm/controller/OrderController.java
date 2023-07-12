@@ -103,4 +103,30 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/sale")
+    public CommonResponse<List<Order>> getSaleOrdersByFid() {
+        // Return the token to the frontend
+        if (StpUtil.isLogin()) {
+            String ownerid = StpUtil.getLoginIdAsString();
+            List<Order> orderList = orderService.getSaleOrdersByOwnerId(ownerid);
+            return CommonResponse.creatForSuccess(orderList);
+        } else {
+            // 令牌无效或解码错误
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @GetMapping("/reserve")
+    public CommonResponse<List<Order>> getReseveOrdersByFid() {
+        // Return the token to the frontend
+        if (StpUtil.isLogin()) {
+            String ownerid = StpUtil.getLoginIdAsString();
+            List<Order> orderList = orderService.getReserveOrdersByOwnerId(ownerid);
+            return CommonResponse.creatForSuccess(orderList);
+        } else {
+            // 令牌无效或解码错误
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
 }

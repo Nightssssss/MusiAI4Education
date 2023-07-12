@@ -40,4 +40,5 @@ public interface ReserveProductService extends IService<ReserveProduct> {
     //支付订单后更新可种植农产品的库存和销量
     public String updateReserveProductsStatusByRpid(String rpid, int quantity);
 
+    public List<ReserveProduct> updateReserveProductImageByRpId(String rpid, String ownerid,MultipartFile image, HttpServletRequest request);
 }

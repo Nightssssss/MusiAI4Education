@@ -34,4 +34,8 @@ public interface OrderService extends IService<Order> {
     //删除数据库中订单
     public List<Order> deleteOrdersByOid(String oid);
 
+    public List<Order> getSaleOrdersByOwnerId(String ownerid);
+
+    public List<Order> getReserveOrdersByOwnerId(String ownerid);
+
 }

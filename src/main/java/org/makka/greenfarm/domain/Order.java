@@ -35,4 +35,7 @@ public class Order {
 
         @TableField(exist = false)
         private AddressList addressList;      //地址列表
+
+        @TableField(exist = false)
+        private String image;       // 产品名称
 }

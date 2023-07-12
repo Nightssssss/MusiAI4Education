@@ -100,4 +100,20 @@ public class SaleProductsController {
         }
     }
 
+    @PutMapping("/image/{spid}")
+    public CommonResponse<List<SaleProduct>> updateSaleProductImage(@PathVariable String spid, @RequestParam MultipartFile image, HttpServletRequest request) {
+        if (StpUtil.isLogin()) {
+            String ownerid = StpUtil.getLoginIdAsString();
+            //根据传入的农场编号 获取该农场的 可种植农产品列表
+            List<SaleProduct> saleProductList = saleProductService.updateSaleProductImageBySpId(spid,ownerid,image,request);
+            if (saleProductList.size()!=0){
+                return CommonResponse.creatForSuccess(saleProductList);
+            } else {
+                return CommonResponse.creatForError("该农场在售农产品列表为空！");
+            }
+        } else{
+            return CommonResponse.creatForError("请先登录！");
+        }
+    }
+
 }

@@ -206,4 +206,20 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
         reserveProductMapper.updateById(reserveProduct);
         return "success";
     }
+
+    @Override
+    public List<ReserveProduct> updateReserveProductImageByRpId(String rpid, String ownerid, MultipartFile image, HttpServletRequest request) {
+        QueryWrapper<Farm> wrapper1 = new QueryWrapper<>();
+        wrapper1.eq("ownerid", ownerid);
+        Farm farm = farmMapper.selectOne(wrapper1);
+        String fid = farm.getFid();
+
+        ReserveProduct reserveProduct = reserveProductMapper.selectById(rpid);
+        String imageUrl = UploadAction.uploadReserveProductImage(request, image);
+        reserveProduct.setPicture(imageUrl);
+        reserveProductMapper.updateById(reserveProduct);
+        QueryWrapper<ReserveProduct> wrapper = new QueryWrapper<>();
+        wrapper.eq("fid", fid);
+        return reserveProductMapper.selectList(wrapper);
+    }
 }

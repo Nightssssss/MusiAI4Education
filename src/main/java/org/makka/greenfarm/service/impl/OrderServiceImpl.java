@@ -4,10 +4,8 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.makka.greenfarm.domain.*;
-import org.makka.greenfarm.mapper.AddressListMapper;
-import org.makka.greenfarm.mapper.OrderMapper;
-import org.makka.greenfarm.mapper.ReserveProductMapper;
-import org.makka.greenfarm.mapper.SaleProductMapper;
+import org.makka.greenfarm.mapper.*;
+import org.makka.greenfarm.service.FarmService;
 import org.makka.greenfarm.service.OrderService;
 import org.makka.greenfarm.service.ReserveProductService;
 import org.makka.greenfarm.service.SaleProductService;
@@ -34,6 +32,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private ReserveProductService reserveProductService;
     @Autowired
     private SaleProductService saleProductService;
+    @Autowired
+    private FarmMapper farmMapper;
 
 
     @Override
@@ -210,5 +210,61 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return orderMapper.selectList(wrapper1);
     }
 
+    @Override
+    public List<Order> getSaleOrdersByOwnerId(String ownerid) {
+        QueryWrapper<Farm> wrapper = new QueryWrapper<>();
+        wrapper.eq("ownerid", ownerid);
+        Farm farm = farmMapper.selectOne(wrapper);
+        String fid = farm.getFid();
 
+        // 查找fid对应的pid
+        QueryWrapper<SaleProduct> wrapper1 = new QueryWrapper<>();
+        wrapper1.eq("fid", fid);
+        List<SaleProduct> saleProductList = saleProductMapper.selectList(wrapper1);
+
+        List<Order> orderList = new ArrayList<>();
+        // 查找pid对应的orderList
+        for (SaleProduct saleProduct : saleProductList) {
+            QueryWrapper<Order> wrapper2 = new QueryWrapper<>();
+            wrapper2.eq("pid", saleProduct.getSpid());
+            List<Order> orderListTmp = orderMapper.selectList(wrapper2);
+            for (Order order : orderListTmp) {
+                QueryWrapper<AddressList> wrapper3 = new QueryWrapper<>();
+                wrapper3.eq("aid", order.getAid());
+                order.setAddressList(addressListMapper.selectOne(wrapper3));
+                order.setImage(saleProduct.getPicture());
+            }
+            orderList.addAll(orderListTmp);
+        }
+        return orderList;
+    }
+
+    @Override
+    public List<Order> getReserveOrdersByOwnerId(String ownerid) {
+        QueryWrapper<Farm> wrapper = new QueryWrapper<>();
+        wrapper.eq("ownerid", ownerid);
+        Farm farm = farmMapper.selectOne(wrapper);
+        String fid = farm.getFid();
+
+        // 查找fid对应的pid
+        QueryWrapper<ReserveProduct> wrapper1 = new QueryWrapper<>();
+        wrapper1.eq("fid", fid);
+        List<ReserveProduct> reserveProductList = reserveProductMapper.selectList(wrapper1);
+
+        List<Order> orderList = new ArrayList<>();
+        // 查找pid对应的orderList
+        for (ReserveProduct reserveProduct : reserveProductList) {
+            QueryWrapper<Order> wrapper2 = new QueryWrapper<>();
+            wrapper2.eq("pid", reserveProduct.getRpid());
+            List<Order> orderListTmp = orderMapper.selectList(wrapper2);
+            for (Order order : orderListTmp) {
+                QueryWrapper<AddressList> wrapper3 = new QueryWrapper<>();
+                wrapper3.eq("aid", order.getAid());
+                order.setAddressList(addressListMapper.selectOne(wrapper3));
+                order.setImage(reserveProduct.getPicture());
+            }
+            orderList.addAll(orderListTmp);
+        }
+        return orderList;
+    }
 }
