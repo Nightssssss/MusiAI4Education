@@ -30,10 +30,8 @@ public class OrderController {
     public CommonResponse<List<Order>> initOrder(@RequestBody Map<String,Object> map) {
         // Return the token to the frontend
         if (StpUtil.isLogin()) {
-
             Object productInfo =  map.get("productList");
             String json = JSONUtil.toJsonStr(productInfo);
-
             ObjectMapper objectMapper = new ObjectMapper();
             try {
                 List<Product> productList = objectMapper.readValue(json, new TypeReference<List<Product>>() {});
