@@ -9,6 +9,4 @@ import java.util.List;
 
 @Mapper
 public interface OrderMapper extends BaseMapper<Order> {
-    @Select("select orders.* from orders,sale_product where orders.pid = sale_product.spid and sale_product.fid = #{fid}")
-    public List<Order> getSaleOrdersByFid(String fid);
 }

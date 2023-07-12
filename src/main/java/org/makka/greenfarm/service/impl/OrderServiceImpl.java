@@ -216,6 +216,26 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         wrapper.eq("ownerid", ownerid);
         Farm farm = farmMapper.selectOne(wrapper);
         String fid = farm.getFid();
-        return orderMapper.getSaleOrdersByFid(fid);
+
+        // 查找fid对应的pid
+        QueryWrapper<SaleProduct> wrapper1 = new QueryWrapper<>();
+        wrapper1.eq("fid", fid);
+        List<SaleProduct> saleProductList = saleProductMapper.selectList(wrapper1);
+
+        List<Order> orderList = new ArrayList<>();
+        // 查找pid对应的orderList
+        for (SaleProduct saleProduct : saleProductList) {
+            QueryWrapper<Order> wrapper2 = new QueryWrapper<>();
+            wrapper2.eq("pid", saleProduct.getSpid());
+            List<Order> orderListTmp = orderMapper.selectList(wrapper2);
+            for (Order order : orderListTmp) {
+                QueryWrapper<AddressList> wrapper3 = new QueryWrapper<>();
+                wrapper3.eq("aid", order.getAid());
+                order.setAddressList(addressListMapper.selectOne(wrapper3));
+                order.setImage(saleProduct.getPicture());
+            }
+            orderList.addAll(orderListTmp);
+        }
+        return orderList;
     }
 }
