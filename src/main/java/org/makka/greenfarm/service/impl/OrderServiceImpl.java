@@ -77,6 +77,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 order.setType(product.getType());
                 ReserveProduct reserveProduct = searchReserveProductUnitPriceById(product.getProductId());
                 order.setUniprice(reserveProduct.getUniprice());
+
+                //添加可种植农产品在农场中的经纬度
+                order.setLongitude(product.getLongitude());
+                order.setLatitude(product.getLatitude());
+
                 baseMapper.insert(order);
                 orderList.add(order);
             }

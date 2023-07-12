@@ -1,4 +1,5 @@
 package org.makka.greenfarm.domain;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 @Data
@@ -9,5 +10,9 @@ public class Product {
     private int quantity;
     //产品类型
     private int type;
+
+    private String longitude;       //经度
+
+    private String latitude;        //纬度
 
 }

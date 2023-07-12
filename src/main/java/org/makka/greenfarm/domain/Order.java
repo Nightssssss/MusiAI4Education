@@ -38,4 +38,10 @@ public class Order {
 
         @TableField(exist = false)
         private String image;       // 产品名称
+
+        @TableField(exist = false)
+        private String longitude;       //经度
+
+        @TableField(exist = false)
+        private String latitude;        //纬度
 }
