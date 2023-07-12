@@ -55,7 +55,7 @@ public class OwnerServiceImpl extends ServiceImpl<OwnerMapper, Owner> implements
             // 生成不重复的oid
             String oid = String.valueOf(System.currentTimeMillis());
             owner.setOid(oid);
-            owner.setAvatar("http://localhost:8080/images/owner/avatar/default.png");
+            owner.setAvatar("http://localhost:80/images/owner/avatar/default.png");
             // 不存在则插入
             ownerMapper.insert(owner);
             return CommonResponse.creatForSuccess("注册成功");
