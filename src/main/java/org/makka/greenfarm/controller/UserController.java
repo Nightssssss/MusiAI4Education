@@ -150,7 +150,7 @@ public class UserController {
     }
 
     @PostMapping("/face-login")
-    public CommonResponse<List<String>> login(String faceBase) throws JSONException {
+    public CommonResponse<List<String>> login(@RequestParam String faceBase) throws JSONException {
         String faceData = faceBase;
         // 进行人像数据对比
         Map<String,Double> map = verifyUser(faceData,aipFace);
