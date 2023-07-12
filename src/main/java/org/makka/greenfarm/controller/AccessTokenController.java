@@ -32,8 +32,7 @@ public class AccessTokenController {
 
     @GetMapping("/callback")
     public String callback(@RequestParam("code") String code,
-                           @RequestParam("state") String state,
-                           Model model) {
+                           @RequestParam("state") String state) {
 
         //用户授权信息
         ProviderToken token = new ProviderToken();
