@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/progress")
+@RequestMapping("/progress")
 public class ProgressController {
     @Autowired
     private ProgressService progressService;

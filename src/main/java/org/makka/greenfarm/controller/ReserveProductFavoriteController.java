@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/api/farms/products/reserve/favorites")
+@RequestMapping("/farms/products/reserve/favorites")
 public class ReserveProductFavoriteController {
 
     @Autowired

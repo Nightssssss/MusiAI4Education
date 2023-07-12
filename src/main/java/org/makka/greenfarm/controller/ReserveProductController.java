@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/farms/products/reserve")
+@RequestMapping("/farms/products/reserve")
 public class ReserveProductController {
 
     @Autowired

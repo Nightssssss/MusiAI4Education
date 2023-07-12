@@ -16,7 +16,7 @@ public class FarmCommentController {
     @Autowired
     private FarmCommentService farmCommentService;
 
-    @PostMapping("/api/farms/comments")
+    @PostMapping("/farms/comments")
     public CommonResponse<List<FarmComment>> postFarmComment(@RequestParam String farmId, @RequestParam String content) {
         // Return the token to the frontend
         //检查是否登录

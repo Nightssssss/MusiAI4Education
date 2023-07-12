@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/alipay")
+@RequestMapping("/alipay")
 public class PayController {
 
     @Autowired

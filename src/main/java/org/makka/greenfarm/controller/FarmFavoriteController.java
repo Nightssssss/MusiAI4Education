@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/farms/favorites")
+@RequestMapping("/farms/favorites")
 public class FarmFavoriteController {
 
     @Autowired

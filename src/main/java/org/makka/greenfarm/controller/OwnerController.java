@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/api/owners")
+@RequestMapping("/owners")
 public class OwnerController {
     @Autowired
     private OwnerService ownerService;

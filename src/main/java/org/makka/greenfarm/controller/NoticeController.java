@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/notices")
+@RequestMapping("/notices")
 public class NoticeController {
     @Autowired
     private NoticeService noticeService;

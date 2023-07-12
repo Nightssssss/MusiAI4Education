@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/address")
+@RequestMapping("/address")
 public class AddressListController {
     @Autowired
     private AddressListService addressListService;
