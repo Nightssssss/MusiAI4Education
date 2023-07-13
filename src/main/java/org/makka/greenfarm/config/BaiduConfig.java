@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class BaiduConfig {
 
+
+    //人脸识别
     @Value("${baidu.appId}")
     private String appId;
 

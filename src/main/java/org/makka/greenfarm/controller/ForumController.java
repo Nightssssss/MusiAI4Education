@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/forums")
 public class ForumController {
+
     @Autowired
     private ForumService forumService;
 

@@ -13,6 +13,7 @@ import java.io.IOException;
 @WebFilter(filterName = "CORSFilter")
 public class CORSFilter implements Filter {
 
+    //跨域访问
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
