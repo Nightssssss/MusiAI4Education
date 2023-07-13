@@ -152,7 +152,6 @@ public class ReserveProductServiceImpl extends ServiceImpl<ReserveProductMapper,
         return MatrixAction.constructMatrix(uid, userMapList);
     }
 
-    @Cacheable(value = "reserveProducts", key = "4")
     public List<ReserveProduct> getReserveProductRecommendList(String uid) {
         Set<String> recommendReserveProductList = recommendByUser(uid);
         List<ReserveProduct> reserveProductList = new ArrayList<>();

@@ -10,9 +10,6 @@ import java.util.Date;
 @Data
 @TableName(value = "user")
 public class User {
-    User() {
-    }
-
     private static final long serialVersionUID = 1L;
 
     @TableId
