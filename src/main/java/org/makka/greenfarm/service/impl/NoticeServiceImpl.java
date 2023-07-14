@@ -29,7 +29,6 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
     @Autowired
     private FarmMapper farmMapper;
 
-    @Cacheable(value = "notices", key = "3")
     public List<Notice> getNoticeList() {
         return noticeMapper.getNoticeList();
     }

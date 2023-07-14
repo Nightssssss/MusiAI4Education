@@ -113,7 +113,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
-    @Cacheable(value = "users", key = "0")
     public User getUserInfo(String uid) {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("uid", uid);

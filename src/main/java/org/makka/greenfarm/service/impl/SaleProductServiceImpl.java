@@ -56,10 +56,8 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
     public SaleProduct getSaleProductDetail(String productId) {
         //获取可种植农产品详细信息
         SaleProduct saleProduct = saleProductMapper.selectById(productId);
-        System.out.println("the sale porduct is"+saleProduct);
         //设置评论
         saleProduct.setSaleProductCommentList(getSaleProductComment(productId));
-        System.out.println("the sale porduct is"+saleProduct);
         return saleProduct;
     }
 
@@ -139,7 +137,6 @@ public class SaleProductServiceImpl extends ServiceImpl<SaleProductMapper, SaleP
         return MatrixAction.constructMatrix(uid, userMapList);
     }
 
-    @Cacheable(value = "saleProducts", key = "5")
     public List<SaleProduct> getSaleProductRecommendList(String uid) {
         Set<String> recommendSaleProductList = recommendByUser(uid);
         List<SaleProduct> saleProductList = new ArrayList<>();

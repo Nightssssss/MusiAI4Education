@@ -124,11 +124,11 @@ public class UserController {
             // 图片名称
             String fileName = username + System.currentTimeMillis() + ".png";
             // 最终图片名称
-            System.out.println(filePath + "\\" + fileName);
-            File file = new File(filePath + "\\" + fileName);
-
+            System.out.println(filePath + "/" + fileName);
+            File file = new File(filePath + "/" + fileName);
+            System.out.println("this is facial recognition register");
             // 往数据库里插入一条用户数据
-            User user = null;
+            User user = new User();
             String uid = String.valueOf(System.currentTimeMillis());
             //判断是否已有该用户
             User exitUser = userService.selectUserByName(username);
@@ -238,7 +238,7 @@ public class UserController {
      * @return  返回类型：void
      * @throws
      */
-    public String faceSetAddUser(AipFace client, String faceBase, String username) throws JSONException {
+    public String faceSetAddUser(AipFace client,String faceBase, String username) throws JSONException {
         // 参数为数据库中注册的人脸
         HashMap<String, String> options = new HashMap<String, String>();
         options.put("user_info", "user's info");

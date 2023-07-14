@@ -108,7 +108,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return saleProductMapper.selectOne(wrapper);
     }
 
-    @Cacheable(value = "orders", key = "1")
     @Override
     public List<Order> selectOrder() {
         QueryWrapper<Order> wrapper = new QueryWrapper<>();
@@ -119,7 +118,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return orderList;
     }
 
-    @Cacheable(value = "orders", key = "0")
     @Override
     public List<Order> selectOrdersByOrderId(String oid) {
         QueryWrapper<Order> wrapper = new QueryWrapper<>();

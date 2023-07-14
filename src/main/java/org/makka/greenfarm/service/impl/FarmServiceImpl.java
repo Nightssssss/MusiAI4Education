@@ -18,7 +18,6 @@ public class FarmServiceImpl extends ServiceImpl<FarmMapper, Farm> implements Fa
     @Autowired
     private FarmMapper farmMapper;
 
-    @Cacheable(value = "farms", key = "2")
     //获取农场列表
     public List<Farm> getFarmList() {
         //获取所有农场信息
