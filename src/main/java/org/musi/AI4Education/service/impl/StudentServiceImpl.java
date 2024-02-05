@@ -99,7 +99,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
     public void updateStudentState(String sid,int state) {
         Student student = studentMapper.selectById(sid);
-        student.setIs_login(state);
+        student.setIsLogin(state);
         studentMapper.updateById(student);
     }
 }

@@ -23,14 +23,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/accounts")
 public class UserController {
-
-
     @Value("${file.path}")
     private String filePath;
-
     @Autowired
     private AipFace aipFace;
-
     @Autowired
     private UserService userService;
 
@@ -47,13 +43,11 @@ public class UserController {
             return CommonResponse.creatForError("用户名或密码错误");
         }
     }
-
     @PostMapping("/register")
     public CommonResponse<String> registerUser(@RequestBody User user) {
         // Return the token to the frontend
         return userService.register(user);
     }
-
     @PostMapping("/logout")
     public CommonResponse<String> logout() {
         if (!StpUtil.isLogin()) {

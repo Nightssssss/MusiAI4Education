@@ -18,7 +18,7 @@ public class StudentController {
     @Autowired
     private StudentService studentService;
 
-    @PostMapping("/login")
+    @GetMapping("/login")
     public CommonResponse<List<String>> login(@RequestParam String username, @RequestParam String password) {
         // 验证是否登录成功并返回token
         if (studentService.validation(username, password)) {
@@ -31,8 +31,16 @@ public class StudentController {
             resultList.add(sid);
             resultList.add(token);
 
+            Student student = studentService.getStudentBySid(sid);
+            System.out.println("this is before modfication");
+            System.out.println(student);
             //更新学生登录状态，设置为已登录
             studentService.updateStudentState(sid,1);
+
+            Student student1 = studentService.getStudentBySid(sid);
+            System.out.println("this is after modfication");
+            System.out.println(student1);
+
             return CommonResponse.creatForSuccess(resultList);
         } else {
             return CommonResponse.creatForError("用户名或密码错误");
@@ -45,7 +53,7 @@ public class StudentController {
         return studentService.register(student);
     }
 
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     public CommonResponse<String> logout() {
         if (!StpUtil.isLogin()) {
             return CommonResponse.creatForError("已经登出！");
@@ -55,6 +63,33 @@ public class StudentController {
             // Return the token to the frontend
             StpUtil.logout();
             return CommonResponse.creatForSuccess("success");
+        }
+    }
+
+    @GetMapping("/info")
+    public CommonResponse<Student> getStudentInfo() {
+        if (StpUtil.isLogin()) {
+            String sid = StpUtil.getLoginIdAsString();
+            Student student = studentService.getStudentBySid(sid);
+            return CommonResponse.creatForSuccess(student);
+        } else {
+            return CommonResponse.creatForError("请先登录！");
+        }
+    }
+
+    @PutMapping("/info")
+    public CommonResponse<Student> UpdateStudentInfo(@RequestBody Student student) {
+        if (StpUtil.isLogin()) {
+            String sid = StpUtil.getLoginIdAsString();
+            student.setSid(sid);
+            student.setIsLogin(1);
+            if (studentService.updateStudentInfo(student)) {
+                return CommonResponse.creatForSuccess(student);
+            } else {
+                return CommonResponse.creatForError("fail");
+            }
+        } else {
+            return CommonResponse.creatForError("请先登录！");
         }
     }
 }
