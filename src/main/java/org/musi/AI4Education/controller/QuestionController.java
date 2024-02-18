@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/student")
@@ -103,6 +104,53 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
+
+    @GetMapping("/question/base/basicQuestion")
+    public CommonResponse<BasicQuestion> getBasicQuestionByQid(@RequestBody BasicQuestion basicQuestion){
+        if (StpUtil.isLogin()){
+            return CommonResponse.creatForSuccess(basicQuestionService.getBasicQuestionByQid(basicQuestion));
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @GetMapping("/question/concrete")
+    public CommonResponse<ConcreteQuestion> getConcreteQuestionByQid(@RequestBody ConcreteQuestion concreteQuestion){
+        if (StpUtil.isLogin()){
+            return CommonResponse.creatForSuccess(concreteQuestionService.getConcreteQuestionByQid(concreteQuestion));
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+
+
+    @GetMapping("/question/base")
+    public CommonResponse<List<BasicQuestion>> getBasicQuestionList(){
+        if (StpUtil.isLogin()){
+            return CommonResponse.creatForSuccess(basicQuestionService.getBasicQuestionList());
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+    @GetMapping("/question/base/order")
+    public CommonResponse<List<BasicQuestion>> getBasicQuestionListInOrder(){
+        if (StpUtil.isLogin()){
+            return CommonResponse.creatForSuccess(basicQuestionService.getBasicQuestionListInOrder());
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+    @GetMapping("/question/base/mark")
+    public CommonResponse<List<BasicQuestion>> getMarkedBasicQuestionList(){
+        if (StpUtil.isLogin()){
+            return CommonResponse.creatForSuccess(basicQuestionService.getMarkedBasicQuestionList());
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+
 
     @PostMapping("/question/mark")
     public CommonResponse<BasicQuestion> addQuestionMark(@RequestBody BasicQuestion basicQuestion){

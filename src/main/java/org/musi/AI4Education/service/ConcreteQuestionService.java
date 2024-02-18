@@ -9,4 +9,6 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
 
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion);
 
+    //查询单个错题的详细信息
+    public ConcreteQuestion getConcreteQuestionByQid(ConcreteQuestion concreteQuestion);
 }

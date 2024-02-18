@@ -7,10 +7,10 @@ import org.musi.AI4Education.mapper.ConcreteQuestionMapper;
 import org.musi.AI4Education.service.ConcreteQuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.ArrayList;
 
 @Service
 public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMapper, ConcreteQuestion> implements ConcreteQuestionService {
@@ -21,6 +21,14 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion) {
         mongoTemplate.insert(concreteQuestion);
         return CommonResponse.creatForSuccess("添加成功");
+    }
+
+    @Override
+    public ConcreteQuestion getConcreteQuestionByQid(ConcreteQuestion concreteQuestion) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("qid").is(concreteQuestion.getQid()));
+        ConcreteQuestion concreteQuestion1 = mongoTemplate.findOne(query, ConcreteQuestion.class);
+        return concreteQuestion1;
     }
 
 }
