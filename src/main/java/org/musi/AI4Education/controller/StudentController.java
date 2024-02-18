@@ -32,15 +32,9 @@ public class StudentController {
             resultList.add(token);
 
             Student student = studentService.getStudentBySid(sid);
-            System.out.println("this is before modfication");
-            System.out.println(student);
             //更新学生登录状态，设置为已登录
             studentService.updateStudentState(sid,1);
-
             Student student1 = studentService.getStudentBySid(sid);
-            System.out.println("this is after modfication");
-            System.out.println(student1);
-
             return CommonResponse.creatForSuccess(resultList);
         } else {
             return CommonResponse.creatForError("用户名或密码错误");

@@ -65,6 +65,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         }
     }
 
+    @Override
     public CommonResponse<String> register(Student student) {
         // 先判断用户名是否在数据库中存在
         QueryWrapper<Student> wrapper = new QueryWrapper<>();
@@ -96,7 +97,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
             return CommonResponse.creatForSuccess("注册成功");
         }
     }
-
+    @Override
     public void updateStudentState(String sid,int state) {
         Student student = studentMapper.selectById(sid);
         student.setIsLogin(state);

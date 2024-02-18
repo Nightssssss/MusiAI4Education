@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Data
 @TableName(value = "student_profile")
-public class studentProfile {
+public class StudentProfile {
 
     @TableId
     private String sid;      //学生ID

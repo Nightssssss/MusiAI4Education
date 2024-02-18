@@ -5,27 +5,19 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.util.Date;
+import java.awt.*;
+import java.util.ArrayList;
 
 @Data
 @TableName(value = "question_concrete_info")
-public class concreteQuestion {
+public class ConcreteQuestion {
 
     @TableId
     private String qid;      //题目ID
-
     private String inspiration;     //易错点
-
-    @TableField(value = "question_text")
     private String questionText;      //题目文本内容
-
     private String reason;      //错误原因
-
-    @TableField(value = "question_steps")
-    private String questionSteps;       //错误类型
-
-    @TableField(value = "question_analysis")
-    private String questionAnalysis;      //错误详情
-
-    // Session
+    private ArrayList questionSteps;       //解题步骤
+    private String questionAnalysis;      //错题分析
+    //大模型对话session
 }
