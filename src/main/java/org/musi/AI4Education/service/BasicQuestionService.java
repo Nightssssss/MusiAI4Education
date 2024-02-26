@@ -22,10 +22,8 @@ public interface BasicQuestionService extends IService<BasicQuestion> {
     //查询被标记的错题
     public List<BasicQuestion> getMarkedBasicQuestionList();
 
-
     //查询单个错题的概要信息
     public BasicQuestion getBasicQuestionByQid(BasicQuestion basicQuestion);
-
 
     //将错题添加标记
     public BasicQuestion addQuestionMark(BasicQuestion basicQuestion);

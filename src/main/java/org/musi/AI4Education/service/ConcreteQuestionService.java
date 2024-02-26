@@ -1,11 +1,17 @@
 package org.musi.AI4Education.service;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.BasicQuestion;
 import org.musi.AI4Education.domain.ConcreteQuestion;
 
+import java.io.IOException;
+
 public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
+
+    //调用大模型生成答案
+    public JSON useWenxinToGetAnswer(String content) throws IOException;
 
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion);
 
