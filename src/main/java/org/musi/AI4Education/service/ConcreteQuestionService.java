@@ -12,6 +12,8 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
 
     //调用大模型生成答案
     public JSON useWenxinToGetAnswer(String content) throws IOException;
+    public JSON useWenxinToGetExplanation(String content) throws IOException;
+    public JSON useWenxinToGetSteps(String content) throws IOException;
 
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion);
 

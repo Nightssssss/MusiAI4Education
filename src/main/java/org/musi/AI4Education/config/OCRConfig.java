@@ -1,5 +1,17 @@
 package org.musi.AI4Education.config;
 
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.model.OSSObject;
+import org.musi.AI4Education.service.OSSService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.*;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
@@ -9,9 +21,10 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
+@Configuration
 public class OCRConfig {
-    public static String latexOcr(String image_path) {
+
+    public static String latexOcr(MultipartFile file) throws IOException {
         // 生成随机字符串
         String random_str = randomString();
         // 获取当前时间戳
@@ -25,10 +38,9 @@ public class OCRConfig {
 
         // 准备请求文件和数据
         String boundary = randomString();
-        String boundaryPrefix = "--";
         String lineEnd = "\r\n";
         String contentType = "multipart/form-data; boundary=" + boundary;
-        File file = new File(image_path);
+
         String fileName = file.getName();
         String postData = "--" + boundary + lineEnd +
                 "Content-Disposition: form-data; name=\"file\"; filename=\"" + fileName + "\"" + lineEnd +
@@ -37,7 +49,7 @@ public class OCRConfig {
 
         byte[] fileBytes;
         try {
-            fileBytes = Files.readAllBytes(file.toPath());
+            fileBytes = file.getBytes();
         } catch (IOException e) {
             e.printStackTrace();
             return null;

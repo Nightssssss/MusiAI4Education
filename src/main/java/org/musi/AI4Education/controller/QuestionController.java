@@ -15,15 +15,20 @@ import org.musi.AI4Education.mapper.HistoryMapper;
 import org.musi.AI4Education.service.BasicQuestionService;
 import org.musi.AI4Education.service.ConcreteQuestionService;
 import org.musi.AI4Education.service.HistoryService;
+import org.musi.AI4Education.service.OSSService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.musi.AI4Education.config.OCRConfig.latexOcr;
 
@@ -33,89 +38,125 @@ public class QuestionController {
 
     @Autowired
     private BasicQuestionService basicQuestionService;
-
     @Autowired
     private ConcreteQuestionService concreteQuestionService;
-
     @Autowired
     private HistoryService historyService;
+    @Autowired
+    private OSSService ossService;
+
 
     @PostMapping("/bigModel")
-    public CommonResponse<JSON> createQuestion(@RequestParam String filePath) throws IOException, JSONException {
-        if (StpUtil.isLogin()) {
+//    public CommonResponse<JSON> createQuestion(@RequestParam String filePath) throws IOException, JSONException {
+    public CommonResponse<String> createQuestion(MultipartFile file) throws Exception {
 
-            String formatted_latex_output = latexOcr(filePath);
-            JSONObject jsonObject = new JSONObject(formatted_latex_output);
+            if (StpUtil.isLogin()) {
+
+            //将图片传输到阿里云OSS，并返回存储的URL
+            String url = ossService.uploadFile(file);
+
+            //调用图像识别OCR，返回Latex字符串
+            String formatted_latex_output = latexOcr(file);
+
+            JSONObject ocrObject = new JSONObject(formatted_latex_output);
+            JSONObject res = ocrObject.getJSONObject("res");
 
             //获得题干文本信息
-            System.out.println("题干文本信息");
-            JSONObject res = jsonObject.getJSONObject("res");
             String content = res.getString("latex");
+
             System.out.println(content);
 
             //根据文本信息，大模型生成答案
-            JSON result=concreteQuestionService.useWenxinToGetAnswer(content);
-            System.out.println(result);
+            JSON answerJSON=concreteQuestionService.useWenxinToGetAnswer(content);
+            JSON explanationJSON=concreteQuestionService.useWenxinToGetExplanation(content);
+            JSON stepsJSON=concreteQuestionService.useWenxinToGetSteps(content);
 
-//            //存储错题概要信息
-//            BasicQuestion basicQuestion = new BasicQuestion();
-//            String sid =StpUtil.getLoginIdAsString();
-//            basicQuestion.setSid(sid);
-//            String qid = String.valueOf(System.currentTimeMillis());
-//            basicQuestion.setQid(qid);
-//            basicQuestion.setQuestionType("选择题");
-//            Date currentDate = new Date();
-//            basicQuestion.setDate(currentDate);
-//            basicQuestion.setSubject("数学");
-//            basicQuestion.setWrongType("计算错误");
-//            basicQuestion.setWrongDetails("正负值错误");
-//            basicQuestion.setMark(0);
-//            basicQuestion.setPosition("");
-//
-//            basicQuestionService.createBasicQuestion(basicQuestion);
-//
-//            //存储错题详细信息
-//            ConcreteQuestion concreteQuestion = new ConcreteQuestion();
-//
-//            concreteQuestion.setQid(qid);
-//            concreteQuestion.setInspiration("负负得正");
-//            concreteQuestion.setQuestionText(content);
-//
-//            ArrayList<QuestionStep> questionStepList = new ArrayList<QuestionStep>();
-//
-//            QuestionStep questionStep1 = new QuestionStep();
-//            questionStep1.setNumber(1);
-//            questionStep1.setContent("first step reason");
-//
-//            QuestionStep questionStep2 = new QuestionStep();
-//            questionStep2.setNumber(2);
-//            questionStep2.setContent("second step reason");
-//
-//            QuestionStep questionStep3 = new QuestionStep();
-//            questionStep3.setNumber(3);
-//            questionStep3.setContent("third step reason");
-//
-//            questionStepList.add(questionStep1);
-//            questionStepList.add(questionStep2);
-//            questionStepList.add(questionStep3);
-//
-//            concreteQuestion.setQuestionSteps(questionStepList);
-//            concreteQuestion.setQuestionAnalysis(String.valueOf(result));
-//
-//            concreteQuestionService.createConcreteQuestion(concreteQuestion);
-//
-//            History history = new History();
-//            String hid = String.valueOf(System.currentTimeMillis());
-//            history.setSid(sid);
-//            history.setHid(hid);
-//            history.setQid(qid);
-//            history.setTime(currentDate);
-//            history.setType("计算错误");
-//            history.setDetails("正负值错误");
-//
-//            historyService.createHistory(history);
+            JSONObject answerJSONObject= new JSONObject(String.valueOf(answerJSON));
+            JSONObject explanationJSONObject= new JSONObject(String.valueOf(explanationJSON));
+            JSONObject stepsJSONObject= new JSONObject(String.valueOf(stepsJSON));
 
-            return CommonResponse.creatForSuccess(result);
+
+            String answer = answerJSONObject.getString("result");
+            String explanation = explanationJSONObject.getString("result");
+            String steps = stepsJSONObject.getString("result");
+
+
+            //存储错题概要信息
+            BasicQuestion basicQuestion = new BasicQuestion();
+
+            String sid =StpUtil.getLoginIdAsString();
+            basicQuestion.setSid(sid);
+
+            String qid = String.valueOf(System.currentTimeMillis());
+            basicQuestion.setQid(qid);
+
+            Date currentDate = new Date();
+            basicQuestion.setDate(currentDate);
+
+            basicQuestion.setSubject("数学");
+
+
+            basicQuestion.setQuestionType("选择题");
+            basicQuestion.setWrongType("计算错误");
+            basicQuestion.setWrongDetails("正负值错误");
+
+            basicQuestion.setMark(0);
+            basicQuestion.setPath(url);
+            basicQuestionService.createBasicQuestion(basicQuestion);
+
+
+            //存储错题详细信息
+            ConcreteQuestion concreteQuestion = new ConcreteQuestion();
+
+            concreteQuestion.setQid(qid);
+
+            //易错点
+            concreteQuestion.setInspiration("负负得正");
+            //题目文本
+            concreteQuestion.setQuestionText(content);
+
+            //存储题目答案
+            concreteQuestion.setQuestionAnswer(answer);
+            //存储题目解析
+            concreteQuestion.setQuestionAnalysis(explanation);
+
+            ArrayList<QuestionStep> questionStepList = new ArrayList<QuestionStep>();
+
+            String stepsNew = steps+"\n";
+            // 使用正则表达式匹配模式
+            Pattern pattern = Pattern.compile("\n(\\d+)\\.(.*?)\n", Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(stepsNew);
+
+            // 存储匹配结果
+            List<String> results = new ArrayList<>();
+            while (matcher.find()) {
+                String match = matcher.group(2).trim(); // 提取第二个组的内容并去除两端空白
+                results.add(match);
+            }
+            int step = 0;
+            // 打印结果
+            for (String result : results) {
+                QuestionStep questionStep = new QuestionStep();
+                questionStep.setNumber(step+1);
+                questionStep.setContent(result);
+                questionStepList.add(questionStep);
+            }
+
+            concreteQuestion.setQuestionSteps(questionStepList);
+            concreteQuestionService.createConcreteQuestion(concreteQuestion);
+
+            History history = new History();
+            String hid = String.valueOf(System.currentTimeMillis());
+            history.setSid(sid);
+            history.setHid(hid);
+            history.setQid(qid);
+            history.setTime(currentDate);
+            history.setType("计算错误");
+            history.setDetails("正负值错误");
+
+            historyService.createHistory(history);
+
+            return CommonResponse.creatForSuccess(stepsNew);
         } else {
             // 令牌无效或解码错误
             return CommonResponse.creatForError("请先登录");

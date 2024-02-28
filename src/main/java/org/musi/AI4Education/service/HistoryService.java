@@ -1,12 +1,7 @@
 package org.musi.AI4Education.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.History;
-
-
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public interface HistoryService extends IService<History> {
