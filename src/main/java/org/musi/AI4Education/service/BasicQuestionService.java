@@ -40,6 +40,9 @@ public interface BasicQuestionService extends IService<BasicQuestion> {
     //查询错题所在位置
     public BasicQuestion getQuestionPosition(BasicQuestion basicQuestion);
 
+    public String getQuestionTextByQid(BasicQuestion basicQuestion);
+
+
 
 
 }

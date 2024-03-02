@@ -120,4 +120,13 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
         BasicQuestion basicQuestion1=basicQuestionMapper.selectOne(wrapper);
         return basicQuestion1;
     }
+
+    @Override
+    public String getQuestionTextByQid(BasicQuestion basicQuestion) {
+        QueryWrapper<BasicQuestion> wrapper = new QueryWrapper<>();
+        wrapper.eq("qid", basicQuestion.getQid());
+        System.out.println(basicQuestion.getQid());
+        BasicQuestion basicQuestion1=basicQuestionMapper.selectOne(wrapper);
+        return basicQuestion1.getQuestionText();
+    }
 }

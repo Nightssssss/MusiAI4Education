@@ -13,6 +13,7 @@ public class BasicQuestion {
     @TableId
     private String sid;     //学生ID
     private String qid;      //题目ID
+    private String questionText;     //题干
     private String questionType;      //题型
     private Date date;      //拍题时间
     private String subject;     //科目

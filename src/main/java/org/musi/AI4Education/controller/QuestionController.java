@@ -1,17 +1,17 @@
 package org.musi.AI4Education.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.musi.AI4Education.common.CommonResponse;
-import org.musi.AI4Education.config.OCRConfig;
-import org.musi.AI4Education.config.WenxinConfig;
 import org.musi.AI4Education.domain.BasicQuestion;
 import org.musi.AI4Education.domain.ConcreteQuestion;
 import org.musi.AI4Education.domain.History;
 import org.musi.AI4Education.domain.QuestionStep;
-import org.musi.AI4Education.mapper.HistoryMapper;
 import org.musi.AI4Education.service.BasicQuestionService;
 import org.musi.AI4Education.service.ConcreteQuestionService;
 import org.musi.AI4Education.service.HistoryService;
@@ -20,13 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,16 +45,15 @@ public class QuestionController {
 
 
     @PostMapping("/bigModel")
-//    public CommonResponse<JSON> createQuestion(@RequestParam String filePath) throws IOException, JSONException {
-    public CommonResponse<String> createQuestion(MultipartFile file) throws Exception {
+    public CommonResponse<String> createQuestion(MultipartFile question,MultipartFile wrongAnswer) throws Exception {
 
             if (StpUtil.isLogin()) {
 
             //将图片传输到阿里云OSS，并返回存储的URL
-            String url = ossService.uploadFile(file);
+            String url = ossService.uploadFile(question);
 
             //调用图像识别OCR，返回Latex字符串
-            String formatted_latex_output = latexOcr(file);
+            String formatted_latex_output = latexOcr(question);
 
             JSONObject ocrObject = new JSONObject(formatted_latex_output);
             JSONObject res = ocrObject.getJSONObject("res");
@@ -94,7 +91,7 @@ public class QuestionController {
             basicQuestion.setDate(currentDate);
 
             basicQuestion.setSubject("数学");
-
+            basicQuestion.setQuestionText(content);
 
             basicQuestion.setQuestionType("选择题");
             basicQuestion.setWrongType("计算错误");
@@ -254,4 +251,40 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
+
+    @GetMapping("/question/wrongAnswer")
+    public CommonResponse<JSON> abc(@RequestParam String question) throws IOException {
+        JSON result = concreteQuestionService.useWenxinToGetWrongAnswer(question);
+        return CommonResponse.creatForSuccess(result);
+    }
+
+    @GetMapping("/question/analyse")
+    public CommonResponse<JSON> efg(MultipartFile question,MultipartFile wrongAnswer) throws IOException {
+        String question_latex = latexOcr(question);
+        String wrongAnswer_latex = latexOcr(wrongAnswer);
+        System.out.println(question_latex);
+        System.out.println(wrongAnswer_latex);
+        JSON result = concreteQuestionService.useWenxinToAnalyseWrongType(question_latex,wrongAnswer_latex);
+        return CommonResponse.creatForSuccess(result);
+    }
+
+    @GetMapping("/question/communication")
+    public CommonResponse<JSON> aaa(@RequestBody Map<String,Object> map) throws IOException, JSONException {
+
+        Object basicQuestion =  map.get("basicQuestion");
+        String json = JSONUtil.toJsonStr(basicQuestion);
+        ObjectMapper objectMapper = new ObjectMapper();
+        BasicQuestion basicQuestion1 = objectMapper.readValue(json, new TypeReference<BasicQuestion>() {});
+        String content  = (String) map.get("content");
+
+        JSON result = concreteQuestionService.useWenxinToCommunicateWithUser(basicQuestion1,content);
+        return CommonResponse.creatForSuccess(result);
+    }
+
+    @GetMapping("/question/stepInfo")
+    public CommonResponse<String> ccc(@RequestParam String qid,@RequestParam int number) throws IOException, JSONException {
+        String result = concreteQuestionService.getQuestionStepByQuestionNumber(qid,number);
+        return CommonResponse.creatForSuccess(result);
+    }
+
 }
