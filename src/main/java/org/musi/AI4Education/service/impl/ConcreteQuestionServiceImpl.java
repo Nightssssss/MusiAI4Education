@@ -84,7 +84,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token="+access_token;//post请求时格式
         HashMap<String, String> msg = new HashMap<>();
         msg.put("role","user");
-        msg.put("content", "我将会传输带有latex公式的数学题目，请只给我题目的解题步骤，列出1.2.3.步 "+content);
+        msg.put("content", "我将会提供带有 LaTeX 公式的数学题目，请你仅给出题目的解题步骤。第一个步骤用1.表示，第二个步骤用2.表示，以此类推，下面是题目："+content);
         ArrayList<HashMap> messages = new ArrayList<>();
         messages.add(msg);
         HashMap<String, Object> requestBody = new HashMap<>();
@@ -153,7 +153,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     }
 
     @Override
-    public JSON useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException {
+    public List<HashMap<String,String>> useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException {
 
         String question = basicQuestionService.getQuestionTextByQid(basicQuestion);
         String access_token = new WenxinConfig().getWenxinToken();
@@ -247,7 +247,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
             Update update = new Update().set("wenxinChatHistory",chatHistoryTemp);
             mongoTemplate.updateFirst(query, update, "chatHistory");
         }
-        return json;
+        return chatHistoryTemp;
 
     }
 

@@ -21,10 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -120,21 +117,28 @@ public class QuestionController {
             ArrayList<QuestionStep> questionStepList = new ArrayList<QuestionStep>();
 
             String stepsNew = steps+"\n";
+
+            int firstNewlineIndex = stepsNew.indexOf('\n');
+            if (firstNewlineIndex != -1) {
+                stepsNew = stepsNew.substring(0, firstNewlineIndex) + stepsNew.substring(firstNewlineIndex + 1);
+            }
+            System.out.println(stepsNew);
+
             // 使用正则表达式匹配模式
-            Pattern pattern = Pattern.compile("\n(\\d+)\\.(.*?)\n", Pattern.DOTALL);
+            Pattern pattern = Pattern.compile("\\n(.*?)\\n", Pattern.DOTALL);
             Matcher matcher = pattern.matcher(stepsNew);
 
             // 存储匹配结果
             List<String> results = new ArrayList<>();
             while (matcher.find()) {
-                String match = matcher.group(2).trim(); // 提取第二个组的内容并去除两端空白
+                String match = matcher.group(1).trim(); // 提取第一个组的内容并去除两端空白
                 results.add(match);
             }
-            int step = 0;
+            int step = 1;
             // 打印结果
             for (String result : results) {
                 QuestionStep questionStep = new QuestionStep();
-                questionStep.setNumber(step+1);
+                questionStep.setNumber(step++);
                 questionStep.setContent(result);
                 questionStepList.add(questionStep);
             }
@@ -269,7 +273,7 @@ public class QuestionController {
     }
 
     @GetMapping("/question/communication")
-    public CommonResponse<JSON> aaa(@RequestBody Map<String,Object> map) throws IOException, JSONException {
+    public CommonResponse<List<HashMap<String,String>>> aaa(@RequestBody Map<String,Object> map) throws IOException, JSONException {
 
         Object basicQuestion =  map.get("basicQuestion");
         String json = JSONUtil.toJsonStr(basicQuestion);
@@ -277,7 +281,7 @@ public class QuestionController {
         BasicQuestion basicQuestion1 = objectMapper.readValue(json, new TypeReference<BasicQuestion>() {});
         String content  = (String) map.get("content");
 
-        JSON result = concreteQuestionService.useWenxinToCommunicateWithUser(basicQuestion1,content);
+        List<HashMap<String,String>> result = concreteQuestionService.useWenxinToCommunicateWithUser(basicQuestion1,content);
         return CommonResponse.creatForSuccess(result);
     }
 
@@ -286,5 +290,12 @@ public class QuestionController {
         String result = concreteQuestionService.getQuestionStepByQuestionNumber(qid,number);
         return CommonResponse.creatForSuccess(result);
     }
+//    useWenxinToGetSteps
 
+    @GetMapping("/question/test")
+    public CommonResponse<JSON> ddd(MultipartFile question) throws IOException, JSONException {
+        String formatted_latex_output = latexOcr(question);
+        JSON result = concreteQuestionService.useWenxinToGetSteps(formatted_latex_output);
+        return CommonResponse.creatForSuccess(result);
+    }
 }

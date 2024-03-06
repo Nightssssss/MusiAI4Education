@@ -8,6 +8,8 @@ import org.musi.AI4Education.domain.BasicQuestion;
 import org.musi.AI4Education.domain.ConcreteQuestion;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
 
@@ -19,7 +21,7 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
     public JSON useWenxinToGetWrongAnswer(String content) throws IOException;
     public JSON useWenxinToAnalyseWrongType(String question,String content) throws IOException;
 
-    public JSON useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException;
+    public List<HashMap<String,String>> useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException;
 
     public String getQuestionStepByQuestionNumber(String qid,int number);
 
