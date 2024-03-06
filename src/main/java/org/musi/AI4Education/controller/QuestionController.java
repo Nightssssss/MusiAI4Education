@@ -42,7 +42,7 @@ public class QuestionController {
 
 
     @PostMapping("/bigModel")
-    public CommonResponse<String> createQuestion(MultipartFile question,MultipartFile wrongAnswer) throws Exception {
+    public CommonResponse<Map<String, Object>> createQuestion(MultipartFile question,MultipartFile wrongAnswer) throws Exception {
 
             if (StpUtil.isLogin()) {
 
@@ -160,7 +160,11 @@ public class QuestionController {
 
             historyService.createHistory(history);
 
-            return CommonResponse.creatForSuccess(stepsNew);
+            Map<String, Object> data = new HashMap<>();
+            data.put("basicQuestion",basicQuestion);
+            data.put("concreteQuestion",concreteQuestion);
+
+            return CommonResponse.creatForSuccess(data);
         } else {
             // 令牌无效或解码错误
             return CommonResponse.creatForError("请先登录");
