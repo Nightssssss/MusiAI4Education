@@ -115,6 +115,7 @@ public class QuestionController {
             concreteQuestion.setQuestionAnalysis(explanation);
             //存储题目知识点
             concreteQuestion.setKnowledges(knowledges);
+            concreteQuestion.setNote("");
 
             ArrayList<QuestionStep> questionStepList = new ArrayList<QuestionStep>();
 
@@ -318,7 +319,6 @@ public class QuestionController {
             result.add("这个问题与我们之前学过的哪些知识相关");
             result.add("我可以用哪些方法来解决这个问题");
             result.add("这个题目有什么实际应用吗");
-
             for(String temp : resultTemp){
                 temp = "如何理解"+temp;
                 result.add(temp);
@@ -329,5 +329,44 @@ public class QuestionController {
         }
     }
 
+    @PostMapping("/question/note")
+    public CommonResponse<String> uploadQuestionNoteByQid(@RequestParam String qid,@RequestParam String note) throws IOException, JSONException {
+        if(StpUtil.isLogin()){
+            String result = concreteQuestionService.uploadQuestionNotesByQid(qid,note);
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @GetMapping("/question/note")
+    public CommonResponse<String> getQuestionNoteByQid(@RequestParam String qid) throws IOException, JSONException {
+        if(StpUtil.isLogin()){
+            ConcreteQuestion result = concreteQuestionService.getQuestionNotesByQid(qid);
+            return CommonResponse.creatForSuccess(result.getNote());
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @PutMapping("/question/note")
+    public CommonResponse<String> modifyQuestionNoteByQid(@RequestParam String qid,@RequestParam String note) throws IOException, JSONException {
+        if(StpUtil.isLogin()){
+            String result = concreteQuestionService.modifyQuestionNotesByQid(qid,note);
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @DeleteMapping("/question/note")
+    public CommonResponse<String> deleteQuestionNoteByQid(@RequestParam String qid) throws IOException, JSONException {
+        if(StpUtil.isLogin()){
+            String result = concreteQuestionService.deleteQuestionNotesByQid(qid);
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
 
 }

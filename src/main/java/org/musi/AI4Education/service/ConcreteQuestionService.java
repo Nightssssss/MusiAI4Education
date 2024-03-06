@@ -29,6 +29,14 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
 
     public List<String> getQuestionKnowledgesByQid(String qid);
 
+    public String uploadQuestionNotesByQid(String qid,String note);
+
+    public ConcreteQuestion getQuestionNotesByQid(String qid);
+
+    public String modifyQuestionNotesByQid(String qid,String note);
+
+    public String deleteQuestionNotesByQid(String qid);
+
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion);
 
     //查询单个错题的详细信息

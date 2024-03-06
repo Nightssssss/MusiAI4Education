@@ -3,7 +3,6 @@ package org.musi.AI4Education.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mongodb.client.model.Filters;
 import org.bson.Document;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -338,6 +337,41 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
             }
         // 如果未找到匹配的 content，则返回空字符串或者 null，视需求而定
         return null;
+    }
+
+    @Override
+    public String uploadQuestionNotesByQid(String qid,String note) {
+        Query query = new Query(Criteria.where("qid").is(qid));
+        Update update = new Update();
+        update.set("note", note);
+        mongoTemplate.updateFirst(query, update, "concreteQuestion"); // 你的文档类名替换为实际的类名
+        return note;
+    }
+
+    @Override
+    public ConcreteQuestion getQuestionNotesByQid(String qid) {
+        Query query = new Query(Criteria.where("qid").is(qid));
+        ConcreteQuestion result = mongoTemplate.findOne(query, ConcreteQuestion.class); // 你的文档类名替换为实际的类名
+        return result;
+
+    }
+
+    @Override
+    public String modifyQuestionNotesByQid(String qid, String note) {
+        Query query = new Query(Criteria.where("qid").is(qid));
+        Update update = new Update();
+        update.set("note", note);
+        mongoTemplate.updateFirst(query, update, "concreteQuestion"); // 你的文档类名替换为实际的类名
+        return note;
+    }
+
+    @Override
+    public String deleteQuestionNotesByQid(String qid) {
+        Query query = new Query(Criteria.where("qid").is(qid));
+        Update update = new Update();
+        update.set("note", "");
+        mongoTemplate.updateFirst(query, update, "concreteQuestion"); // 你的文档类名替换为实际的类名
+        return "删除成功";
     }
 
     @Override
