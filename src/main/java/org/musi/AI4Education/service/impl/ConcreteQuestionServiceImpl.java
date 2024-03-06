@@ -25,11 +25,12 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -252,6 +253,46 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     }
 
     @Override
+    public List<String> useWenxinToAnalyseKnowledge(String question) throws IOException, JSONException {
+        String access_token = new WenxinConfig().getWenxinToken();
+        String requestMethod = "POST";
+        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token="+access_token;//post请求时格式
+        HashMap<String, String> msg = new HashMap<>();
+        msg.put("role","user");
+        String require = "我需要你分析这道数学题考察的与数学相关的知识点,用“**具体的某个知识点**”、“**具体的某个知识点**”、“**具体的某个知识点**”的形式表示，题干如下："+ question;
+        msg.put("content", require);
+        ArrayList<HashMap> messages = new ArrayList<>();
+        messages.add(msg);
+        HashMap<String, Object> requestBody = new HashMap<>();
+        requestBody.put("messages", messages);
+        String outputStr = JSON.toJSONString(requestBody);
+        JSON result = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
+
+        String json = result.toJSONString();
+        JSONObject newJSON= new JSONObject(String.valueOf(json));
+        String latex1 = newJSON.getString("result");
+
+        List<String> stringList = new ArrayList<>();
+
+        // 定义正则表达式
+        String regex = "\\*\\*(.*?)\\*\\*";
+        // 编译正则表达式
+        Pattern pattern = Pattern.compile(regex);
+        // 创建Matcher对象
+        Matcher matcher = pattern.matcher(latex1);
+
+        // 循环匹配并提取内容
+        while (matcher.find()) {
+            // group(1) 匹配到的内容
+            String extractedText = matcher.group(1);
+            stringList.add(extractedText);
+            System.out.println("提取到的知识点: " + extractedText);
+        }
+        return stringList;
+
+    }
+
+    @Override
     public String getQuestionStepByQuestionNumber(String qid, int targetNumber) {
         // 构建查询条件，匹配指定 id 的文档
         Query query = new Query(Criteria.where("qid").is(qid));
@@ -276,6 +317,27 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         // 如果未找到匹配的 content，则返回空字符串或者 null，视需求而定
         return null;
 
+    }
+
+    @Override
+    public List<String> getQuestionKnowledgesByQid(String qid) {
+        // 构建查询条件，匹配指定 id 的文档
+        Query query = new Query(Criteria.where("qid").is(qid));
+        // 查询指定 qid 的文档
+        Document document = mongoTemplate.findOne(query, Document.class, "concreteQuestion");
+        // 如果找到了文档
+        if (document != null) {
+            // 获取 questionSteps 数组
+            List<String> questionKnowledges = (List<String>) document.get("knowledges");
+            List<String> stringList = new ArrayList<>();
+            // 遍历 questionSteps 数组
+            for (String step : questionKnowledges) {
+                stringList.add(String.valueOf(step));
+                }
+            return stringList;
+            }
+        // 如果未找到匹配的 content，则返回空字符串或者 null，视需求而定
+        return null;
     }
 
     @Override

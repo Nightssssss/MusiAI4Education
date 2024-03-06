@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @TableName(value = "question_concrete_info")
@@ -20,6 +21,6 @@ public class ConcreteQuestion {
     private String reason;      //错误原因
     private ArrayList questionSteps;       //解题步骤
     private String questionAnalysis;      //错题分析
-    //大模型对话session
+    private List<String> knowledges;
 
 }

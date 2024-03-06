@@ -23,7 +23,11 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
 
     public List<HashMap<String,String>> useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException;
 
+    public List<String> useWenxinToAnalyseKnowledge(String question) throws IOException, JSONException;
+
     public String getQuestionStepByQuestionNumber(String qid,int number);
+
+    public List<String> getQuestionKnowledgesByQid(String qid);
 
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion);
 

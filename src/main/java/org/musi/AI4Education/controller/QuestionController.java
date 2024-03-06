@@ -64,6 +64,7 @@ public class QuestionController {
             JSON answerJSON=concreteQuestionService.useWenxinToGetAnswer(content);
             JSON explanationJSON=concreteQuestionService.useWenxinToGetExplanation(content);
             JSON stepsJSON=concreteQuestionService.useWenxinToGetSteps(content);
+            List<String> knowledges = concreteQuestionService.useWenxinToAnalyseKnowledge(content);
 
             JSONObject answerJSONObject= new JSONObject(String.valueOf(answerJSON));
             JSONObject explanationJSONObject= new JSONObject(String.valueOf(explanationJSON));
@@ -108,11 +109,12 @@ public class QuestionController {
             concreteQuestion.setInspiration("负负得正");
             //题目文本
             concreteQuestion.setQuestionText(content);
-
             //存储题目答案
             concreteQuestion.setQuestionAnswer(answer);
             //存储题目解析
             concreteQuestion.setQuestionAnalysis(explanation);
+            //存储题目知识点
+            concreteQuestion.setKnowledges(knowledges);
 
             ArrayList<QuestionStep> questionStepList = new ArrayList<QuestionStep>();
 
@@ -257,45 +259,75 @@ public class QuestionController {
     }
 
     @GetMapping("/question/wrongAnswer")
-    public CommonResponse<JSON> abc(@RequestParam String question) throws IOException {
-        JSON result = concreteQuestionService.useWenxinToGetWrongAnswer(question);
-        return CommonResponse.creatForSuccess(result);
+    public CommonResponse<JSON> createWrongAnswerByQuestion(@RequestParam String question) throws IOException {
+        if(StpUtil.isLogin()){
+            JSON result = concreteQuestionService.useWenxinToGetWrongAnswer(question);
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
     }
 
     @GetMapping("/question/analyse")
-    public CommonResponse<JSON> efg(MultipartFile question,MultipartFile wrongAnswer) throws IOException {
-        String question_latex = latexOcr(question);
-        String wrongAnswer_latex = latexOcr(wrongAnswer);
-        System.out.println(question_latex);
-        System.out.println(wrongAnswer_latex);
-        JSON result = concreteQuestionService.useWenxinToAnalyseWrongType(question_latex,wrongAnswer_latex);
-        return CommonResponse.creatForSuccess(result);
+    public CommonResponse<JSON> getWrongTypeByQuestion(MultipartFile question,MultipartFile wrongAnswer) throws IOException {
+        if(StpUtil.isLogin()){
+            String question_latex = latexOcr(question);
+            String wrongAnswer_latex = latexOcr(wrongAnswer);
+            System.out.println(question_latex);
+            System.out.println(wrongAnswer_latex);
+            JSON result = concreteQuestionService.useWenxinToAnalyseWrongType(question_latex,wrongAnswer_latex);
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
     }
 
     @GetMapping("/question/communication")
-    public CommonResponse<List<HashMap<String,String>>> aaa(@RequestBody Map<String,Object> map) throws IOException, JSONException {
+    public CommonResponse<List<HashMap<String,String>>> communicateWithWenxin(@RequestBody Map<String,Object> map) throws IOException, JSONException {
+        if(StpUtil.isLogin()){
+            Object basicQuestion =  map.get("basicQuestion");
+            String json = JSONUtil.toJsonStr(basicQuestion);
+            ObjectMapper objectMapper = new ObjectMapper();
+            BasicQuestion basicQuestion1 = objectMapper.readValue(json, new TypeReference<BasicQuestion>() {});
+            String content  = (String) map.get("content");
 
-        Object basicQuestion =  map.get("basicQuestion");
-        String json = JSONUtil.toJsonStr(basicQuestion);
-        ObjectMapper objectMapper = new ObjectMapper();
-        BasicQuestion basicQuestion1 = objectMapper.readValue(json, new TypeReference<BasicQuestion>() {});
-        String content  = (String) map.get("content");
-
-        List<HashMap<String,String>> result = concreteQuestionService.useWenxinToCommunicateWithUser(basicQuestion1,content);
-        return CommonResponse.creatForSuccess(result);
+            List<HashMap<String,String>> result = concreteQuestionService.useWenxinToCommunicateWithUser(basicQuestion1,content);
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
     }
 
     @GetMapping("/question/stepInfo")
-    public CommonResponse<String> ccc(@RequestParam String qid,@RequestParam int number) throws IOException, JSONException {
-        String result = concreteQuestionService.getQuestionStepByQuestionNumber(qid,number);
-        return CommonResponse.creatForSuccess(result);
+    public CommonResponse<String> getQuestionAnalysisStepInfo(@RequestParam String qid,@RequestParam int number) throws IOException, JSONException {
+        if(StpUtil.isLogin()){
+            String result = concreteQuestionService.getQuestionStepByQuestionNumber(qid,number);
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
     }
-//    useWenxinToGetSteps
 
-    @GetMapping("/question/test")
-    public CommonResponse<JSON> ddd(MultipartFile question) throws IOException, JSONException {
-        String formatted_latex_output = latexOcr(question);
-        JSON result = concreteQuestionService.useWenxinToGetSteps(formatted_latex_output);
-        return CommonResponse.creatForSuccess(result);
+    @GetMapping("/question/knowledges")
+    public CommonResponse<List<String>> getQuestionKnowledges(@RequestParam String qid) throws IOException, JSONException {
+        if(StpUtil.isLogin()){
+            List<String> resultTemp = concreteQuestionService.getQuestionKnowledgesByQid(qid);
+            List<String> result = new ArrayList<>();
+            result.add("请生成这个题的答案");
+            result.add("请生成这个题的解析");
+            result.add("这个问题与我们之前学过的哪些知识相关");
+            result.add("我可以用哪些方法来解决这个问题");
+            result.add("这个题目有什么实际应用吗");
+
+            for(String temp : resultTemp){
+                temp = "如何理解"+temp;
+                result.add(temp);
+            }
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
     }
+
+
 }
