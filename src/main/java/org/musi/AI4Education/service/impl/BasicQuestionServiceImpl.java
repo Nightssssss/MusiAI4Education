@@ -41,7 +41,7 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
         QueryWrapper<BasicQuestion> wrapper = new QueryWrapper<>();
         wrapper.eq("sid",StpUtil.getLoginIdAsString());
         List<BasicQuestion> basicQuestionList = basicQuestionMapper.selectList(wrapper);
-        Collections.sort(basicQuestionList, Comparator.comparing(BasicQuestion::getDate).reversed());
+        Collections.sort(basicQuestionList, Comparator.comparing(BasicQuestion::getQid).reversed());
         return basicQuestionList;
     }
 
