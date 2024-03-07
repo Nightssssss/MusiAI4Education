@@ -3,9 +3,8 @@ package org.musi.AI4Education.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.BasicQuestion;
-import org.musi.AI4Education.domain.ConcreteQuestion;
-import org.musi.AI4Education.domain.Student;
-
+import org.springframework.web.bind.annotation.RequestParam;
+import java.util.HashMap;
 import java.util.List;
 
 public interface BasicQuestionService extends IService<BasicQuestion> {
@@ -42,6 +41,9 @@ public interface BasicQuestionService extends IService<BasicQuestion> {
 
     public String getQuestionTextByQid(BasicQuestion basicQuestion);
 
+    public String getFollowingClassification(String front,String back);
+
+    public List<HashMap<String,Object>> getQuestionInfoByPosition(String position);
 
 
 

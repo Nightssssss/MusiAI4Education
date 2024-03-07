@@ -7,21 +7,28 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.BasicQuestion;
 import org.musi.AI4Education.domain.ConcreteQuestion;
-import org.musi.AI4Education.domain.History;
 import org.musi.AI4Education.mapper.BasicQuestionMapper;
 import org.musi.AI4Education.service.BasicQuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, BasicQuestion> implements BasicQuestionService {
 
     @Autowired
     private BasicQuestionMapper basicQuestionMapper;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private BasicQuestionService basicQuestionService;
+
 
     @Override
     public CommonResponse<String> createBasicQuestion(BasicQuestion basicQuestion) {
@@ -129,4 +136,58 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
         BasicQuestion basicQuestion1=basicQuestionMapper.selectOne(wrapper);
         return basicQuestion1.getQuestionText();
     }
+    @Override
+    public String getFollowingClassification(String front,String back) {
+        String[] parts = back.split("/"+front+"/");
+        if (parts.length > 1) {
+            String[] subParts = parts[1].split("/");
+            if (subParts.length > 0) {
+                return subParts[0];
+            }
+        }
+        return "";
+    }
+
+    @Override
+    public List<HashMap<String, Object>> getQuestionInfoByPosition(String position) {
+        String sid = StpUtil.getLoginIdAsString();
+        QueryWrapper<BasicQuestion> wrapper = new QueryWrapper<>();
+        wrapper.eq("sid",sid);
+        wrapper.eq("position",position);
+        List<BasicQuestion> basicQuestionList = basicQuestionMapper.selectList(wrapper);
+
+        if(!basicQuestionList.isEmpty()){
+            //该位置有题
+            List<ConcreteQuestion> concreteQuestionList = new ArrayList<>();
+            for(BasicQuestion basicQuestion:basicQuestionList){
+                Query query = new Query();
+                query.addCriteria(Criteria.where("qid").is(basicQuestion.getQid()));
+                ConcreteQuestion concreteQuestion = mongoTemplate.findOne(query, ConcreteQuestion.class);
+                concreteQuestionList.add(concreteQuestion);
+            }
+            HashMap<String,Object> tempResult = new HashMap<>();
+            tempResult.put("basicQuestionList",basicQuestionList);
+            tempResult.put("concreteQuestionList",concreteQuestionList);
+            List<HashMap<String,Object>> finalResult = new ArrayList<>();
+            finalResult.add(tempResult);
+            return finalResult;
+        }else{
+            //该位置没题，要返回下一级目录
+            QueryWrapper<BasicQuestion> queryWrapper = new QueryWrapper<>();
+            queryWrapper.like("position", position); // 使用 like 来模糊匹配包含 keyword 的字段值
+            List<BasicQuestion> resultList = basicQuestionService.list(queryWrapper);
+            List<String> tempResult = new ArrayList<>();
+            for(BasicQuestion basicQuestion:basicQuestionList){
+                String temp = getFollowingClassification(position,basicQuestion.getPosition());
+                tempResult.add(temp);
+            }
+            HashMap<String,Object> finalResult = new HashMap<>();
+            finalResult.put("classification",tempResult);
+            List<HashMap<String,Object>> result = new ArrayList<>();
+            result.add(finalResult);
+            return result;
+        }
+    }
+
+
 }

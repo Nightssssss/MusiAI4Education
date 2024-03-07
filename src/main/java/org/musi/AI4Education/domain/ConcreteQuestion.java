@@ -22,7 +22,6 @@ public class ConcreteQuestion {
     private ArrayList questionSteps;       //解题步骤
     private String questionAnalysis;      //错题分析
     private List<String> knowledges;
-
     private String note;
 
 }

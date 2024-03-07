@@ -3,9 +3,7 @@ package org.musi.AI4Education.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.Student;
-import org.musi.AI4Education.domain.User;
 import org.musi.AI4Education.service.StudentService;
-import org.musi.AI4Education.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

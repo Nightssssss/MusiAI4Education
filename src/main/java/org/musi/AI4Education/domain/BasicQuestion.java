@@ -5,10 +5,11 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.HashMap;
 
 @Data
 @TableName(value = "question_basic_info")
-public class BasicQuestion {
+public class BasicQuestion extends HashMap<String, Object> {
 
     @TableId
     private String sid;     //学生ID

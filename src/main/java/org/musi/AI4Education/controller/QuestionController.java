@@ -374,8 +374,8 @@ public class QuestionController {
     }
 
     @GetMapping("/question/test")
-    public CommonResponse<String> test(@RequestParam String qid,@RequestParam String content) throws IOException, JSONException {
-        String result = concreteQuestionService.deleteQuestionNotesByQid(qid);
+    public CommonResponse<List<HashMap<String,Object>>> test(@RequestParam String position){
+        List<HashMap<String,Object>> result = basicQuestionService.getQuestionInfoByPosition(position);
         return CommonResponse.creatForSuccess(result);
     }
 
