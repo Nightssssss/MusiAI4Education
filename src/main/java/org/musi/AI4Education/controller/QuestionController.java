@@ -266,7 +266,7 @@ public class QuestionController {
     @GetMapping("/question/wrongAnswer")
     public CommonResponse<JSON> createWrongAnswerByQuestion(@RequestParam String question) throws IOException {
         if(StpUtil.isLogin()){
-            JSON result = concreteQuestionService.useWenxinToGetWrongAnswer(question);
+            JSON result = concreteQuestionService.useWenxinToCreateWrongAnswer(question);
             return CommonResponse.creatForSuccess(result);
         }else{
             return CommonResponse.creatForError("请先登录");
@@ -371,6 +371,12 @@ public class QuestionController {
         }else{
             return CommonResponse.creatForError("请先登录");
         }
+    }
+
+    @GetMapping("/question/test")
+    public CommonResponse<String> test(@RequestParam String qid,@RequestParam String content) throws IOException, JSONException {
+        String result = concreteQuestionService.deleteQuestionNotesByQid(qid);
+        return CommonResponse.creatForSuccess(result);
     }
 
 }

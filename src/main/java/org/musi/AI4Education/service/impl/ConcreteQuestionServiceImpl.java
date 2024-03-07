@@ -22,7 +22,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,64 +43,20 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     @Override
     public JSON useWenxinToGetAnswer(String content) throws IOException {
-
-        String access_token = new WenxinConfig().getWenxinToken();
-        String requestMethod = "POST";
-        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token="+access_token;//post请求时格式
-        HashMap<String, String> msg = new HashMap<>();
-        msg.put("role","user");
-        msg.put("content", "我将会传输带有latex公式的数学题目，请只给我题目的答案 "+content);
-        ArrayList<HashMap> messages = new ArrayList<>();
-        messages.add(msg);
-        HashMap<String, Object> requestBody = new HashMap<>();
-        requestBody.put("messages", messages);
-        String outputStr = JSON.toJSONString(requestBody);
-        JSON json = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
-        return json;
+        return connectWithBigModel("我将会传输带有latex公式的数学题目，请只给我题目的答案 "+content);
     }
     @Override
     public JSON useWenxinToGetExplanation(String content) throws IOException {
-
-        String access_token = new WenxinConfig().getWenxinToken();
-        String requestMethod = "POST";
-        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token="+access_token;//post请求时格式
-        HashMap<String, String> msg = new HashMap<>();
-        msg.put("role","user");
-        msg.put("content", "我将会传输带有latex公式的数学题目，请只给我题目的解析 "+content);
-        ArrayList<HashMap> messages = new ArrayList<>();
-        messages.add(msg);
-        HashMap<String, Object> requestBody = new HashMap<>();
-        requestBody.put("messages", messages);
-        String outputStr = JSON.toJSONString(requestBody);
-        JSON json = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
-        return json;
+        return connectWithBigModel("我将会传输带有latex公式的数学题目，请只给我题目的解析 "+content);
     }
     @Override
     public JSON useWenxinToGetSteps(String content) throws IOException {
-
-        String access_token = new WenxinConfig().getWenxinToken();
-        String requestMethod = "POST";
-        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token="+access_token;//post请求时格式
-        HashMap<String, String> msg = new HashMap<>();
-        msg.put("role","user");
-        msg.put("content", "我将会提供带有 LaTeX 公式的数学题目，请你仅给出题目的解题步骤。第一个步骤用1.表示，第二个步骤用2.表示，以此类推，下面是题目："+content);
-        ArrayList<HashMap> messages = new ArrayList<>();
-        messages.add(msg);
-        HashMap<String, Object> requestBody = new HashMap<>();
-        requestBody.put("messages", messages);
-        String outputStr = JSON.toJSONString(requestBody);
-        JSON json = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
-        return json;
+        return connectWithBigModel("我将会提供带有 LaTeX 公式的数学题目，请你仅给出题目的解题步骤。" +
+                "第一个步骤用1.表示，第二个步骤用2.表示，以此类推，下面是题目："+content);
     }
     @Override
 
-    public JSON useWenxinToGetWrongAnswer(String content) throws IOException {
-
-        String access_token = new WenxinConfig().getWenxinToken();
-        String requestMethod = "POST";
-        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token="+access_token;//post请求时格式
-        HashMap<String, String> msg = new HashMap<>();
-        msg.put("role","user");
+    public JSON useWenxinToCreateWrongAnswer(String content) throws IOException {
 
         String wrongType="运算错误";
         String wrongDetail="忽略负负得正";
@@ -116,25 +71,12 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
                 "请先生成正确答案，之后把错误回答以解题步骤的形式写出来，以正式解题的口吻，你只需要写解题步骤，不要分析\n" +
                 "正确答案："+
                 "解题步骤：";
-        msg.put("content", require);
-        ArrayList<HashMap> messages = new ArrayList<>();
-        messages.add(msg);
-        HashMap<String, Object> requestBody = new HashMap<>();
-        requestBody.put("messages", messages);
-        String outputStr = JSON.toJSONString(requestBody);
-        JSON json = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
-        return json;
+
+        return connectWithBigModel(require);
     }
 
     @Override
     public JSON useWenxinToAnalyseWrongType(String question,String content) throws IOException {
-
-        String access_token = new WenxinConfig().getWenxinToken();
-        String requestMethod = "POST";
-        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token="+access_token;//post请求时格式
-        HashMap<String, String> msg = new HashMap<>();
-        msg.put("role","user");
-
         String require = "我需要你分析学生在解决数学问题时生成错误解题步骤的错误类型。你需要提供一个基本类型与一个细分类型\n" +
                 "如基本类型为：'计算错误'，细分类型为：'忽略负负得正'"+
                 "下面是原始问题:"+question+
@@ -142,14 +84,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
                 "请分析学生所犯的错误类型\n" +
                 "基本类型："+
                 "细分类型：";
-        msg.put("content", require);
-        ArrayList<HashMap> messages = new ArrayList<>();
-        messages.add(msg);
-        HashMap<String, Object> requestBody = new HashMap<>();
-        requestBody.put("messages", messages);
-        String outputStr = JSON.toJSONString(requestBody);
-        JSON json = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
-        return json;
+        return connectWithBigModel(require);
     }
 
     @Override
@@ -158,7 +93,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         String question = basicQuestionService.getQuestionTextByQid(basicQuestion);
         String access_token = new WenxinConfig().getWenxinToken();
         String requestMethod = "POST";
-        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token=" + access_token;
+        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token=" + access_token;
 
         //获取用户ID与题目ID
         String sid = StpUtil.getLoginIdAsString();
@@ -254,7 +189,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     public List<String> useWenxinToAnalyseKnowledge(String question) throws IOException, JSONException {
         String access_token = new WenxinConfig().getWenxinToken();
         String requestMethod = "POST";
-        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token="+access_token;//post请求时格式
+        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token="+access_token;//post请求时格式
         HashMap<String, String> msg = new HashMap<>();
         msg.put("role","user");
         String require = "我需要你分析这道数学题考察的与数学相关的知识点,用“**具体的某个知识点**”、“**具体的某个知识点**”、“**具体的某个知识点**”的形式表示，题干如下："+ question;
@@ -371,6 +306,23 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         update.set("note", "");
         mongoTemplate.updateFirst(query, update, "concreteQuestion"); // 你的文档类名替换为实际的类名
         return "删除成功";
+    }
+
+    @Override
+    public JSON connectWithBigModel(String content) throws IOException {
+        String access_token = new WenxinConfig().getWenxinToken();
+        String requestMethod = "POST";
+        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token="+access_token;//post请求时格式
+        HashMap<String, String> msg = new HashMap<>();
+        msg.put("role","user");
+        msg.put("content", content);
+        ArrayList<HashMap> messages = new ArrayList<>();
+        messages.add(msg);
+        HashMap<String, Object> requestBody = new HashMap<>();
+        requestBody.put("messages", messages);
+        String outputStr = JSON.toJSONString(requestBody);
+        JSON json = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
+        return json;
     }
 
     @Override
