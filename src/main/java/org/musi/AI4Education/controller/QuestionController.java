@@ -373,7 +373,7 @@ public class QuestionController {
         }
     }
 
-    @GetMapping("/question/test")
+    @GetMapping("/question/position/details")
     public CommonResponse<List<HashMap<String,Object>>> test(@RequestParam String position){
         List<HashMap<String,Object>> result = basicQuestionService.getQuestionInfoByPosition(position);
         return CommonResponse.creatForSuccess(result);
