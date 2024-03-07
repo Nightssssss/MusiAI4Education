@@ -138,14 +138,18 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
     }
     @Override
     public String getFollowingClassification(String front,String back) {
-        String[] parts = back.split("/"+front+"/");
-        if (parts.length > 1) {
-            String[] subParts = parts[1].split("/");
-            if (subParts.length > 0) {
-                return subParts[0];
+        if (back.startsWith(front)) {
+            // 去掉前缀并获取剩下的字符串
+            String remainingString = back.substring(front.length());
+            String[] parts = remainingString.split("/");
+            if (parts.length > 0) {
+                return parts[1];
+            }else{
+                return "";
             }
+        } else{
+            return "传入数据有误";
         }
-        return "";
     }
 
     @Override
@@ -176,11 +180,29 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
             QueryWrapper<BasicQuestion> queryWrapper = new QueryWrapper<>();
             queryWrapper.like("position", position); // 使用 like 来模糊匹配包含 keyword 的字段值
             List<BasicQuestion> resultList = basicQuestionService.list(queryWrapper);
+
+            System.out.println(resultList);
+
             List<String> tempResult = new ArrayList<>();
-            for(BasicQuestion basicQuestion:basicQuestionList){
+            for(BasicQuestion basicQuestion:resultList){
+                System.out.println(basicQuestion.getPosition());
                 String temp = getFollowingClassification(position,basicQuestion.getPosition());
-                tempResult.add(temp);
+                if(!temp.equals(""))
+                {
+                    boolean contains = false;
+                    for (String str : tempResult) {
+                        if (str.equals(temp)) {
+                            contains = true;
+                            break; // 结束循环，无需继续检查
+                        }
+                    }
+                    if(!contains){
+                        tempResult.add(temp);
+                    }
+                }
             }
+
+
             HashMap<String,Object> finalResult = new HashMap<>();
             finalResult.put("classification",tempResult);
             List<HashMap<String,Object>> result = new ArrayList<>();

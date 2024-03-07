@@ -9,8 +9,7 @@ import java.util.HashMap;
 
 @Data
 @TableName(value = "question_basic_info")
-public class BasicQuestion extends HashMap<String, Object> {
-
+public class BasicQuestion{
     @TableId
     private String sid;     //学生ID
     private String qid;      //题目ID
@@ -23,5 +22,4 @@ public class BasicQuestion extends HashMap<String, Object> {
     private int mark;        //标记
     private String path;       //题目照片存储路径
     private String position;    //题目存储文件夹的名称
-
 }
