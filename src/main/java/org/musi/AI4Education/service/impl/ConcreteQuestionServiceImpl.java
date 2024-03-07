@@ -160,16 +160,17 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         String requestMethod = "POST";
         String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token=" + access_token;
 
-        //获取用户ID
+        //获取用户ID与题目ID
         String sid = StpUtil.getLoginIdAsString();
+        String qid = basicQuestion.getQid();
 
         // 直接尝试获取会话对象
-        ChatSession session = sessions.get(sid);
+        ChatSession session = sessions.get(qid);
 
         if (session == null) { // 如果获取的会话对象为空
             // 说明这是第一次创建
             session = new ChatSession(); // 创建新的会话对象
-            sessions.put(sid, session); // 将新的会话对象放入 sessions 中
+            sessions.put(qid, session); // 将新的会话对象放入 sessions 中
             // 在这里可以执行第一次创建会话的相关逻辑
             String front = "我将提供一个含有LaTex公式的数学题目，请根据这个题目回答下列问题，题目为：";
             content =  front+question+" 请回答我的提问："+content;
@@ -181,7 +182,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         msg.put("role", "user");
         msg.put("content", content);
         session.addMessage(msg);
-        sessions.put(sid, session);
+        sessions.put(qid, session);
 
         //请求大模型，获得大模型的回答
         HashMap<String, Object> requestBody = new HashMap<>();
@@ -195,7 +196,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
         //首先获取之前的Session，将大模型答案添加到Session中
         HashMap<String, String> msg1 = new HashMap<>();
-        ChatSession session1 = sessions.getOrDefault(sid, new ChatSession());
+        ChatSession session1 = sessions.getOrDefault(qid, new ChatSession());
         List<HashMap<String, String>> messages = session1.getMessages();
         for (HashMap<String, String> message : messages) {
             String role1 = message.get("role");
@@ -205,10 +206,10 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         msg1.put("role", "assistant");
         msg1.put("content", answer);
         session1.addMessage(msg1);
-        sessions.put(sid, session1);
+        sessions.put(qid, session1);
 
         //打印
-        ChatSession session2 = sessions.getOrDefault(sid, new ChatSession());
+        ChatSession session2 = sessions.getOrDefault(qid, new ChatSession());
         List<HashMap<String, String>> messages2 = session2.getMessages();
         List<HashMap<String,String>> chatHistoryTemp = new ArrayList<>();
         for (HashMap<String, String> message : messages2) {
@@ -219,8 +220,6 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
             temp.put(role1,content1);
             chatHistoryTemp.add(temp);
         }
-
-        String qid = basicQuestion.getQid();
 
         Criteria criteria1 = Criteria.where("sid").is(sid);
         Criteria criteria2 = Criteria.where("qid").is(qid);
