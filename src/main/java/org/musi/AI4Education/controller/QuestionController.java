@@ -8,10 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.musi.AI4Education.common.CommonResponse;
-import org.musi.AI4Education.domain.BasicQuestion;
-import org.musi.AI4Education.domain.ConcreteQuestion;
-import org.musi.AI4Education.domain.History;
-import org.musi.AI4Education.domain.QuestionStep;
+import org.musi.AI4Education.domain.*;
 import org.musi.AI4Education.service.BasicQuestionService;
 import org.musi.AI4Education.service.ConcreteQuestionService;
 import org.musi.AI4Education.service.HistoryService;
@@ -287,7 +284,7 @@ public class QuestionController {
         }
     }
 
-    @GetMapping("/question/communication")
+    @PostMapping("/question/communication")
     public CommonResponse<List<HashMap<String,String>>> communicateWithWenxin(@RequestBody Map<String,Object> map) throws IOException, JSONException {
         if(StpUtil.isLogin()){
             Object basicQuestion =  map.get("basicQuestion");
@@ -298,6 +295,16 @@ public class QuestionController {
 
             List<HashMap<String,String>> result = concreteQuestionService.useWenxinToCommunicateWithUser(basicQuestion1,content);
             return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @GetMapping("/question/communication")
+    public CommonResponse<ChatHistory> getChatHistroyByQid(@RequestParam String qid) throws IOException {
+        if(StpUtil.isLogin()){
+            ChatHistory chatHistory = concreteQuestionService.getChatHistoryByQid(qid);
+            return CommonResponse.creatForSuccess(chatHistory);
         }else{
             return CommonResponse.creatForError("请先登录");
         }
@@ -390,5 +397,7 @@ public class QuestionController {
         basicQuestionService.deleteQuestion_PositionsByPosition(position);
         return CommonResponse.creatForSuccess("删除成功");
     }
+
+
 
 }

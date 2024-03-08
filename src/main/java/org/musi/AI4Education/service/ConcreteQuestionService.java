@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.json.JSONException;
 import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.BasicQuestion;
+import org.musi.AI4Education.domain.ChatHistory;
 import org.musi.AI4Education.domain.ConcreteQuestion;
 
 import java.io.IOException;
@@ -38,6 +39,8 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
     public String deleteQuestionNotesByQid(String qid);
 
     public JSON connectWithBigModel(String content) throws IOException;
+
+    public ChatHistory getChatHistoryByQid(String qid) throws IOException;
 
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion);
 

@@ -326,6 +326,18 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     }
 
     @Override
+    public ChatHistory getChatHistoryByQid(String qid) throws IOException {
+        Criteria criteria1 = Criteria.where("sid").is(StpUtil.getLoginIdAsString());
+        Criteria criteria2 = Criteria.where("qid").is(qid);
+        // 组合多个查询条件
+        Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
+        // 创建查询对象
+        Query query = new Query(criteria);
+        ChatHistory result = mongoTemplate.findOne(query, ChatHistory.class);
+        return result;
+    }
+
+    @Override
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion) {
         mongoTemplate.insert(concreteQuestion);
         return CommonResponse.creatForSuccess("添加成功");
