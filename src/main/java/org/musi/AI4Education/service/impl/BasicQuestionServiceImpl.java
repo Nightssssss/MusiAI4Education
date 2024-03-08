@@ -201,8 +201,6 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
                     }
                 }
             }
-
-
             HashMap<String,Object> finalResult = new HashMap<>();
             finalResult.put("classification",tempResult);
             List<HashMap<String,Object>> result = new ArrayList<>();
@@ -233,6 +231,22 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
             }
         }
         return result;
+    }
+
+    @Override
+    public void deleteQuestion_PositionsByPosition(String position) {
+
+        String sid = StpUtil.getLoginIdAsString();
+
+        UpdateWrapper<BasicQuestion> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("sid", sid);
+        updateWrapper.eq("position", position);
+
+        BasicQuestion basicQuestion = new BasicQuestion();
+        basicQuestion.setPosition("");
+
+        basicQuestionMapper.update(basicQuestion, updateWrapper);
+
     }
 
 

@@ -385,4 +385,10 @@ public class QuestionController {
         return CommonResponse.creatForSuccess(result);
     }
 
+    @DeleteMapping("/question/position/all")
+    public CommonResponse<String> deleteQuestion_PositionsByPosition(@RequestParam String position){
+        basicQuestionService.deleteQuestion_PositionsByPosition(position);
+        return CommonResponse.creatForSuccess("删除成功");
+    }
+
 }
