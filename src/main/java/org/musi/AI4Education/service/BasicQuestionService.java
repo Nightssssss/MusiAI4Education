@@ -45,6 +45,6 @@ public interface BasicQuestionService extends IService<BasicQuestion> {
 
     public List<HashMap<String,Object>> getQuestionInfoByPosition(String position);
 
-
+    public List<String> getPositionsByUid();
 
 }

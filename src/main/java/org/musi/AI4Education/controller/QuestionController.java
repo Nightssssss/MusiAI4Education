@@ -374,8 +374,14 @@ public class QuestionController {
     }
 
     @GetMapping("/question/position/details")
-    public CommonResponse<List<HashMap<String,Object>>> test(@RequestParam String position){
+    public CommonResponse<List<HashMap<String,Object>>> getQuestionInfoByPosition(@RequestParam String position){
         List<HashMap<String,Object>> result = basicQuestionService.getQuestionInfoByPosition(position);
+        return CommonResponse.creatForSuccess(result);
+    }
+
+    @GetMapping("/question/position/all")
+    public CommonResponse<List<String>> getPositionsByUid(){
+        List<String> result = basicQuestionService.getPositionsByUid();
         return CommonResponse.creatForSuccess(result);
     }
 

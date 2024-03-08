@@ -211,5 +211,29 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
         }
     }
 
+    @Override
+    public List<String> getPositionsByUid() {
+        String sid = StpUtil.getLoginIdAsString();
+        QueryWrapper<BasicQuestion> wrapper = new QueryWrapper<>();
+        wrapper.eq("sid",sid);
+        List<BasicQuestion> tempResult = basicQuestionMapper.selectList(wrapper);
+        List<String> result = new ArrayList<>();
+
+        for(BasicQuestion basicQuestion:tempResult){
+            boolean contains = false;
+            String position = basicQuestion.getPosition();
+            for (String str : result) {
+                if (position.equals(str)){
+                    contains = true;
+                    break; // 结束循环，无需继续检查
+                }
+            }
+            if(!contains&&!position.equals("")){
+                result.add(position);
+            }
+        }
+        return result;
+    }
+
 
 }
