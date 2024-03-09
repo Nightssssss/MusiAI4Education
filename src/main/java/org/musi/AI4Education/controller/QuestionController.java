@@ -37,7 +37,6 @@ public class QuestionController {
     @Autowired
     private OSSService ossService;
 
-
     @PostMapping("/bigModel")
     public CommonResponse<Map<String, Object>> createQuestion(MultipartFile question,MultipartFile wrongAnswer) throws Exception {
 
@@ -62,6 +61,14 @@ public class QuestionController {
             JSON explanationJSON=concreteQuestionService.useWenxinToGetExplanation(content);
             JSON stepsJSON=concreteQuestionService.useWenxinToGetSteps(content);
             List<String> knowledges = concreteQuestionService.useWenxinToAnalyseKnowledge(content);
+
+            System.out.println("begin");
+            System.out.println(answerJSON);
+            System.out.println(answerJSON);
+            System.out.println(answerJSON);
+            System.out.println(answerJSON);
+            System.out.println("stop");
+
 
             JSONObject answerJSONObject= new JSONObject(String.valueOf(answerJSON));
             JSONObject explanationJSONObject= new JSONObject(String.valueOf(explanationJSON));
@@ -186,8 +193,6 @@ public class QuestionController {
         }
     }
 
-
-
     @GetMapping("/question/base")
     public CommonResponse<List<BasicQuestion>> getBasicQuestionList(){
         if (StpUtil.isLogin()){
@@ -204,6 +209,7 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
+
     @GetMapping("/question/base/mark")
     public CommonResponse<List<BasicQuestion>> getMarkedBasicQuestionList(){
         if (StpUtil.isLogin()){
@@ -212,8 +218,6 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
-
-
 
     @PostMapping("/question/mark")
     public CommonResponse<BasicQuestion> addQuestionMark(@RequestBody BasicQuestion basicQuestion){

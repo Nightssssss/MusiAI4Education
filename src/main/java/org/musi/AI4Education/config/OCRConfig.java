@@ -41,10 +41,30 @@ public class OCRConfig {
         String lineEnd = "\r\n";
         String contentType = "multipart/form-data; boundary=" + boundary;
 
-        String fileName = file.getName();
+//        String fileName = file.getOriginalFilename();
+//
+//        String postData = "--" + boundary + lineEnd +
+//                "Content-Disposition: form-data; name=\"file\"; filename=\"" + fileName + "\"" + lineEnd +
+//                "Content-Type: image/png"  + lineEnd + lineEnd;
+
+        String fileName = file.getOriginalFilename();
+        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
+
+        // 设置Content-Type
+        if (fileExtension.equalsIgnoreCase("png")) {
+            contentType = "image/png";
+        } else if (fileExtension.equalsIgnoreCase("jpg") || fileExtension.equalsIgnoreCase("jpeg")) {
+            contentType = "image/jpeg";
+        } else {
+            // 如果不是PNG或JPG，您可能需要采取其他措施处理这种情况，这里简单地设为null
+            contentType = null;
+        }
+
         String postData = "--" + boundary + lineEnd +
                 "Content-Disposition: form-data; name=\"file\"; filename=\"" + fileName + "\"" + lineEnd +
-                "Content-Type: image/png" + lineEnd + lineEnd;
+                "Content-Type: " + contentType + lineEnd + lineEnd;
+
+
         byte[] postDataBytes = postData.getBytes();
 
         byte[] fileBytes;
@@ -76,7 +96,9 @@ public class OCRConfig {
         headers.put("random-str", random_str);
         headers.put("timestamp", timestamp);
         headers.put("sign", signature);
-        headers.put("Content-Type", contentType);
+//        headers.put("Content-Type", contentType);
+        headers.put("Content-Type", "multipart/form-data; boundary=" + boundary);
+
 
         // 发送POST请求
         String response = sendPostRequest(url, headers, outputStream.toByteArray());
