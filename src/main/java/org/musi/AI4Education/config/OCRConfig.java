@@ -40,13 +40,6 @@ public class OCRConfig {
         String boundary = randomString();
         String lineEnd = "\r\n";
         String contentType = "multipart/form-data; boundary=" + boundary;
-
-//        String fileName = file.getOriginalFilename();
-//
-//        String postData = "--" + boundary + lineEnd +
-//                "Content-Disposition: form-data; name=\"file\"; filename=\"" + fileName + "\"" + lineEnd +
-//                "Content-Type: image/png"  + lineEnd + lineEnd;
-
         String fileName = file.getOriginalFilename();
         String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1);
 

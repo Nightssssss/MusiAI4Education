@@ -14,4 +14,8 @@ public class ChatSession {
     public List<HashMap<String, String>> getMessages() {
         return messages;
     }
+
+    public void clearMessages() {
+        messages.clear();
+    }
 }
