@@ -18,9 +18,15 @@ public class ChatGPTController {
     @Autowired
     private ChatGPTService chatGPTservice;
 
-    @GetMapping("/chat")
-    public List<HashMap<String,String>>  getInformation(@RequestParam String question,@RequestParam String qid) throws JSONException {
-        List<HashMap<String,String>> result = chatGPTservice.connectWithChatGPT(question,qid);
+    @GetMapping("/chat/inspiration")
+    public List<HashMap<String,String>>  connectWithChatGPTForinspiration(@RequestParam String question,@RequestParam String qid) throws JSONException {
+        List<HashMap<String,String>> result = chatGPTservice.connectWithChatGPTForinspiration(question,qid);
+        return result;
+    }
+
+    @GetMapping("/chat/explanation")
+    public List<HashMap<String,String>>  connectWithChatGPTForexplanation(@RequestParam String question,@RequestParam String qid) throws JSONException {
+        List<HashMap<String,String>> result = chatGPTservice.connectWithChatGPTForExplanation(question,qid);
         return result;
     }
 

@@ -8,7 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface ChatGPTService extends IService<ChatHistory> {
-    public String getChatWav(String question, String chatHistory) ;
-    public List<HashMap<String,String>> connectWithChatGPT(String question,String qid) throws JSONException;
+    public String getChatWavForInspiration(String question, String chatHistory) ;
+    public List<HashMap<String,String>> connectWithChatGPTForinspiration(String question,String qid) throws JSONException;
+
+    public String getChatWavForExplanation(String question, String chatHistory) ;
+    public List<HashMap<String,String>> connectWithChatGPTForExplanation(String question,String qid) throws JSONException;
 
     }
