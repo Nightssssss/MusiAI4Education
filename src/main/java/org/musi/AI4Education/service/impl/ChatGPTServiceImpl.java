@@ -31,16 +31,21 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
 
     private Map<String, ChatSession> sessions = new HashMap<>(); // Store sessions using user IDs
 
+    @Override
     public String getChatWavForInspiration(String question,String chatHistory) {
         StringBuilder answer = new StringBuilder();
         try {
             ProcessBuilder pb;
             if (question.equals("")) {
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py");
+
+                pb = new ProcessBuilder("/root/miniconda3/bin/python", "/MusiProject/Python_API/WenxinPlusGPT4/main.py");
+//                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py");
             } else {
                 Gson gson = new Gson();
                 String jsonInput = gson.toJson(chatHistory);
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py",question,jsonInput);
+                pb = new ProcessBuilder("/root/miniconda3/bin/python", "/MusiProject/Python_API/WenxinPlusGPT4/main.py",question,jsonInput);
+
+//                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py",question,jsonInput);
             }
             Process p = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "gb2312"));
@@ -61,7 +66,7 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         }
         return answer.toString();
     }
-
+    @Override
     public List<HashMap<String,String>> connectWithChatGPTForinspiration(String question, String qid) throws JSONException {
 
 
@@ -209,11 +214,15 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         try {
             ProcessBuilder pb;
             if (question.equals("")) {
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py");
+
+                pb = new ProcessBuilder("/root/miniconda3/bin/python", "/MusiProject/Python_API/PersonalExplanation/main.py");
+//                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py");
             } else {
                 Gson gson = new Gson();
                 String jsonInput = gson.toJson(chatHistory);
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",question,jsonInput);
+                pb = new ProcessBuilder("/root/miniconda3/bin/python", "/MusiProject/Python_API/PersonalExplanation/main.py",question,jsonInput);
+
+//                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",question,jsonInput);
             }
             Process p = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "gb2312"));

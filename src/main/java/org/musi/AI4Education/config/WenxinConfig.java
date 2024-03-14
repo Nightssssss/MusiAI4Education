@@ -3,9 +3,11 @@ package org.musi.AI4Education.config;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
+import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 
+@Configuration
 public class WenxinConfig {
     static final OkHttpClient HTTP_CLIENT = new OkHttpClient().newBuilder().build();
     public String getWenxinToken() throws IOException {
