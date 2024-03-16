@@ -47,5 +47,7 @@ public interface BasicQuestionService extends IService<BasicQuestion> {
 
     public List<String> getPositionsByUid();
 
+    public List<String> getBasicPositionsByUid();
+
     public void deleteQuestion_PositionsByPosition(String position);
 }

@@ -386,22 +386,43 @@ public class QuestionController {
 
     @GetMapping("/question/position/details")
     public CommonResponse<List<HashMap<String,Object>>> getQuestionInfoByPosition(@RequestParam String position){
-        List<HashMap<String,Object>> result = basicQuestionService.getQuestionInfoByPosition(position);
-        return CommonResponse.creatForSuccess(result);
+        if(StpUtil.isLogin()){
+            List<HashMap<String,Object>> result = basicQuestionService.getQuestionInfoByPosition(position);
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
     }
 
     @GetMapping("/question/position/all")
     public CommonResponse<List<String>> getPositionsByUid(){
-        List<String> result = basicQuestionService.getPositionsByUid();
-        return CommonResponse.creatForSuccess(result);
+        if(StpUtil.isLogin()){
+            List<String> result = basicQuestionService.getPositionsByUid();
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @GetMapping("/question/position/basicPosition")
+    public CommonResponse<List<String>> getBasicPositionsByUid(){
+        if(StpUtil.isLogin()){
+            List<String> result = basicQuestionService.getBasicPositionsByUid();
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
     }
 
     @DeleteMapping("/question/position/all")
     public CommonResponse<String> deleteQuestion_PositionsByPosition(@RequestParam String position){
-        basicQuestionService.deleteQuestion_PositionsByPosition(position);
-        return CommonResponse.creatForSuccess("删除成功");
+        if(StpUtil.isLogin()){
+            basicQuestionService.deleteQuestion_PositionsByPosition(position);
+            return CommonResponse.creatForSuccess("删除成功");
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
     }
-
 
 
 }
