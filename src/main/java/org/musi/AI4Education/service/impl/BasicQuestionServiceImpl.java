@@ -4,6 +4,10 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.json.JSONException;
 import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.BasicQuestion;
 import org.musi.AI4Education.domain.ConcreteQuestion;
@@ -14,6 +18,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.json.JSONObject;
 
 import java.util.*;
 
@@ -210,7 +215,7 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
     }
 
     @Override
-    public List<String> getPositionsByUid() {
+    public JsonNode getPositionsByUid() throws JSONException {
         String sid = StpUtil.getLoginIdAsString();
         QueryWrapper<BasicQuestion> wrapper = new QueryWrapper<>();
         wrapper.eq("sid",sid);
@@ -230,7 +235,7 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
                 result.add(position);
             }
         }
-        return result;
+        return convertToJSON(result);
     }
 
     @Override
@@ -273,6 +278,28 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
 
         basicQuestionMapper.update(basicQuestion, updateWrapper);
 
+    }
+
+    public JsonNode convertToJSON(List<String> inputList) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode rootNode = mapper.createObjectNode();
+
+        for (String input : inputList) {
+            String[] categories = input.split("/");
+            ObjectNode currentNode = rootNode;
+
+            for (String category : categories) {
+                if (!currentNode.has(category)) {
+                    currentNode.putObject(category);
+                }
+                currentNode = (ObjectNode) currentNode.get(category);
+            }
+        }
+
+        ObjectNode finalResult = mapper.createObjectNode();
+        finalResult.set("folderList", rootNode);
+
+        return finalResult;
     }
 
 

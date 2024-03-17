@@ -1,6 +1,9 @@
 package org.musi.AI4Education.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.BasicQuestion;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,9 +48,12 @@ public interface BasicQuestionService extends IService<BasicQuestion> {
 
     public List<HashMap<String,Object>> getQuestionInfoByPosition(String position);
 
-    public List<String> getPositionsByUid();
+    public JsonNode getPositionsByUid() throws JSONException;
 
     public List<String> getBasicPositionsByUid();
 
     public void deleteQuestion_PositionsByPosition(String position);
-}
+
+    public JsonNode convertToJSON(List<String> inputList);
+
+    }

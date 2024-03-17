@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -395,9 +396,9 @@ public class QuestionController {
     }
 
     @GetMapping("/question/position/all")
-    public CommonResponse<List<String>> getPositionsByUid(){
+    public CommonResponse<JsonNode> getPositionsByUid() throws JSONException {
         if(StpUtil.isLogin()){
-            List<String> result = basicQuestionService.getPositionsByUid();
+            JsonNode result = basicQuestionService.getPositionsByUid();
             return CommonResponse.creatForSuccess(result);
         }else{
             return CommonResponse.creatForError("请先登录");
