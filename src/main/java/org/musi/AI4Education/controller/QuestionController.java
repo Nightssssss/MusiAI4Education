@@ -345,9 +345,9 @@ public class QuestionController {
     }
 
     @PostMapping("/question/note")
-    public CommonResponse<String> uploadQuestionNoteByQid(@RequestParam String qid,@RequestParam String note) throws IOException, JSONException {
+    public CommonResponse<String> uploadQuestionNoteByQid(@RequestBody ConcreteQuestion concreteQuestion) throws IOException, JSONException {
         if(StpUtil.isLogin()){
-            String result = concreteQuestionService.uploadQuestionNotesByQid(qid,note);
+            String result = concreteQuestionService.uploadQuestionNotesByQid(concreteQuestion.getQid(),concreteQuestion.getNote());
             return CommonResponse.creatForSuccess(result);
         }else{
             return CommonResponse.creatForError("请先登录");
@@ -355,9 +355,9 @@ public class QuestionController {
     }
 
     @GetMapping("/question/note")
-    public CommonResponse<String> getQuestionNoteByQid(@RequestParam String qid) throws IOException, JSONException {
+    public CommonResponse<String> getQuestionNoteByQid(@RequestBody ConcreteQuestion concreteQuestion) throws IOException, JSONException {
         if(StpUtil.isLogin()){
-            ConcreteQuestion result = concreteQuestionService.getQuestionNotesByQid(qid);
+            ConcreteQuestion result = concreteQuestionService.getQuestionNotesByQid(concreteQuestion.getQid());
             return CommonResponse.creatForSuccess(result.getNote());
         }else{
             return CommonResponse.creatForError("请先登录");
@@ -365,9 +365,9 @@ public class QuestionController {
     }
 
     @PutMapping("/question/note")
-    public CommonResponse<String> modifyQuestionNoteByQid(@RequestParam String qid,@RequestParam String note) throws IOException, JSONException {
+    public CommonResponse<String> modifyQuestionNoteByQid(@RequestBody ConcreteQuestion concreteQuestion) throws IOException, JSONException {
         if(StpUtil.isLogin()){
-            String result = concreteQuestionService.modifyQuestionNotesByQid(qid,note);
+            String result = concreteQuestionService.modifyQuestionNotesByQid(concreteQuestion.getQid(),concreteQuestion.getNote());
             return CommonResponse.creatForSuccess(result);
         }else{
             return CommonResponse.creatForError("请先登录");
@@ -375,9 +375,9 @@ public class QuestionController {
     }
 
     @DeleteMapping("/question/note")
-    public CommonResponse<String> deleteQuestionNoteByQid(@RequestParam String qid) throws IOException, JSONException {
+    public CommonResponse<String> deleteQuestionNoteByQid(@RequestBody ConcreteQuestion concreteQuestion) throws IOException, JSONException {
         if(StpUtil.isLogin()){
-            String result = concreteQuestionService.deleteQuestionNotesByQid(qid);
+            String result = concreteQuestionService.deleteQuestionNotesByQid(concreteQuestion.getQid());
             return CommonResponse.creatForSuccess(result);
         }else{
             return CommonResponse.creatForError("请先登录");
