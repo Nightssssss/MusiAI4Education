@@ -38,14 +38,14 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
             ProcessBuilder pb;
             if (question.equals("")) {
 
-                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/WenxinPlusGPT4/main.py");
-//                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py");
+//                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/WenxinPlusGPT4/main.py");
+                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py");
             } else {
                 Gson gson = new Gson();
                 String jsonInput = gson.toJson(chatHistory);
-                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/WenxinPlusGPT4/main.py",question,jsonInput);
+//                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/WenxinPlusGPT4/main.py",question,jsonInput);
 
-//                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py",question,jsonInput);
+                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py",question,jsonInput);
             }
             Process p = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "gb2312"));
@@ -215,14 +215,14 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
             ProcessBuilder pb;
             if (question.equals("")) {
 
-                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py");
-//                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py");
+//                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py");
+                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py");
             } else {
                 Gson gson = new Gson();
                 String jsonInput = gson.toJson(chatHistory);
-                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py",question,jsonInput);
+//                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py",question,jsonInput);
 
-//                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",question,jsonInput);
+                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",question,jsonInput);
             }
             Process p = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "gb2312"));

@@ -8,10 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.config.WenxinConfig;
-import org.musi.AI4Education.domain.BasicQuestion;
-import org.musi.AI4Education.domain.ChatHistory;
-import org.musi.AI4Education.domain.ChatSession;
-import org.musi.AI4Education.domain.ConcreteQuestion;
+import org.musi.AI4Education.domain.*;
 import org.musi.AI4Education.mapper.ConcreteQuestionMapper;
 import org.musi.AI4Education.service.BasicQuestionService;
 import org.musi.AI4Education.service.ConcreteQuestionService;
@@ -55,7 +52,6 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
                 "第一个步骤用1.表示，第二个步骤用2.表示，以此类推，下面是题目："+content);
     }
     @Override
-
     public JSON useWenxinToCreateWrongAnswer(String content) throws IOException {
 
         String wrongType="运算错误";
@@ -76,15 +72,44 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     }
 
     @Override
-    public JSON useWenxinToAnalyseWrongType(String question,String content) throws IOException {
-        String require = "我需要你分析学生在解决数学问题时生成错误解题步骤的错误类型。你需要提供一个基本类型与一个细分类型\n" +
-                "如基本类型为：'计算错误'，细分类型为：'忽略负负得正'"+
+    public List<String> useWenxinToAnalyseWrongType(String question,String content) throws IOException, JSONException {
+        String require =
+                "我需要你分析学生在解决数学问题时生成错误解题步骤的错误类型。" +
+                "你需要提在下列范围内，寻找一个（只有一个）最为接近的基本类型与一个（只有一个）细分类型\n" +
+
+                "基本类型列表为：" +
+                "{计算错误、概念错误、读题错误、解题错误}\n" +
+
+                "对应的细分类型为："+
+                "[{\"计算错误\":\"{代数,正负值错误,单位转换,值错误}\"},"+
+                " {\"概念错误\":\"{理解错误,抄写题目信息疏忽}\"},"+
+                " {\"读题错误\":\"{方程设立错误,错误格式,概念遗忘}\"},"+
+                " {\"解题错误\":\"{解题步骤不完整,结论错误,猜答案}\"}]"+
+
+                "如果没有与之匹配的的基本类型与细分类型，请新建一个基本类型与细分类型！\n"+
+
                 "下面是原始问题:"+question+
                 "下面是学生提供的错误解题步骤:"+content+
-                "请分析学生所犯的错误类型\n" +
-                "基本类型："+
-                "细分类型：";
-        return connectWithBigModel(require);
+                "请分析学生所犯的错误类型，并且只返回一个基本类型 与 一个细分类型，不要过多解释！\n" +
+                "基本类型：用[]括起来 "+
+                "细分类型：用[]括起来 ";
+
+        JSON result = connectWithBigModel(require);
+
+        System.out.println("this is the result");
+        System.out.println(result);
+
+        JSONObject resultJSON= new JSONObject(String.valueOf(result));
+        String stringWithAnswer = resultJSON.getString("result");
+
+        List<String> resultList = new ArrayList<>();
+        Pattern pattern = Pattern.compile("\\[(.*?)\\]");
+        Matcher matcher = pattern.matcher(stringWithAnswer);
+
+        while (matcher.find()) {
+            resultList.add(matcher.group(1));
+        }
+        return resultList;
     }
 
     @Override
@@ -341,6 +366,39 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion) {
         mongoTemplate.insert(concreteQuestion);
         return CommonResponse.creatForSuccess("添加成功");
+    }
+
+    @Override
+    public ArrayList<QuestionStep> createQuestionSteps(String steps) {
+        ArrayList<QuestionStep> questionStepList = new ArrayList<QuestionStep>();
+
+        String stepsNew = steps+"\n";
+
+        int firstNewlineIndex = stepsNew.indexOf('\n');
+        if (firstNewlineIndex != -1) {
+            stepsNew = stepsNew.substring(0, firstNewlineIndex) + stepsNew.substring(firstNewlineIndex + 1);
+        }
+        System.out.println(stepsNew);
+
+        // 使用正则表达式匹配模式
+        Pattern pattern = Pattern.compile("\\n(.*?)\\n", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(stepsNew);
+
+        // 存储匹配结果
+        List<String> results = new ArrayList<>();
+        while (matcher.find()) {
+            String match = matcher.group(1).trim(); // 提取第一个组的内容并去除两端空白
+            results.add(match);
+        }
+        int step = 1;
+        // 打印结果
+        for (String result : results) {
+            QuestionStep questionStep = new QuestionStep();
+            questionStep.setNumber(step++);
+            questionStep.setContent(result);
+            questionStepList.add(questionStep);
+        }
+        return questionStepList;
     }
 
     @Override

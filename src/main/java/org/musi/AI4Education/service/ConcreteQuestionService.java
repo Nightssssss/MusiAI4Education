@@ -7,8 +7,10 @@ import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.BasicQuestion;
 import org.musi.AI4Education.domain.ChatHistory;
 import org.musi.AI4Education.domain.ConcreteQuestion;
+import org.musi.AI4Education.domain.QuestionStep;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,7 +22,7 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
     public JSON useWenxinToGetSteps(String content) throws IOException;
 
     public JSON useWenxinToCreateWrongAnswer(String content) throws IOException;
-    public JSON useWenxinToAnalyseWrongType(String question,String content) throws IOException;
+    public List<String> useWenxinToAnalyseWrongType(String question,String content) throws IOException, JSONException;
 
     public List<HashMap<String,String>> useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException;
 
@@ -43,6 +45,8 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
     public ChatHistory getChatHistoryByQid(String qid) throws IOException;
 
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion);
+
+    public ArrayList<QuestionStep> createQuestionSteps(String steps);
 
     //查询单个错题的详细信息
     public ConcreteQuestion getConcreteQuestionByQid(ConcreteQuestion concreteQuestion);

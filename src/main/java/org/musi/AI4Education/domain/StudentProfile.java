@@ -12,6 +12,10 @@ import java.util.Date;
 public class StudentProfile {
 
     @TableId
+    private String stid;     //学生档案ID
+
+    private String qid;      //题目ID
+
     private String sid;      //学生ID
 
     private String subject;     //学科
@@ -20,10 +24,10 @@ public class StudentProfile {
 
     private String details;     //错误详情
 
-    @TableField(value = "latest_date")
-    private Date latestDate;      //题目文本内容
+    private Date latestDate;      //题目最新犯错时间
 
     private int times;      //犯错次数
 
     private double weight;      //权重
+
 }
