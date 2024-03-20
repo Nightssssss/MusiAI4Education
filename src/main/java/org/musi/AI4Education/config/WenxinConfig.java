@@ -6,10 +6,13 @@ import okhttp3.*;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class WenxinConfig {
-    static final OkHttpClient HTTP_CLIENT = new OkHttpClient().newBuilder().build();
+    static final OkHttpClient HTTP_CLIENT = new OkHttpClient().newBuilder().connectTimeout(60, TimeUnit.SECONDS) // 设置连接超时时间为120秒
+        .readTimeout(60, TimeUnit.SECONDS) // 设置读取超时时间为120秒
+        .writeTimeout(60, TimeUnit.SECONDS).build();
     public String getWenxinToken() throws IOException {
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, "");

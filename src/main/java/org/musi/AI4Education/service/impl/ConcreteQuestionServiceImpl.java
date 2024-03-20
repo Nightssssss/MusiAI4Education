@@ -37,19 +37,14 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     @Autowired
     private BasicQuestionService basicQuestionService;
 
+    @Override
+    public JSON useWenxinToGetAnswerAndExplanation(String content) throws IOException {
+        return connectWithBigModel("我将会传输带有latex公式的数学题目，只需要给出题目的答案与题目解析与题目考察的与数学相关的知识点，分别用[]括起来，例如[题目答案],[题目解析],[{知识点1的具体内容},{知识点2的具体内容}],回答尽量简洁但不遗漏关键步骤，下面是题目： "+content);
+    }
 
     @Override
-    public JSON useWenxinToGetAnswer(String content) throws IOException {
-        return connectWithBigModel("我将会传输带有latex公式的数学题目，请只给我题目的答案 "+content);
-    }
-    @Override
-    public JSON useWenxinToGetExplanation(String content) throws IOException {
-        return connectWithBigModel("我将会传输带有latex公式的数学题目，请只给我题目的解析 "+content);
-    }
-    @Override
     public JSON useWenxinToGetSteps(String content) throws IOException {
-        return connectWithBigModel("我将会提供带有 LaTeX 公式的数学题目，请你仅给出题目的解题步骤。" +
-                "第一个步骤用1.表示，第二个步骤用2.表示，以此类推，下面是题目："+content);
+        return connectWithBigModel("我将会提供带有 LaTeX 公式的数学题目，只需要给出题目的解题步骤。" + "每一个步骤都用[]括起来表示，如[1. 步骤一的内容],[2. 步骤二的内容]以此类推，下面是题目："+content);
     }
     @Override
     public JSON useWenxinToCreateWrongAnswer(String content) throws IOException {
@@ -95,9 +90,6 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
                 "细分类型：用[]括起来 ";
 
         JSON result = connectWithBigModel(require);
-
-        System.out.println("this is the result");
-        System.out.println(result);
 
         JSONObject resultJSON= new JSONObject(String.valueOf(result));
         String stringWithAnswer = resultJSON.getString("result");
@@ -152,7 +144,6 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
         JSONObject answerJSONObject= new JSONObject(String.valueOf(json));
         String answer = answerJSONObject.getString("result");
-
 
         //首先获取之前的Session，将大模型答案添加到Session中
         HashMap<String, String> msg1 = new HashMap<>();
@@ -210,45 +201,45 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     }
 
-    @Override
-    public List<String> useWenxinToAnalyseKnowledge(String question) throws IOException, JSONException {
-        String access_token = new WenxinConfig().getWenxinToken();
-        String requestMethod = "POST";
-        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token="+access_token;//post请求时格式
-        HashMap<String, String> msg = new HashMap<>();
-        msg.put("role","user");
-        String require = "我需要你分析这道数学题考察的与数学相关的知识点,用“**具体的某个知识点**”、“**具体的某个知识点**”、“**具体的某个知识点**”的形式表示，题干如下："+ question;
-        msg.put("content", require);
-        ArrayList<HashMap> messages = new ArrayList<>();
-        messages.add(msg);
-        HashMap<String, Object> requestBody = new HashMap<>();
-        requestBody.put("messages", messages);
-        String outputStr = JSON.toJSONString(requestBody);
-        JSON result = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
-
-        String json = result.toJSONString();
-        JSONObject newJSON= new JSONObject(String.valueOf(json));
-        String latex1 = newJSON.getString("result");
-
-        List<String> stringList = new ArrayList<>();
-
-        // 定义正则表达式
-        String regex = "\\*\\*(.*?)\\*\\*";
-        // 编译正则表达式
-        Pattern pattern = Pattern.compile(regex);
-        // 创建Matcher对象
-        Matcher matcher = pattern.matcher(latex1);
-
-        // 循环匹配并提取内容
-        while (matcher.find()) {
-            // group(1) 匹配到的内容
-            String extractedText = matcher.group(1);
-            stringList.add(extractedText);
-            System.out.println("提取到的知识点: " + extractedText);
-        }
-        return stringList;
-
-    }
+//    @Override
+//    public List<String> useWenxinToAnalyseKnowledge(String question) throws IOException, JSONException {
+//        String access_token = new WenxinConfig().getWenxinToken();
+//        String requestMethod = "POST";
+//        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token="+access_token;//post请求时格式
+//        HashMap<String, String> msg = new HashMap<>();
+//        msg.put("role","user");
+//        String require = "我需要你分析这道数学题考察的与数学相关的知识点,用“**具体的某个知识点**”、“**具体的某个知识点**”、“**具体的某个知识点**”的形式表示，题干如下："+ question;
+//        msg.put("content", require);
+//        ArrayList<HashMap> messages = new ArrayList<>();
+//        messages.add(msg);
+//        HashMap<String, Object> requestBody = new HashMap<>();
+//        requestBody.put("messages", messages);
+//        String outputStr = JSON.toJSONString(requestBody);
+//        JSON result = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
+//
+//        String json = result.toJSONString();
+//        JSONObject newJSON= new JSONObject(String.valueOf(json));
+//        String latex1 = newJSON.getString("result");
+//
+//        List<String> stringList = new ArrayList<>();
+//
+//        // 定义正则表达式
+//        String regex = "\\*\\*(.*?)\\*\\*";
+//        // 编译正则表达式
+//        Pattern pattern = Pattern.compile(regex);
+//        // 创建Matcher对象
+//        Matcher matcher = pattern.matcher(latex1);
+//
+//        // 循环匹配并提取内容
+//        while (matcher.find()) {
+//            // group(1) 匹配到的内容
+//            String extractedText = matcher.group(1);
+//            stringList.add(extractedText);
+//            System.out.println("提取到的知识点: " + extractedText);
+//        }
+//        return stringList;
+//
+//    }
 
     @Override
     public String getQuestionStepByQuestionNumber(String qid, int targetNumber) {
@@ -370,35 +361,54 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     @Override
     public ArrayList<QuestionStep> createQuestionSteps(String steps) {
+
         ArrayList<QuestionStep> questionStepList = new ArrayList<QuestionStep>();
 
-        String stepsNew = steps+"\n";
+        ArrayList<String> contents = new ArrayList<>();
+        Pattern pattern = Pattern.compile("\\[(.*?)\\]"); // 匹配被"[]"括起来的内容
+        Matcher matcher = pattern.matcher(steps);
 
-        int firstNewlineIndex = stepsNew.indexOf('\n');
-        if (firstNewlineIndex != -1) {
-            stepsNew = stepsNew.substring(0, firstNewlineIndex) + stepsNew.substring(firstNewlineIndex + 1);
-        }
-        System.out.println(stepsNew);
-
-        // 使用正则表达式匹配模式
-        Pattern pattern = Pattern.compile("\\n(.*?)\\n", Pattern.DOTALL);
-        Matcher matcher = pattern.matcher(stepsNew);
-
-        // 存储匹配结果
-        List<String> results = new ArrayList<>();
+        // 使用正则表达式逐个匹配并提取内容
         while (matcher.find()) {
-            String match = matcher.group(1).trim(); // 提取第一个组的内容并去除两端空白
-            results.add(match);
+            contents.add(matcher.group(1)); // group(1) 提取括号中的内容
         }
         int step = 1;
-        // 打印结果
-        for (String result : results) {
+        for (String result : contents) {
             QuestionStep questionStep = new QuestionStep();
             questionStep.setNumber(step++);
             questionStep.setContent(result);
             questionStepList.add(questionStep);
         }
+
         return questionStepList;
+    }
+
+    @Override
+    public List<String> splitAnswerAndExplanation(String steps) {
+        List<String> result = new ArrayList<>();
+
+        Pattern pattern = Pattern.compile("\\[(.*?)\\]"); // 匹配被"[]"括起来的内容
+        Matcher matcher = pattern.matcher(steps);
+
+        // 使用正则表达式逐个匹配并提取内容
+        while (matcher.find()) {
+            result.add(matcher.group(1)); // group(1) 提取括号中的内容
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> splitKnowledges(String knowledges) {
+        List<String> result = new ArrayList<>();
+
+        Pattern pattern = Pattern.compile("\\{(.*?)\\}"); // 匹配被"[]"括起来的内容
+        Matcher matcher = pattern.matcher(knowledges);
+
+        // 使用正则表达式逐个匹配并提取内容
+        while (matcher.find()) {
+            result.add(matcher.group(1)); // group(1) 提取括号中的内容
+        }
+        return result;
     }
 
     @Override

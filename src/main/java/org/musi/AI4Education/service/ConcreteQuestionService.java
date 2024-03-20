@@ -17,16 +17,14 @@ import java.util.List;
 public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
 
     //调用大模型生成答案
-    public JSON useWenxinToGetAnswer(String content) throws IOException;
-    public JSON useWenxinToGetExplanation(String content) throws IOException;
+    public JSON useWenxinToGetAnswerAndExplanation(String content) throws IOException;
     public JSON useWenxinToGetSteps(String content) throws IOException;
-
     public JSON useWenxinToCreateWrongAnswer(String content) throws IOException;
     public List<String> useWenxinToAnalyseWrongType(String question,String content) throws IOException, JSONException;
 
     public List<HashMap<String,String>> useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException;
 
-    public List<String> useWenxinToAnalyseKnowledge(String question) throws IOException, JSONException;
+//    public List<String> useWenxinToAnalyseKnowledge(String question) throws IOException, JSONException;
 
     public String getQuestionStepByQuestionNumber(String qid,int number);
 
@@ -47,6 +45,11 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion);
 
     public ArrayList<QuestionStep> createQuestionSteps(String steps);
+
+    public List<String> splitAnswerAndExplanation(String steps);
+
+    public List<String> splitKnowledges(String knowledges);
+
 
     //查询单个错题的详细信息
     public ConcreteQuestion getConcreteQuestionByQid(ConcreteQuestion concreteQuestion);

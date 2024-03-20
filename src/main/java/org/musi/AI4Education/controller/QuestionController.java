@@ -59,27 +59,33 @@ public class QuestionController {
             JSONObject ocrObject0 = new JSONObject(wrongAnswerInJSONForm);
             JSONObject res0 = ocrObject0.getJSONObject("res");
             String wrong_answer_text = res0.getString("latex");
-            System.out.println("题干文本信息: "+wrong_answer_text);
+            System.out.println("错解文本信息: "+wrong_answer_text);
 
             //根据文本信息，大模型生成答案(这部分后期要优化)
-            JSON answerJSON=concreteQuestionService.useWenxinToGetAnswer(question_text);
-            JSON explanationJSON=concreteQuestionService.useWenxinToGetExplanation(question_text);
+            JSON answerAndExplanationJSON=concreteQuestionService.useWenxinToGetAnswerAndExplanation(question_text);
             JSON stepsJSON=concreteQuestionService.useWenxinToGetSteps(question_text);
-            List<String> knowledges = concreteQuestionService.useWenxinToAnalyseKnowledge(question_text);
             List<String> wrongTypes = concreteQuestionService.useWenxinToAnalyseWrongType(question_text,wrong_answer_text);
 
-            String wrongType = wrongTypes.get(0);
-            String details = wrongTypes.get(1);
+            System.out.println(answerAndExplanationJSON);
+            System.out.println(stepsJSON);
+            System.out.println(wrongTypes);
 
             //提取大模型生成的答案（正确答案、题目解析、题目解题步骤）
-            JSONObject answerJSONObject= new JSONObject(String.valueOf(answerJSON));
-            JSONObject explanationJSONObject= new JSONObject(String.valueOf(explanationJSON));
+            JSONObject answerAndExplanationJSONObject= new JSONObject(String.valueOf(answerAndExplanationJSON));
             JSONObject stepsJSONObject= new JSONObject(String.valueOf(stepsJSON));
 
-            String answer = answerJSONObject.getString("result");
-            String explanation = explanationJSONObject.getString("result");
+            String answerAndExplanation = answerAndExplanationJSONObject.getString("result");
             String steps = stepsJSONObject.getString("result");
 
+            List<String> result = concreteQuestionService.splitAnswerAndExplanation(answerAndExplanation);
+            String answer = result.get(0);
+            String explanation = result.get(1);
+            String knowledgesList = result.get(2);
+            List<String> knowledges= concreteQuestionService.splitKnowledges(knowledgesList);
+
+            //获取题目犯错信息
+            String wrongType = wrongTypes.get(0);
+            String details = wrongTypes.get(1);
 
             //存储错题概要信息
             BasicQuestion basicQuestion = new BasicQuestion();

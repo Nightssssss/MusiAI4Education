@@ -19,14 +19,20 @@ public class ChatGPTController {
     private ChatGPTService chatGPTservice;
 
     @GetMapping("/chat/inspiration")
-    public List<HashMap<String,String>>  connectWithChatGPTForinspiration(@RequestParam String question,@RequestParam String qid) throws JSONException {
+    public List<HashMap<String,String>>  connectWithChatGPTForInspiration(@RequestParam String question,@RequestParam String qid) throws JSONException {
         List<HashMap<String,String>> result = chatGPTservice.connectWithChatGPTForinspiration(question,qid);
         return result;
     }
 
     @GetMapping("/chat/explanation")
-    public List<HashMap<String,String>>  connectWithChatGPTForexplanation(@RequestParam String question,@RequestParam String qid) throws JSONException {
+    public List<HashMap<String,String>>  connectWithChatGPTForExplanation(@RequestParam String question,@RequestParam String qid) throws JSONException {
         List<HashMap<String,String>> result = chatGPTservice.connectWithChatGPTForExplanation(question,qid);
+        return result;
+    }
+
+    @GetMapping("/chat/feiman")
+    public List<HashMap<String,String>>  connectWithChatGPTForFeiman(@RequestParam String question,@RequestParam String qid) throws JSONException {
+        List<HashMap<String,String>> result = chatGPTservice.connectWithChatGPTForFeiman(question,qid);
         return result;
     }
 

@@ -13,4 +13,7 @@ public interface ChatGPTService extends IService<ChatHistory> {
     public String getChatWavForExplanation(String question, String chatHistory) ;
     public List<HashMap<String,String>> connectWithChatGPTForExplanation(String question,String qid) throws JSONException;
 
+    public String getChatWavForFeiman(String question, String chatHistory) ;
+    public List<HashMap<String,String>> connectWithChatGPTForFeiman(String question,String qid) throws JSONException;
+
     }
