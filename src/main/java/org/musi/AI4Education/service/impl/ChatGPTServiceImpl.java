@@ -209,7 +209,7 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
     }
 
     @Override
-    public String getChatWavForExplanation(String question, String chatHistory) {
+    public String getChatWavForExplanation(String question, String chatHistory,String studentCharactor) {
         StringBuilder answer = new StringBuilder();
         try {
             ProcessBuilder pb;
@@ -222,7 +222,7 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
                 String jsonInput = gson.toJson(chatHistory);
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py",question,jsonInput);
 
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",question,jsonInput);
+                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",question,jsonInput,studentCharactor);
             }
             Process p = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "gb2312"));
@@ -245,7 +245,7 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
     }
 
     @Override
-    public List<HashMap<String, String>> connectWithChatGPTForExplanation(String question, String qid) throws JSONException {
+    public List<HashMap<String, String>> connectWithChatGPTForExplanation(String question, String qid,String studentCharactor) throws JSONException {
         //获取用户ID与题目ID
         String sid = StpUtil.getLoginIdAsString();
 
@@ -285,7 +285,7 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         }
 
         //获取大模型输出的答案
-        String answer = getChatWavForExplanation(question,chatHistoryTemp);
+        String answer = getChatWavForExplanation(question,chatHistoryTemp,studentCharactor);
         System.out.println(answer);
 
 

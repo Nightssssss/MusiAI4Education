@@ -18,9 +18,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
-import org.json.JSONObject;
 
 import java.util.*;
+import java.sql.Date;
 
 @Service
 public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, BasicQuestion> implements BasicQuestionService {
@@ -39,6 +39,21 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
     public CommonResponse<String> createBasicQuestion(BasicQuestion basicQuestion) {
         basicQuestionMapper.insert(basicQuestion);
         return CommonResponse.creatForSuccess("添加成功");
+    }
+
+    @Override
+    public BasicQuestion modifyBasicQuestion(BasicQuestion basicQuestion) {
+        UpdateWrapper<BasicQuestion> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("qid", basicQuestion.getQid());
+        updateWrapper.set("wrongType",basicQuestion.getWrongType());
+        updateWrapper.set("wrongDetails",basicQuestion.getWrongDetails());
+
+        update(basicQuestion,updateWrapper);
+
+        QueryWrapper<BasicQuestion> wrapper = new QueryWrapper<>();
+        wrapper.eq("qid", basicQuestion.getQid());
+        BasicQuestion basicQuestion1=basicQuestionMapper.selectOne(wrapper);
+        return basicQuestion1;
     }
 
     @Override

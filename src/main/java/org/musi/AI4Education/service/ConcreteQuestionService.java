@@ -21,10 +21,10 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
     public JSON useWenxinToGetSteps(String content) throws IOException;
     public JSON useWenxinToCreateWrongAnswer(String content) throws IOException;
     public List<String> useWenxinToAnalyseWrongType(String question,String content) throws IOException, JSONException;
-
     public List<HashMap<String,String>> useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException;
 
-//    public List<String> useWenxinToAnalyseKnowledge(String question) throws IOException, JSONException;
+    public List<HashMap<String,String>> useWenxinToCommunicateWithUserWithWrongAnswer(BasicQuestion basicQuestion, String wrongText, String wrongReason,String content) throws IOException, JSONException;
+
 
     public String getQuestionStepByQuestionNumber(String qid,int number);
 

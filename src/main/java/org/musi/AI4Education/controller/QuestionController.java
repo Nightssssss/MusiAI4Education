@@ -19,8 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.sql.Date;
 
 import static org.musi.AI4Education.config.OCRConfig.latexOcr;
 
@@ -40,7 +39,7 @@ public class QuestionController {
     private StudentProfileService studentProfileService;
 
     @PostMapping("/bigModel")
-    public CommonResponse<Map<String, Object>> createQuestion(MultipartFile question,MultipartFile wrongAnswer) throws Exception {
+    public CommonResponse<Map<String, Object>> createQuestion(MultipartFile question) throws Exception {
 
             if (StpUtil.isLogin()) {
 
@@ -49,26 +48,19 @@ public class QuestionController {
 
             //调用图像识别OCR，返回包含题干信息的Latex字符串，获得并打印题干文本信息
             String content = latexOcr(question);
-            String wrongAnswerInJSONForm = latexOcr(wrongAnswer);
 
             JSONObject ocrObject = new JSONObject(content);
             JSONObject res = ocrObject.getJSONObject("res");
             String question_text = res.getString("latex");
             System.out.println("题干文本信息: "+question_text);
 
-            JSONObject ocrObject0 = new JSONObject(wrongAnswerInJSONForm);
-            JSONObject res0 = ocrObject0.getJSONObject("res");
-            String wrong_answer_text = res0.getString("latex");
-            System.out.println("错解文本信息: "+wrong_answer_text);
 
             //根据文本信息，大模型生成答案(这部分后期要优化)
             JSON answerAndExplanationJSON=concreteQuestionService.useWenxinToGetAnswerAndExplanation(question_text);
             JSON stepsJSON=concreteQuestionService.useWenxinToGetSteps(question_text);
-            List<String> wrongTypes = concreteQuestionService.useWenxinToAnalyseWrongType(question_text,wrong_answer_text);
 
             System.out.println(answerAndExplanationJSON);
             System.out.println(stepsJSON);
-            System.out.println(wrongTypes);
 
             //提取大模型生成的答案（正确答案、题目解析、题目解题步骤）
             JSONObject answerAndExplanationJSONObject= new JSONObject(String.valueOf(answerAndExplanationJSON));
@@ -83,9 +75,6 @@ public class QuestionController {
             String knowledgesList = result.get(2);
             List<String> knowledges= concreteQuestionService.splitKnowledges(knowledgesList);
 
-            //获取题目犯错信息
-            String wrongType = wrongTypes.get(0);
-            String details = wrongTypes.get(1);
 
             //存储错题概要信息
             BasicQuestion basicQuestion = new BasicQuestion();
@@ -96,17 +85,13 @@ public class QuestionController {
             String qid = String.valueOf(System.currentTimeMillis());
             basicQuestion.setQid(qid);
 
-            Date currentDate = new Date();
+            Date currentDate = new Date(System.currentTimeMillis());
             basicQuestion.setDate(currentDate);
 
             //这一部分要融入大模型
             basicQuestion.setSubject("数学");
             basicQuestion.setQuestionText(question_text);
-
             basicQuestion.setQuestionType("选择题");
-            basicQuestion.setWrongType(wrongType);
-            basicQuestion.setWrongDetails(details);
-
             basicQuestion.setMark(0);
             basicQuestion.setPath(url);
             basicQuestionService.createBasicQuestion(basicQuestion);
@@ -128,12 +113,12 @@ public class QuestionController {
             concreteQuestion.setKnowledges(knowledges);
             //存储题目笔记：暂时为空
             concreteQuestion.setNote("");
+
+
             //存储解题步骤
             ArrayList<QuestionStep> questionStepList = concreteQuestionService.createQuestionSteps(steps);
             concreteQuestion.setQuestionSteps(questionStepList);
-
             concreteQuestionService.createConcreteQuestion(concreteQuestion);
-
 
             //存储历史记录信息
             History history = new History();
@@ -147,11 +132,52 @@ public class QuestionController {
 
             historyService.createHistory(history);
 
+            //设置返回信息
+            Map<String, Object> data = new HashMap<>();
+            data.put("basicQuestion",basicQuestion);
+            data.put("concreteQuestion",concreteQuestion);
+
+            return CommonResponse.creatForSuccess(data);
+        } else {
+            // 令牌无效或解码错误
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+    @PostMapping("/bigModel/wrongAnswer")
+    public CommonResponse<HashMap<String, String>> analyseWrongType(MultipartFile wrongAnswer,@RequestParam String qid)throws Exception{
+        if (StpUtil.isLogin()) {
+            //调用图像识别OCR，返回包含题干信息的Latex字符串，获得并打印题干文本信息
+            String wrongAnswerInJSONForm = latexOcr(wrongAnswer);
+
+            JSONObject ocrObject0 = new JSONObject(wrongAnswerInJSONForm);
+            JSONObject res0 = ocrObject0.getJSONObject("res");
+            String wrong_answer_text = res0.getString("latex");
+            System.out.println("错解文本信息: "+wrong_answer_text);
+
+            BasicQuestion basicQuestion = new BasicQuestion();
+            basicQuestion.setQid(qid);
+            String question_text = basicQuestionService.getQuestionTextByQid(basicQuestion);
+
+            //根据文本信息，大模型生成答案(这部分后期要优化)
+            List<String> wrongTypes = concreteQuestionService.useWenxinToAnalyseWrongType(String.valueOf(question_text),wrong_answer_text);
+            System.out.println(wrongTypes);
+
+            //获取题目犯错信息
+            String wrongType = wrongTypes.get(0);
+            String wrongDetails = wrongTypes.get(1);
+
+            basicQuestion.setWrongText(wrong_answer_text);
+            basicQuestion.setWrongType(wrongType);
+            basicQuestion.setWrongDetails(wrongDetails);
+
+            basicQuestionService.modifyBasicQuestion(basicQuestion);
+
+            String sid = StpUtil.getLoginIdAsString();
             //存储学生档案
             StudentProfile studentProfileTemp = new StudentProfile();
             studentProfileTemp.setSid(sid);
             studentProfileTemp.setType(wrongType);
-            studentProfileTemp.setDetails(details);
+            studentProfileTemp.setDetails(wrongDetails);
 
             StudentProfile studentProfile = studentProfileService.getStudentProfileByQidAndSid(studentProfileTemp);
 
@@ -160,8 +186,8 @@ public class QuestionController {
                 UpdateWrapper<StudentProfile> updateWrapper = new UpdateWrapper<>();
                 updateWrapper.eq("sid", studentProfile.getSid());
                 updateWrapper.eq("type", wrongType);
-                updateWrapper.eq("details", details);
-
+                updateWrapper.eq("details", wrongDetails);
+                Date currentDate = new Date(System.currentTimeMillis());
                 studentProfile.setLatestDate(currentDate);
                 studentProfile.setTimes(studentProfile.getTimes()+1);
 
@@ -177,30 +203,26 @@ public class QuestionController {
                 studentProfileNew.setSid(sid);
                 studentProfileNew.setSubject("数学");
                 studentProfileNew.setType(wrongType);
-                studentProfileNew.setDetails(details);
+                studentProfileNew.setDetails(wrongDetails);
+                Date currentDate = new Date(System.currentTimeMillis());
                 studentProfileNew.setLatestDate(currentDate);
                 studentProfileNew.setTimes(1);
 
                 //设置权重算法
                 studentProfileNew.setWeight(10);
 
-
                 //插入数据库
                 studentProfileService.createStudentProfileByQidAndSid(studentProfileNew);
             }
 
-            //设置返回信息
-            Map<String, Object> data = new HashMap<>();
-            data.put("basicQuestion",basicQuestion);
-            data.put("concreteQuestion",concreteQuestion);
-
-            return CommonResponse.creatForSuccess(data);
+            HashMap<String,String> result = new HashMap<>();
+            result.put(wrongType,wrongDetails);
+            return CommonResponse.creatForSuccess(result);
         } else {
             // 令牌无效或解码错误
             return CommonResponse.creatForError("请先登录");
         }
     }
-
     @GetMapping("/question/base/basicQuestion")
     public CommonResponse<BasicQuestion> getBasicQuestionByQid(@RequestBody BasicQuestion basicQuestion){
         if (StpUtil.isLogin()){
@@ -210,7 +232,7 @@ public class QuestionController {
         }
     }
 
-    @GetMapping("/question/concrete")
+    @PostMapping("/question/concrete")
     public CommonResponse<ConcreteQuestion> getConcreteQuestionByQid(@RequestBody ConcreteQuestion concreteQuestion){
         if (StpUtil.isLogin()){
             return CommonResponse.creatForSuccess(concreteQuestionService.getConcreteQuestionByQid(concreteQuestion));
@@ -324,6 +346,26 @@ public class QuestionController {
             String content  = (String) map.get("content");
 
             List<HashMap<String,String>> result = concreteQuestionService.useWenxinToCommunicateWithUser(basicQuestion1,content);
+            return CommonResponse.creatForSuccess(result);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @PostMapping("/question/communication/wrongAnswer")
+    public CommonResponse<List<HashMap<String,String>>> communicateWithWenxinWithWrongAnswer(@RequestBody Map<String,Object> map) throws IOException, JSONException {
+        if(StpUtil.isLogin()){
+            Object basicQuestion =  map.get("basicQuestion");
+            String json = JSONUtil.toJsonStr(basicQuestion);
+            ObjectMapper objectMapper = new ObjectMapper();
+            BasicQuestion basicQuestion1 = objectMapper.readValue(json, new TypeReference<BasicQuestion>() {});
+            String content  = (String) map.get("content");
+
+            BasicQuestion basicQuestion2 = basicQuestionService.getBasicQuestionByQid(basicQuestion1);
+            String wrong_text = basicQuestion2.getWrongText();
+            String wrongReason=basicQuestion2.getWrongType()+"中的"+basicQuestion2.getWrongDetails();
+
+            List<HashMap<String,String>> result = concreteQuestionService.useWenxinToCommunicateWithUserWithWrongAnswer(basicQuestion1, String.valueOf(wrong_text),wrongReason,content);
             return CommonResponse.creatForSuccess(result);
         }else{
             return CommonResponse.creatForError("请先登录");

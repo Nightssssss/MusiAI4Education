@@ -5,10 +5,13 @@ import org.musi.AI4Education.domain.ConcreteQuestion;
 import org.musi.AI4Education.domain.StudentProfile;
 import org.musi.AI4Education.service.impl.StudentProfileServiceImpl;
 
-import java.util.HashMap;
+import java.sql.Date;
+import java.util.List;
+import java.util.Map;
 
 public interface StudentProfileService extends IService<StudentProfile> {
     public StudentProfile getStudentProfileByQidAndSid(StudentProfile studentProfile);
     public StudentProfile createStudentProfileByQidAndSid(StudentProfile studentProfile);
-    public HashMap<String,String> getStudentTopWrongTypeAndDetails(String sid);
+    public List<String> getStudentTopWrongTypeAndDetails(String sid);
+    public Map<Date, Integer> countQuestionsByDateForStudent(String sid);
 }

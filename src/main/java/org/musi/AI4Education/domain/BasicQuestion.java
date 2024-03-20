@@ -4,8 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.HashMap;
+import java.sql.Date;
 
 @Data
 @TableName(value = "question_basic_info")
@@ -17,6 +16,7 @@ public class BasicQuestion{
     private String questionType;      //题型
     private Date date;      //拍题时间
     private String subject;     //科目
+    private String wrongText;     //错解题干
     private String wrongType;       //错误类型
     private String wrongDetails;      //错误详情
     private int mark;        //标记

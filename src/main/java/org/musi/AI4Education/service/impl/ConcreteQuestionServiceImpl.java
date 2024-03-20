@@ -39,7 +39,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     @Override
     public JSON useWenxinToGetAnswerAndExplanation(String content) throws IOException {
-        return connectWithBigModel("我将会传输带有latex公式的数学题目，只需要给出题目的答案与题目解析与题目考察的与数学相关的知识点，分别用[]括起来，例如[题目答案],[题目解析],[{知识点1的具体内容},{知识点2的具体内容}],回答尽量简洁但不遗漏关键步骤，下面是题目： "+content);
+        return connectWithBigModel("我将会传输带有latex公式的数学题目，只需要给出题目的答案与题目解析与题目考察的与数学相关的知识点，分别用[]括起来，例如[题目答案],[题目解析],[{知识点1的具体内容},{知识点2的具体内容}],回答稍微简洁但不遗漏关键步骤，下面是题目： "+content);
     }
 
     @Override
@@ -107,7 +107,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     @Override
     public List<HashMap<String,String>> useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException {
 
-        String question = basicQuestionService.getQuestionTextByQid(basicQuestion);
+        String question = String.valueOf(basicQuestionService.getQuestionTextByQid(basicQuestion));
         String access_token = new WenxinConfig().getWenxinToken();
         String requestMethod = "POST";
         String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token=" + access_token;
@@ -201,45 +201,100 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     }
 
-//    @Override
-//    public List<String> useWenxinToAnalyseKnowledge(String question) throws IOException, JSONException {
-//        String access_token = new WenxinConfig().getWenxinToken();
-//        String requestMethod = "POST";
-//        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token="+access_token;//post请求时格式
-//        HashMap<String, String> msg = new HashMap<>();
-//        msg.put("role","user");
-//        String require = "我需要你分析这道数学题考察的与数学相关的知识点,用“**具体的某个知识点**”、“**具体的某个知识点**”、“**具体的某个知识点**”的形式表示，题干如下："+ question;
-//        msg.put("content", require);
-//        ArrayList<HashMap> messages = new ArrayList<>();
-//        messages.add(msg);
-//        HashMap<String, Object> requestBody = new HashMap<>();
-//        requestBody.put("messages", messages);
-//        String outputStr = JSON.toJSONString(requestBody);
-//        JSON result = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
-//
-//        String json = result.toJSONString();
-//        JSONObject newJSON= new JSONObject(String.valueOf(json));
-//        String latex1 = newJSON.getString("result");
-//
-//        List<String> stringList = new ArrayList<>();
-//
-//        // 定义正则表达式
-//        String regex = "\\*\\*(.*?)\\*\\*";
-//        // 编译正则表达式
-//        Pattern pattern = Pattern.compile(regex);
-//        // 创建Matcher对象
-//        Matcher matcher = pattern.matcher(latex1);
-//
-//        // 循环匹配并提取内容
-//        while (matcher.find()) {
-//            // group(1) 匹配到的内容
-//            String extractedText = matcher.group(1);
-//            stringList.add(extractedText);
-//            System.out.println("提取到的知识点: " + extractedText);
-//        }
-//        return stringList;
-//
-//    }
+    @Override
+    public List<HashMap<String, String>> useWenxinToCommunicateWithUserWithWrongAnswer(BasicQuestion basicQuestion,String wrongText,String wrongReason,String content) throws IOException, JSONException {
+        String question = String.valueOf(basicQuestionService.getQuestionTextByQid(basicQuestion));
+        String access_token = new WenxinConfig().getWenxinToken();
+        String requestMethod = "POST";
+        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token=" + access_token;
+
+        //获取用户ID与题目ID
+        String sid = StpUtil.getLoginIdAsString();
+        String qid = basicQuestion.getQid()+"521";
+
+        // 直接尝试获取会话对象
+        ChatSession session = sessions.get(qid);
+
+        if (session == null) { // 如果获取的会话对象为空
+            // 说明这是第一次创建
+            session = new ChatSession(); // 创建新的会话对象
+            sessions.put(qid, session); // 将新的会话对象放入 sessions 中
+            // 在这里可以执行第一次创建会话的相关逻辑
+            String front = "我将提供一个含有LaTex公式的数学题目，并提供我的有错误的解题思路，以及该我犯错误的原因.\n";
+            content =  front+"题目为："+question+"  我的错解为"+wrongText+"  我的错因为："+wrongReason+ " 请结合我犯错误的原因，以教师的口吻分析我犯错的地方在哪。";
+        }
+
+        //如果获得了会话对象，说明并不是第一次创建，则直接在Session里面添加接下来的问题
+        //将用户的问题存入Session
+        HashMap<String, String> msg = new HashMap<>();
+        msg.put("role", "user");
+        msg.put("content", content);
+        session.addMessage(msg);
+        sessions.put(qid, session);
+
+        //请求大模型，获得大模型的回答
+        HashMap<String, Object> requestBody = new HashMap<>();
+        requestBody.put("messages", session.getMessages());
+        String outputStr = JSON.toJSONString(requestBody);
+        JSON json = HttpRequest.httpRequest(url, requestMethod, outputStr, "application/json");
+
+        JSONObject answerJSONObject= new JSONObject(String.valueOf(json));
+        String answer = answerJSONObject.getString("result");
+
+        //首先获取之前的Session，将大模型答案添加到Session中
+        HashMap<String, String> msg1 = new HashMap<>();
+        ChatSession session1 = sessions.getOrDefault(qid, new ChatSession());
+        List<HashMap<String, String>> messages = session1.getMessages();
+        for (HashMap<String, String> message : messages) {
+            String role1 = message.get("role");
+            String content1 = message.get("content");
+            msg1.put(role1, content1);
+        }
+        msg1.put("role", "assistant");
+        msg1.put("content", answer);
+        session1.addMessage(msg1);
+        sessions.put(qid, session1);
+
+        //打印
+        ChatSession session2 = sessions.getOrDefault(qid, new ChatSession());
+        List<HashMap<String, String>> messages2 = session2.getMessages();
+        List<HashMap<String,String>> chatHistoryTemp = new ArrayList<>();
+        for (HashMap<String, String> message : messages2) {
+            String role1 = message.get("role");
+            String content1 = message.get("content");
+            System.out.println(role1 + ": " + content1);
+            HashMap<String,String> temp = new HashMap<>();
+            temp.put(role1,content1);
+            chatHistoryTemp.add(temp);
+        }
+
+        Criteria criteria1 = Criteria.where("sid").is(sid);
+        Criteria criteria2 = Criteria.where("qid").is(qid);
+
+        // 组合多个查询条件
+        Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
+
+        // 创建查询对象
+        Query query = new Query(criteria);
+
+        List<ChatHistory> result = mongoTemplate.find(query, ChatHistory.class);
+
+        if (result.isEmpty()) {
+            System.out.println("查询结果为空");
+
+            ChatHistory chatHistory = new ChatHistory();
+            chatHistory.setQid(qid);
+            chatHistory.setSid(sid);
+            chatHistory.setWenxinChatHistory(chatHistoryTemp);
+
+            mongoTemplate.insert(chatHistory);
+        } else {
+            System.out.println("查询结果不为空");
+            Update update = new Update().set("wenxinChatHistory",chatHistoryTemp);
+            mongoTemplate.updateFirst(query, update, "chatHistory");
+        }
+        return chatHistoryTemp;
+    }
 
     @Override
     public String getQuestionStepByQuestionNumber(String qid, int targetNumber) {
@@ -386,13 +441,13 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     @Override
     public List<String> splitAnswerAndExplanation(String steps) {
         List<String> result = new ArrayList<>();
-
         Pattern pattern = Pattern.compile("\\[(.*?)\\]"); // 匹配被"[]"括起来的内容
         Matcher matcher = pattern.matcher(steps);
 
         // 使用正则表达式逐个匹配并提取内容
         while (matcher.find()) {
-            result.add(matcher.group(1)); // group(1) 提取括号中的内容
+            result.add(matcher.group(1));
+            System.out.println(matcher.group(1));
         }
         return result;
     }

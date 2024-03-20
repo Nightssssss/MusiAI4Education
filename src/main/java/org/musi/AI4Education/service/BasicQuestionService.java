@@ -3,10 +3,9 @@ package org.musi.AI4Education.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.BasicQuestion;
-import org.springframework.web.bind.annotation.RequestParam;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,7 +13,7 @@ public interface BasicQuestionService extends IService<BasicQuestion> {
 
     //大模型生成题目概要信息
     public CommonResponse<String> createBasicQuestion(BasicQuestion basicQuestion);
-
+    public BasicQuestion modifyBasicQuestion(BasicQuestion basicQuestion);
     //查询所有错题的概要信息
     public List<BasicQuestion> getBasicQuestionList();
 
