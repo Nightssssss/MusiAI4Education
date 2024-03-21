@@ -1,5 +1,6 @@
 package org.musi.AI4Education.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -14,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentProfileServiceImpl extends ServiceImpl<StudentProfileMapper, StudentProfile> implements StudentProfileService {
@@ -62,47 +65,33 @@ public class StudentProfileServiceImpl extends ServiceImpl<StudentProfileMapper,
     }
 
     @Override
-    public Map<Date, Integer> countQuestionsByDateForStudent(String sid) {
-        Date today = new Date(System.currentTimeMillis()); // 使用当前系统时间
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(today);
-        calendar.set(Calendar.HOUR_OF_DAY, 0); // 将小时设为0
-        calendar.set(Calendar.MINUTE, 0); // 将分钟设为0
-        calendar.set(Calendar.SECOND, 0); // 将秒数设为0
-        calendar.set(Calendar.MILLISECOND, 0); // 将毫秒数设为0
-
-        Date fifteenDaysAgo = new Date(calendar.getTimeInMillis());
-        calendar.add(Calendar.DAY_OF_MONTH, -14); // 15 天前的日期
+    public Map<String, Long> countQuestionPerDay() {
+        String sid = StpUtil.getLoginIdAsString();
+        LocalDate endDate = LocalDate.now(); // 结束日期为今天
+        LocalDate startDate = endDate.minusDays(14); // 开始日期为最近15天内的前一天
 
         QueryWrapper<BasicQuestion> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("sid", sid)
-                .ge("date", fifteenDaysAgo)
-                .le("date", today);
+        queryWrapper.eq("sid", sid);
+        queryWrapper.between("date", Date.valueOf(startDate), Date.valueOf(endDate)); // 查询条件为日期在最近15天内的数据
 
-        List<BasicQuestion> entities = basicQuestionMapper.selectList(queryWrapper);
+        List<BasicQuestion> resultList = basicQuestionMapper.selectList(queryWrapper);
 
-        Map<Date, Integer> result = new TreeMap<>(); // 使用 TreeMap 来保持按日期排序
+        // 使用Java8的流式操作进行统计每天的搜题量
+        Map<String, Long> countPerDayMap = resultList.stream()
+                .collect(Collectors.groupingBy(
+                        entity -> entity.getDate().toString(),
+                        TreeMap::new, // 使用 TreeMap 保证按日期排序
+                        Collectors.counting()
+                ));
 
+        // 补全缺少的日期，并设置对应日期的搜题量为0
         for (int i = 0; i < 15; i++) {
-            result.put(new Date(calendar.getTimeInMillis()), 0);
-            calendar.add(Calendar.DAY_OF_MONTH, 1); // 日期按顺序增加
+            LocalDate date = endDate.minusDays(i);
+            countPerDayMap.putIfAbsent(String.valueOf(Date.valueOf(date)).substring(0,10), 0L);
         }
 
-        for (BasicQuestion entity : entities) {
-            Date date = entity.getDate();
-            calendar.setTime(date);
-            calendar.set(Calendar.HOUR_OF_DAY, 0); // 将小时设为0
-            calendar.set(Calendar.MINUTE, 0); // 将分钟设为0
-            calendar.set(Calendar.SECOND, 0); // 将秒数设为0
-            calendar.set(Calendar.MILLISECOND, 0); // 将毫秒数设为0
-            date = new Date(calendar.getTimeInMillis());
-            Integer count = result.get(date);
-            if (count == null) {
-                count = 0;
-            }
-            result.put(date, count + 1);
-        }
+        Map<String, Long> sortedMap = new TreeMap<>(countPerDayMap);
 
-        return result;
+        return sortedMap;
     }
 }

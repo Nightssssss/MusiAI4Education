@@ -32,15 +32,12 @@ public class StudentProfileController {
     }
 
     @GetMapping("/profile/count")
-    public CommonResponse<Map<Date, Integer>> countQuestionsByDateForStudent() {
+    public CommonResponse<Map<String, Long>> countQuestionsByDateForStudent() {
         if (StpUtil.isLogin()) {
-            String sid = StpUtil.getLoginIdAsString();
-            Map<Date, Integer> result = studentProfileService.countQuestionsByDateForStudent(sid);
+            Map<String, Long> result = studentProfileService.countQuestionPerDay();
             return CommonResponse.creatForSuccess(result);
         } else {
             return CommonResponse.creatForError("请先登录！");
         }
     }
-
-    //countQuestionsByDateForStudent
 }

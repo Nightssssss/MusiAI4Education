@@ -13,5 +13,5 @@ public interface StudentProfileService extends IService<StudentProfile> {
     public StudentProfile getStudentProfileByQidAndSid(StudentProfile studentProfile);
     public StudentProfile createStudentProfileByQidAndSid(StudentProfile studentProfile);
     public List<String> getStudentTopWrongTypeAndDetails(String sid);
-    public Map<Date, Integer> countQuestionsByDateForStudent(String sid);
+    public Map<String, Long> countQuestionPerDay();
 }
