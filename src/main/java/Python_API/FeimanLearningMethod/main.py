@@ -5,12 +5,6 @@ import io
 from wenxin import *
 from openai_api import get_responses_GPT
 
-# 获取数学题目
-def get_math_info():
-    question = "甲、乙两车同时从A、B两城出发，相向而行。经过一段时间后，甲车行了全程的2/3，乙车行了全程的45%，这时两车相距35千米。A、B两城相距多少千米?"
-    return question
-
-
 # 文心一言给出正解
 def solve_wx(question):
     access_token = get_access_token()
@@ -43,7 +37,7 @@ if __name__ == "__main__":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='gb18030')
 
     # 如果传入的参数大于1：将学生问题与大模型会话历史传入
-    if len(sys.argv) > 2:
+    if len(sys.argv) == 4:
 
         question = sys.argv[1]
         history = sys.argv[2]
@@ -64,13 +58,15 @@ if __name__ == "__main__":
         histories.append({"role": "assistant", "content": response})
         print(json.dumps(histories, ensure_ascii=False))
 
-    elif len(sys.argv) == 2:
+    elif len(sys.argv) == 3:
 
-        question = get_math_info()
-        print("question：", question)
-        correct_answer = solve_wx(question)
         my_answer = sys.argv[1]
-        prompt_GPT = build_prompt_GPT(question, correct_answer,my_answer)
+        question_text = sys.argv[2]
+
+        print("question：", question_text)
+        correct_answer = solve_wx(question_text)
+
+        prompt_GPT = build_prompt_GPT(question_text, correct_answer,my_answer)
         print("ChatGPT4分析中...")
         response = get_responses_GPT(prompts=prompt_GPT[0], histories=[])
 

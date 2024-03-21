@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.sql.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, BasicQuestion> implements BasicQuestionService {
@@ -154,8 +156,25 @@ public class BasicQuestionServiceImpl extends ServiceImpl<BasicQuestionMapper, B
         wrapper.eq("qid", basicQuestion.getQid());
         System.out.println(basicQuestion.getQid());
         BasicQuestion basicQuestion1=basicQuestionMapper.selectOne(wrapper);
-        return basicQuestion1.getQuestionText();
+        String regex = "[\\[\\]{}]";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(basicQuestion1.getQuestionText());
+        return matcher.replaceAll("");
     }
+
+    @Override
+    public String getQuestionWrongTextByQid(BasicQuestion basicQuestion) {
+        QueryWrapper<BasicQuestion> wrapper = new QueryWrapper<>();
+        wrapper.eq("qid", basicQuestion.getQid());
+        System.out.println(basicQuestion.getQid());
+        BasicQuestion basicQuestion1=basicQuestionMapper.selectOne(wrapper);
+
+        String regex = "[\\[\\]{}]";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(basicQuestion1.getWrongText());
+        return matcher.replaceAll("");
+    }
+
     @Override
     public String getFollowingClassification(String front,String back) {
         if (back.startsWith(front)) {

@@ -1,14 +1,17 @@
 package org.musi.AI4Education.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.json.JSONException;
+import org.musi.AI4Education.domain.BasicQuestion;
 import org.musi.AI4Education.domain.ChatHistory;
 import org.musi.AI4Education.domain.ChatSession;
 import org.musi.AI4Education.mapper.ChatHistoryMapper;
+import org.musi.AI4Education.service.BasicQuestionService;
 import org.musi.AI4Education.service.ChatGPTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -29,23 +32,24 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Autowired
+    private BasicQuestionService basicQuestionService;
+
     private Map<String, ChatSession> sessions = new HashMap<>(); // Store sessions using user IDs
 
     @Override
-    public String getChatWavForInspiration(String question,String chatHistory) {
+    public String getChatWavForInspiration(String question,String chatHistory,String questionText, String wrongtext) {
         StringBuilder answer = new StringBuilder();
         try {
             ProcessBuilder pb;
             if (question.equals("")) {
-
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/WenxinPlusGPT4/main.py");
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py");
+                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py",questionText,wrongtext);
             } else {
                 Gson gson = new Gson();
                 String jsonInput = gson.toJson(chatHistory);
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/WenxinPlusGPT4/main.py",question,jsonInput);
-
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py",question,jsonInput);
+                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py",question,jsonInput,questionText,wrongtext);
             }
             Process p = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "gb2312"));
@@ -69,9 +73,14 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
     @Override
     public List<HashMap<String,String>> connectWithChatGPTForinspiration(String question, String qid) throws JSONException {
 
-
         //获取用户ID与题目ID
         String sid = StpUtil.getLoginIdAsString();
+
+        BasicQuestion basicQuestion = new BasicQuestion();
+        basicQuestion.setQid(qid);
+
+        String questionText = basicQuestionService.getQuestionTextByQid(basicQuestion);
+        String wrongText = basicQuestionService.getQuestionWrongTextByQid(basicQuestion);
 
         // 直接尝试获取会话对象
         ChatSession session = sessions.get(qid);
@@ -79,12 +88,9 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
 
         // 如果获取的会话对象为空
         if (session == null) {
-
             // 说明这是第一次创建,创建新的会话对象
             session = new ChatSession();
-
         }else{
-
             // 说明这是不是第一次创建,获取之前与大模型的会话历史，并传给Python程序
             List<HashMap<String, String>> messages2 = session.getMessages();
             List<HashMap<String,String>> chatHistory = new ArrayList<>();
@@ -109,7 +115,7 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         }
 
         //获取大模型输出的答案
-        String answer = getChatWavForInspiration(question,chatHistoryTemp);
+        String answer = getChatWavForInspiration(question,chatHistoryTemp,questionText,wrongText);
         System.out.println(answer);
 
 
@@ -209,20 +215,18 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
     }
 
     @Override
-    public String getChatWavForExplanation(String question, String chatHistory,String studentCharactor) {
+    public String getChatWavForExplanation(String questionText,String question, String chatHistory,String studentCharactor) {
         StringBuilder answer = new StringBuilder();
         try {
             ProcessBuilder pb;
             if (question.equals("")) {
-
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py");
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py");
+                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",questionText,question,studentCharactor);
             } else {
                 Gson gson = new Gson();
                 String jsonInput = gson.toJson(chatHistory);
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py",question,jsonInput);
-
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",question,jsonInput,studentCharactor);
+                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",questionText,question,jsonInput,studentCharactor);
             }
             Process p = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "gb2312"));
@@ -246,8 +250,13 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
 
     @Override
     public List<HashMap<String, String>> connectWithChatGPTForExplanation(String question, String qid,String studentCharactor) throws JSONException {
-        //获取用户ID与题目ID
+        //获取用户ID与题目题干
         String sid = StpUtil.getLoginIdAsString();
+
+        BasicQuestion basicQuestion = new BasicQuestion();
+        basicQuestion.setQid(qid);
+
+        String questionText = basicQuestionService.getQuestionTextByQid(basicQuestion);
 
         // 直接尝试获取会话对象
         ChatSession session = sessions.get(qid);
@@ -285,7 +294,7 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         }
 
         //获取大模型输出的答案
-        String answer = getChatWavForExplanation(question,chatHistoryTemp,studentCharactor);
+        String answer = getChatWavForExplanation(questionText,question,chatHistoryTemp,studentCharactor);
         System.out.println(answer);
 
 
@@ -385,20 +394,18 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
     }
 
     @Override
-    public String getChatWavForFeiman(String question, String chatHistory) {
+    public String getChatWavForFeiman(String question, String chatHistory,String questionText) {
         StringBuilder answer = new StringBuilder();
         try {
             ProcessBuilder pb;
             if (chatHistory.equals("")) {
-
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py",question);
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\FeimanLearningMethod\\main.py",question);
+                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\FeimanLearningMethod\\main.py",question,questionText);
             } else {
                 Gson gson = new Gson();
                 String jsonInput = gson.toJson(chatHistory);
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py",question,jsonInput);
-
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\FeimanLearningMethod\\main.py",question,jsonInput);
+                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\FeimanLearningMethod\\main.py",question,jsonInput,questionText);
             }
             Process p = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "gb2312"));
@@ -425,6 +432,12 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         //获取用户ID与题目ID
         String sid = StpUtil.getLoginIdAsString();
 
+        BasicQuestion basicQuestion = new BasicQuestion();
+        basicQuestion.setQid(qid);
+
+        String questionText = basicQuestionService.getQuestionTextByQid(basicQuestion);
+
+
         // 直接尝试获取会话对象
         ChatSession session = sessions.get(qid);
         String chatHistoryTemp = "";
@@ -457,11 +470,10 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
 
         //获取大模型输出的答案
-        String answer = getChatWavForFeiman(question,chatHistoryTemp);
+        String answer = getChatWavForFeiman(question,chatHistoryTemp,questionText);
         System.out.println(answer);
 
 

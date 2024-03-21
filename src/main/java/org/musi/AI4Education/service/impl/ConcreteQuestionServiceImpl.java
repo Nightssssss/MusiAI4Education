@@ -12,6 +12,7 @@ import org.musi.AI4Education.domain.*;
 import org.musi.AI4Education.mapper.ConcreteQuestionMapper;
 import org.musi.AI4Education.service.BasicQuestionService;
 import org.musi.AI4Education.service.ConcreteQuestionService;
+import org.musi.AI4Education.service.StudentService;
 import org.musi.AI4Education.utils.HttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -36,6 +37,8 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     private MongoTemplate mongoTemplate;
     @Autowired
     private BasicQuestionService basicQuestionService;
+    @Autowired
+    private StudentService studentService;
 
     @Override
     public JSON useWenxinToGetAnswerAndExplanation(String content) throws IOException {
@@ -44,7 +47,10 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     @Override
     public JSON useWenxinToGetSteps(String content) throws IOException {
-        return connectWithBigModel("我将会提供带有 LaTeX 公式的数学题目，只需要给出题目的解题步骤。" + "每一个步骤都用[]括起来表示，如[1. 步骤一的内容],[2. 步骤二的内容]以此类推，下面是题目："+content);
+        String sid = StpUtil.getLoginIdAsString();
+        String description = studentService.getStudentBySid(sid).getDescription();
+        String require = "我将会提供带有 LaTeX 公式的数学题目，"+description+"，只需要给出题目的解题步骤。" + "每一个步骤都用[]括起来表示，如[1. 步骤一的内容],[2. 步骤二的内容]以此类推，下面是题目："+content;
+        return connectWithBigModel(require);
     }
     @Override
     public JSON useWenxinToCreateWrongAnswer(String content) throws IOException {

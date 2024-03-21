@@ -43,6 +43,8 @@ public interface BasicQuestionService extends IService<BasicQuestion> {
 
     public String getQuestionTextByQid(BasicQuestion basicQuestion);
 
+    public String getQuestionWrongTextByQid(BasicQuestion basicQuestion);
+
     public String getFollowingClassification(String front,String back);
 
     public List<HashMap<String,Object>> getQuestionInfoByPosition(String position);
