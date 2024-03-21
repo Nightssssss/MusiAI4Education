@@ -2,6 +2,11 @@ package org.musi.AI4Education.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import org.json.JSONException;
+import org.musi.AI4Education.common.CommonResponse;
+import org.musi.AI4Education.domain.ChatHistory;
+import org.musi.AI4Education.domain.ExplanationChatHistory;
+import org.musi.AI4Education.domain.FeimanChatHistory;
+import org.musi.AI4Education.domain.InspirationChatHistory;
 import org.musi.AI4Education.service.ChatGPTService;
 import org.musi.AI4Education.service.StudentProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -42,6 +48,39 @@ public class ChatGPTController {
     public List<HashMap<String,String>>  connectWithChatGPTForFeiman(@RequestParam String question,@RequestParam String qid) throws JSONException {
         List<HashMap<String,String>> result = chatGPTservice.connectWithChatGPTForFeiman(question,qid);
         return result;
+    }
+
+    @GetMapping("/chat/inspiration/history")
+    public CommonResponse<InspirationChatHistory> getInspirationChatHistroyByQid(@RequestParam String qid) throws IOException {
+        if(StpUtil.isLogin()){
+            InspirationChatHistory chatHistory = chatGPTservice.getInspirationChatHistoryByQid(qid);
+            System.out.println(chatHistory);
+            return CommonResponse.creatForSuccess(chatHistory);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @GetMapping("/chat/explanation/history")
+    public CommonResponse<ExplanationChatHistory> getExplanationChatHistroyByQid(@RequestParam String qid) throws IOException {
+        if(StpUtil.isLogin()){
+            ExplanationChatHistory chatHistory = chatGPTservice.getExplanationChatHistoryByQid(qid);
+            System.out.println(chatHistory);
+            return CommonResponse.creatForSuccess(chatHistory);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
+    @GetMapping("/chat/feiman/history")
+    public CommonResponse<FeimanChatHistory> getFeimanChatHistroyByQid(@RequestParam String qid) throws IOException {
+        if(StpUtil.isLogin()){
+            FeimanChatHistory chatHistory = chatGPTservice.getFeimanChatHistoryByQid(qid);
+            System.out.println(chatHistory);
+            return CommonResponse.creatForSuccess(chatHistory);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
     }
 
 }

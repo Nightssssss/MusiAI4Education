@@ -382,6 +382,16 @@ public class QuestionController {
         }
     }
 
+    @GetMapping("/question/communication/wrongAnswer")
+    public CommonResponse<WrongReasonChatHistory> getWrongAnswerChatHistroyByQid(@RequestParam String qid) throws IOException {
+        if(StpUtil.isLogin()){
+            WrongReasonChatHistory chatHistory = concreteQuestionService.getWrongAnswerChatHistoryByQid(qid);
+            return CommonResponse.creatForSuccess(chatHistory);
+        }else{
+            return CommonResponse.creatForError("请先登录");
+        }
+    }
+
     @GetMapping("/question/stepInfo")
     public CommonResponse<String> getQuestionAnalysisStepInfo(@RequestParam String qid,@RequestParam int number) throws IOException, JSONException {
         if(StpUtil.isLogin()){

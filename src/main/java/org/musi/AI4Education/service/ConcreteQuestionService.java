@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.json.JSONException;
 import org.musi.AI4Education.common.CommonResponse;
-import org.musi.AI4Education.domain.BasicQuestion;
-import org.musi.AI4Education.domain.ChatHistory;
-import org.musi.AI4Education.domain.ConcreteQuestion;
-import org.musi.AI4Education.domain.QuestionStep;
+import org.musi.AI4Education.domain.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,6 +38,8 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
     public JSON connectWithBigModel(String content) throws IOException;
 
     public ChatHistory getChatHistoryByQid(String qid) throws IOException;
+
+    public WrongReasonChatHistory getWrongAnswerChatHistoryByQid(String qid) throws IOException;
 
     public CommonResponse<String> createConcreteQuestion(ConcreteQuestion concreteQuestion);
 

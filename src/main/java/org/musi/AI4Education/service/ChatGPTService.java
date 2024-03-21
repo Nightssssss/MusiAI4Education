@@ -3,6 +3,9 @@ package org.musi.AI4Education.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.json.JSONException;
 import org.musi.AI4Education.domain.ChatHistory;
+import org.musi.AI4Education.domain.ExplanationChatHistory;
+import org.musi.AI4Education.domain.FeimanChatHistory;
+import org.musi.AI4Education.domain.InspirationChatHistory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,4 +18,11 @@ public interface ChatGPTService extends IService<ChatHistory> {
     public String getChatWavForFeiman(String question, String chatHistory,String questionText) ;
     public List<HashMap<String,String>> connectWithChatGPTForFeiman(String question,String qid) throws JSONException;
 
-    }
+    public InspirationChatHistory getInspirationChatHistoryByQid(String qid);
+
+    public ExplanationChatHistory getExplanationChatHistoryByQid(String qid);
+
+    public FeimanChatHistory getFeimanChatHistoryByQid(String qid);
+
+
+}

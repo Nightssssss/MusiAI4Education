@@ -7,9 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.json.JSONException;
-import org.musi.AI4Education.domain.BasicQuestion;
-import org.musi.AI4Education.domain.ChatHistory;
-import org.musi.AI4Education.domain.ChatSession;
+import org.musi.AI4Education.domain.*;
 import org.musi.AI4Education.mapper.ChatHistoryMapper;
 import org.musi.AI4Education.service.BasicQuestionService;
 import org.musi.AI4Education.service.ChatGPTService;
@@ -82,6 +80,7 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         String questionText = basicQuestionService.getQuestionTextByQid(basicQuestion);
         String wrongText = basicQuestionService.getQuestionWrongTextByQid(basicQuestion);
 
+        qid = qid + "003";
         // 直接尝试获取会话对象
         ChatSession session = sessions.get(qid);
         String chatHistoryTemp = "";
@@ -194,21 +193,21 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         // 创建查询对象
         Query query = new Query(criteria);
 
-        List<ChatHistory> result2 = mongoTemplate.find(query, ChatHistory.class);
+        List<InspirationChatHistory> result2 = mongoTemplate.find(query, InspirationChatHistory.class);
 
         if (result2.isEmpty()) {
             System.out.println("查询结果为空");
 
-            ChatHistory chatHistory = new ChatHistory();
-            chatHistory.setQid(qid);
-            chatHistory.setSid(sid);
-            chatHistory.setWenxinChatHistory(chatHistoryTemp1);
+            InspirationChatHistory inspirationChatHistory = new InspirationChatHistory();
+            inspirationChatHistory.setQid(qid);
+            inspirationChatHistory.setSid(sid);
+            inspirationChatHistory.setWenxinChatHistory(chatHistoryTemp1);
 
-            mongoTemplate.insert(chatHistory);
+            mongoTemplate.insert(inspirationChatHistory);
         } else {
             System.out.println("查询结果不为空");
             Update update = new Update().set("wenxinChatHistory",chatHistoryTemp1);
-            mongoTemplate.updateFirst(query, update, "chatHistory");
+            mongoTemplate.updateFirst(query, update, "inspirationChatHistory");
         }
         return chatHistoryTemp1;
 
@@ -258,6 +257,7 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
 
         String questionText = basicQuestionService.getQuestionTextByQid(basicQuestion);
 
+        qid = qid + "004";
         // 直接尝试获取会话对象
         ChatSession session = sessions.get(qid);
         String chatHistoryTemp = "";
@@ -373,21 +373,21 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         // 创建查询对象
         Query query = new Query(criteria);
 
-        List<ChatHistory> result2 = mongoTemplate.find(query, ChatHistory.class);
+        List<ExplanationChatHistory> result2 = mongoTemplate.find(query, ExplanationChatHistory.class);
 
         if (result2.isEmpty()) {
             System.out.println("查询结果为空");
 
-            ChatHistory chatHistory = new ChatHistory();
-            chatHistory.setQid(qid);
-            chatHistory.setSid(sid);
-            chatHistory.setWenxinChatHistory(chatHistoryTemp1);
+            ExplanationChatHistory explanationChatHistory = new ExplanationChatHistory();
+            explanationChatHistory.setQid(qid);
+            explanationChatHistory.setSid(sid);
+            explanationChatHistory.setWenxinChatHistory(chatHistoryTemp1);
 
-            mongoTemplate.insert(chatHistory);
+            mongoTemplate.insert(explanationChatHistory);
         } else {
             System.out.println("查询结果不为空");
             Update update = new Update().set("wenxinChatHistory",chatHistoryTemp1);
-            mongoTemplate.updateFirst(query, update, "chatHistory");
+            mongoTemplate.updateFirst(query, update, "explanationChatHistory");
         }
         return chatHistoryTemp1;
 
@@ -437,6 +437,7 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
 
         String questionText = basicQuestionService.getQuestionTextByQid(basicQuestion);
 
+        qid = qid + "005";
 
         // 直接尝试获取会话对象
         ChatSession session = sessions.get(qid);
@@ -552,22 +553,58 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         // 创建查询对象
         Query query = new Query(criteria);
 
-        List<ChatHistory> result2 = mongoTemplate.find(query, ChatHistory.class);
+        List<FeimanChatHistory> result2 = mongoTemplate.find(query, FeimanChatHistory.class);
 
         if (result2.isEmpty()) {
             System.out.println("查询结果为空");
 
-            ChatHistory chatHistory = new ChatHistory();
-            chatHistory.setQid(qid);
-            chatHistory.setSid(sid);
-            chatHistory.setWenxinChatHistory(chatHistoryTemp1);
+            FeimanChatHistory feimanChatHistory = new FeimanChatHistory();
+            feimanChatHistory.setQid(qid);
+            feimanChatHistory.setSid(sid);
+            feimanChatHistory.setWenxinChatHistory(chatHistoryTemp1);
 
-            mongoTemplate.insert(chatHistory);
+            mongoTemplate.insert(feimanChatHistory);
         } else {
             System.out.println("查询结果不为空");
             Update update = new Update().set("wenxinChatHistory",chatHistoryTemp1);
-            mongoTemplate.updateFirst(query, update, "chatHistory");
+            mongoTemplate.updateFirst(query, update, "feimanChatHistory");
         }
         return chatHistoryTemp1;
+    }
+
+    @Override
+    public InspirationChatHistory getInspirationChatHistoryByQid(String qid) {
+        Criteria criteria1 = Criteria.where("sid").is(StpUtil.getLoginIdAsString());
+        Criteria criteria2 = Criteria.where("qid").is(qid+"003");
+        // 组合多个查询条件
+        Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
+        // 创建查询对象
+        Query query = new Query(criteria);
+        InspirationChatHistory result = mongoTemplate.findOne(query, InspirationChatHistory.class);
+        return result;
+    }
+
+    @Override
+    public ExplanationChatHistory getExplanationChatHistoryByQid(String qid) {
+        Criteria criteria1 = Criteria.where("sid").is(StpUtil.getLoginIdAsString());
+        Criteria criteria2 = Criteria.where("qid").is(qid+"004");
+        // 组合多个查询条件
+        Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
+        // 创建查询对象
+        Query query = new Query(criteria);
+        ExplanationChatHistory result = mongoTemplate.findOne(query, ExplanationChatHistory.class);
+        return result;
+    }
+
+    @Override
+    public FeimanChatHistory getFeimanChatHistoryByQid(String qid) {
+        Criteria criteria1 = Criteria.where("sid").is(StpUtil.getLoginIdAsString());
+        Criteria criteria2 = Criteria.where("qid").is(qid+"005");
+        // 组合多个查询条件
+        Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
+        // 创建查询对象
+        Query query = new Query(criteria);
+        FeimanChatHistory result = mongoTemplate.findOne(query, FeimanChatHistory.class);
+        return result;
     }
 }

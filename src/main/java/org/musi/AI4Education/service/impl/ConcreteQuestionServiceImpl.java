@@ -120,7 +120,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
         //获取用户ID与题目ID
         String sid = StpUtil.getLoginIdAsString();
-        String qid = basicQuestion.getQid();
+        String qid = basicQuestion.getQid()+"001";
 
         // 直接尝试获取会话对象
         ChatSession session = sessions.get(qid);
@@ -216,7 +216,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
         //获取用户ID与题目ID
         String sid = StpUtil.getLoginIdAsString();
-        String qid = basicQuestion.getQid()+"521";
+        String qid = basicQuestion.getQid()+"002";
 
         // 直接尝试获取会话对象
         ChatSession session = sessions.get(qid);
@@ -283,21 +283,21 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         // 创建查询对象
         Query query = new Query(criteria);
 
-        List<ChatHistory> result = mongoTemplate.find(query, ChatHistory.class);
+        List<WrongReasonChatHistory> result = mongoTemplate.find(query, WrongReasonChatHistory.class);
 
         if (result.isEmpty()) {
             System.out.println("查询结果为空");
 
-            ChatHistory chatHistory = new ChatHistory();
-            chatHistory.setQid(qid);
-            chatHistory.setSid(sid);
-            chatHistory.setWenxinChatHistory(chatHistoryTemp);
+            WrongReasonChatHistory wrongReasonChatHistory = new WrongReasonChatHistory();
+            wrongReasonChatHistory.setQid(qid);
+            wrongReasonChatHistory.setSid(sid);
+            wrongReasonChatHistory.setWenxinChatHistory(chatHistoryTemp);
 
-            mongoTemplate.insert(chatHistory);
+            mongoTemplate.insert(wrongReasonChatHistory);
         } else {
             System.out.println("查询结果不为空");
             Update update = new Update().set("wenxinChatHistory",chatHistoryTemp);
-            mongoTemplate.updateFirst(query, update, "chatHistory");
+            mongoTemplate.updateFirst(query, update, "wrongReasonChatHistory");
         }
         return chatHistoryTemp;
     }
@@ -405,12 +405,24 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     @Override
     public ChatHistory getChatHistoryByQid(String qid) throws IOException {
         Criteria criteria1 = Criteria.where("sid").is(StpUtil.getLoginIdAsString());
-        Criteria criteria2 = Criteria.where("qid").is(qid);
+        Criteria criteria2 = Criteria.where("qid").is(qid+"001");
         // 组合多个查询条件
         Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
         // 创建查询对象
         Query query = new Query(criteria);
         ChatHistory result = mongoTemplate.findOne(query, ChatHistory.class);
+        return result;
+    }
+
+    @Override
+    public WrongReasonChatHistory getWrongAnswerChatHistoryByQid(String qid) throws IOException {
+        Criteria criteria1 = Criteria.where("sid").is(StpUtil.getLoginIdAsString());
+        Criteria criteria2 = Criteria.where("qid").is(qid+"002");
+        // 组合多个查询条件
+        Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
+        // 创建查询对象
+        Query query = new Query(criteria);
+        WrongReasonChatHistory result = mongoTemplate.findOne(query, WrongReasonChatHistory.class);
         return result;
     }
 
