@@ -42,7 +42,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     @Override
     public JSON useWenxinToGetAnswerAndExplanation(String content) throws IOException {
-        return connectWithBigModel("我将会传输带有latex公式的数学题目，只需要给出题目的答案与题目解析与题目考察的与数学相关的知识点，分别用[]括起来，例如[题目答案],[题目解析],[{知识点1的具体内容},{知识点2的具体内容}],回答稍微简洁但不遗漏关键步骤，下面是题目： "+content);
+        return connectWithBigModel("我将会传输带有latex公式的数学题目，只需要给出题目的答案（一定要计算准确！），题目解析与题目考察的与数学相关的知识点，分别用[]括起来，例如[answer],[explanation],[{知识点1的具体内容},{知识点2的具体内容}],下面是题目： "+content);
     }
 
     @Override
@@ -191,12 +191,10 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
         if (result.isEmpty()) {
             System.out.println("查询结果为空");
-
             ChatHistory chatHistory = new ChatHistory();
             chatHistory.setQid(qid);
             chatHistory.setSid(sid);
             chatHistory.setWenxinChatHistory(chatHistoryTemp);
-
             mongoTemplate.insert(chatHistory);
         } else {
             System.out.println("查询结果不为空");
@@ -459,7 +457,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     @Override
     public List<String> splitAnswerAndExplanation(String steps) {
         List<String> result = new ArrayList<>();
-        Pattern pattern = Pattern.compile("\\[(.*?)\\]"); // 匹配被"[]"括起来的内容
+        Pattern pattern = Pattern.compile("\\[([^\\[\\]]*)\\]"); // 匹配被"[]"括起来的内容
         Matcher matcher = pattern.matcher(steps);
 
         // 使用正则表达式逐个匹配并提取内容
