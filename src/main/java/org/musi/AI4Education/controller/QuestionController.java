@@ -146,6 +146,8 @@ public class QuestionController {
     @PostMapping("/bigModel/wrongAnswer")
     public CommonResponse<HashMap<String, String>> analyseWrongType(MultipartFile wrongAnswer,@RequestParam String qid)throws Exception{
         if (StpUtil.isLogin()) {
+
+            System.out.println("this is qid:"+qid);
             //调用图像识别OCR，返回包含题干信息的Latex字符串，获得并打印题干文本信息
             String wrongAnswerInJSONForm = latexOcr(wrongAnswer);
 
@@ -363,7 +365,7 @@ public class QuestionController {
 
             BasicQuestion basicQuestion2 = basicQuestionService.getBasicQuestionByQid(basicQuestion1);
             String wrong_text = basicQuestion2.getWrongText();
-            String wrongReason=basicQuestion2.getWrongType()+"中的"+basicQuestion2.getWrongDetails();
+            String wrongReason = basicQuestion2.getWrongType()+"中的"+basicQuestion2.getWrongDetails();
 
             List<HashMap<String,String>> result = concreteQuestionService.useWenxinToCommunicateWithUserWithWrongAnswer(basicQuestion1, String.valueOf(wrong_text),wrongReason,content);
             return CommonResponse.creatForSuccess(result);
@@ -376,6 +378,7 @@ public class QuestionController {
     public CommonResponse<ChatHistory> getChatHistroyByQid(@RequestParam String qid) throws IOException {
         if(StpUtil.isLogin()){
             ChatHistory chatHistory = concreteQuestionService.getChatHistoryByQid(qid);
+            System.out.println(chatHistory);
             return CommonResponse.creatForSuccess(chatHistory);
         }else{
             return CommonResponse.creatForError("请先登录");
@@ -386,6 +389,7 @@ public class QuestionController {
     public CommonResponse<WrongReasonChatHistory> getWrongAnswerChatHistroyByQid(@RequestParam String qid) throws IOException {
         if(StpUtil.isLogin()){
             WrongReasonChatHistory chatHistory = concreteQuestionService.getWrongAnswerChatHistoryByQid(qid);
+            System.out.println(chatHistory);
             return CommonResponse.creatForSuccess(chatHistory);
         }else{
             return CommonResponse.creatForError("请先登录");

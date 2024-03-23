@@ -42,7 +42,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     @Override
     public JSON useWenxinToGetAnswerAndExplanation(String content) throws IOException {
-        return connectWithBigModel("我将会传输带有latex公式的数学题目，只需要给出题目的答案（一定要计算准确！），题目解析与题目考察的与数学相关的知识点，分别用[]括起来，例如[answer],[explanation],[{知识点1的具体内容},{知识点2的具体内容}],下面是题目： "+content);
+        return connectWithBigModel("我将会传输带有latex公式的数学题目，只需要给出题目的标准答案，题目的大致解析与题目考察的与数学相关的知识点，分别用[]括起来，例如“[answer],[explanation],[{知识点1的具体内容},{知识点2的具体内容}]”,下面是题目： "+content);
     }
 
     @Override
