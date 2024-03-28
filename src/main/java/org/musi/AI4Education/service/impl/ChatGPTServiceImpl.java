@@ -26,6 +26,7 @@ import java.util.*;
 
 @Service
 public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHistory> implements ChatGPTService {
+    private static String wavPath = "./output.wav";
 
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -78,7 +79,9 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         basicQuestion.setQid(qid);
 
         String questionText = basicQuestionService.getQuestionTextByQid(basicQuestion);
+        System.out.println("questionText:" + questionText);
         String wrongText = basicQuestionService.getQuestionWrongTextByQid(basicQuestion);
+        System.out.println("wrongText:" + wrongText);
 
         qid = qid + "003";
         // 直接尝试获取会话对象
@@ -220,12 +223,12 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
             ProcessBuilder pb;
             if (question.equals("")) {
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py");
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",questionText,question,studentCharactor);
+                pb = new ProcessBuilder("C:\\Users\\Administrator\\AppData\\Local\\Programs\\Python\\Python312\\python.exe", "E:\\Program Files (x86)\\musi\\AI4Education_greenfarm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",questionText,question,studentCharactor);
             } else {
                 Gson gson = new Gson();
                 String jsonInput = gson.toJson(chatHistory);
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py",question,jsonInput);
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",questionText,question,jsonInput,studentCharactor);
+                pb = new ProcessBuilder("C:\\Users\\Administrator\\AppData\\Local\\Programs\\Python\\Python312\\python.exe", "E:\\Program Files (x86)\\musi\\AI4Education_greenfarm\\src\\main\\java\\Python_API\\PersonalExplanation\\main.py",questionText,question,jsonInput,studentCharactor);
             }
             Process p = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "gb2312"));
@@ -400,12 +403,12 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
             ProcessBuilder pb;
             if (chatHistory.equals("")) {
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py",question);
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\FeimanLearningMethod\\main.py",question,questionText);
+                pb = new ProcessBuilder("C:\\Users\\Administrator\\AppData\\Local\\Programs\\Python\\Python312\\python.exe", "E:\\Program Files (x86)\\musi\\AI4Education_greenfarm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py",question,questionText);
             } else {
                 Gson gson = new Gson();
                 String jsonInput = gson.toJson(chatHistory);
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/PersonalExplanation/main.py",question,jsonInput);
-                pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\FeimanLearningMethod\\main.py",question,jsonInput,questionText);
+                pb = new ProcessBuilder("C:\\Users\\Administrator\\AppData\\Local\\Programs\\Python\\Python312\\python.exe", "E:\\Program Files (x86)\\musi\\AI4Education_greenfarm\\src\\main\\java\\Python_API\\WenxinPlusGPT4\\main.py",question,jsonInput,questionText);
             }
             Process p = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "gb2312"));
@@ -606,5 +609,60 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         Query query = new Query(criteria);
         FeimanChatHistory result = mongoTemplate.findOne(query, FeimanChatHistory.class);
         return result;
+    }
+
+    @Override
+    public String getTextByPcm(String filePath) {
+        String answer = "";
+        try {
+            ProcessBuilder pb;
+//                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/TextAudioConversion/pcm_to_text.py");
+            pb = new ProcessBuilder("python", "E:\\Program Files (x86)\\musi\\AI4Education_greenfarm\\src\\main\\java\\Python_API\\TextAudioConversion\\pcm_to_text.py", filePath);
+            Process p = pb.start();
+            BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(),"gb2312"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                answer += line;
+            }
+            in.close();
+            p.waitFor();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return answer;
+    }
+
+    @Override
+    public Boolean getWavByText(String text) {
+        String answer = "";
+        try {
+            ProcessBuilder pb;
+            if (text == null) {
+//                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/TextAudioConversion/text_to_wav.py");
+                pb = new ProcessBuilder("python", "E:\\Program Files (x86)\\musi\\AI4Education_greenfarm\\src\\main\\java\\Python_API\\TextAudioConversion\\text_to_wav.py", "你好, 欢迎使用文本转语音服务，接下来我将为你讲解数学题", wavPath);
+            }else {
+//                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/TextAudioConversion/text_to_wav.py");
+                pb = new ProcessBuilder("python", "E:\\Program Files (x86)\\musi\\AI4Education_greenfarm\\src\\main\\java\\Python_API\\TextAudioConversion\\text_to_wav.py", text, wavPath);
+            }
+            Process p = pb.start();
+            BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(),"gb2312"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                answer += line;
+            }
+            in.close();
+            p.waitFor();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        return answer;
+        if(answer.equals("Received binary data.Task finished successfully.")){
+            return true;
+        }
+        return false;
     }
 }
