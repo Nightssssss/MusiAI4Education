@@ -4,13 +4,13 @@ import time
 import openai
 from openai.error import RateLimitError, Timeout, APIError, APIConnectionError
 
-openai.api_key = "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"
+openai.api_key = "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"
 
 delay_time = 0.5
 decay_rate = 0.8
 
 
-def get_responses_GPT(prompts: str, histories, model="gpt-4-1106-preview", max_tokens=1024, temperature=0.8,
+def get_responses_GPT(prompts: str, histories, model="gpt-3.5-turbo-0125", max_tokens=1024, temperature=0.8,
                       system_message=None, logprobs=None, echo=False):
     global delay_time, cur_key_idx
 

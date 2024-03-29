@@ -42,26 +42,23 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     @Override
     public JSON useWenxinToGetAnswerAndExplanation(String content) throws IOException {
-        return connectWithBigModel("我将会传输带有latex公式的数学题目，只需要给出题目的标准答案，题目的大致解析与题目考察的与数学相关的知识点，分别用[]括起来，例如“[answer],[explanation],[{知识点1的具体内容},{知识点2的具体内容}]”,下面是题目： "+content);
+        return connectWithBigModel("我将会传输带有latex公式的数学题目，只需要给出题目的标准答案，题目的大致解析与题目考察的与数学相关的知识点，分别用[]括起来，例如“[答案：2],[解析：1+1=2],[{知识点1的具体内容},{知识点2的具体内容}]”,下面是题目： "+content);
     }
 
     @Override
     public JSON useWenxinToGetSteps(String content) throws IOException {
         String sid = StpUtil.getLoginIdAsString();
         String description = studentService.getStudentBySid(sid).getDescription();
-        String require = "我将会提供带有 LaTeX 公式的数学题目，"+description+"，只需要给出题目的解题步骤。" + "每一个步骤都用[]括起来表示，如[1. 步骤一的内容],[2. 步骤二的内容]以此类推，下面是题目："+content;
+        String require = "我将会提供带有 LaTeX 公式的数学题目，"+"，只需要给出题目的解题步骤。" + "每一个步骤都用[]括起来表示，如[1. 步骤一的内容],[2. 步骤二的内容]以此类推，"+description+"下面是题目："+content;
         return connectWithBigModel(require);
     }
     @Override
     public JSON useWenxinToCreateWrongAnswer(String content) throws IOException {
 
-        String wrongType="运算错误";
-        String wrongDetail="忽略负负得正";
-
         String require = "我需要你模拟学生在解决数学问题时生成错误的回答。你将扮演一个中学生，他在数学学习中遇到了一些挑战。你在回答数学问题时需要根据给定的学生个性档案生成错误回答。\n" +
                 "学生个性档案：\n" +
-                "常见错误类型: "+wrongType+ "\n" +
-                "错误模式: "+wrongDetail+ "\n" +
+                "常见错误类型: 运算错误\n"+
+                "错误模式: 忽略负负得正\n" +
                 "我需要你：第一步，给出正确答案。" +
                 "第二步，生成错误回答，要确保答案是错误的，并且这种错误符合上述学生个性档案的特点。\n" +
                 "下面是你需要生成错误答案的问题:"+content+
@@ -74,8 +71,12 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     @Override
     public List<String> useWenxinToAnalyseWrongType(String question,String content) throws IOException, JSONException {
+
+        String sid = StpUtil.getLoginIdAsString();
+        String description = studentService.getStudentBySid(sid).getDescription();
+
         String require =
-                "我需要你分析学生在解决数学问题时生成错误解题步骤的错误类型。" +
+                "我需要你分析学生在解决数学问题时生成错误解题步骤的错误类型,该学生情况为："+description+"，请结合学生的个人情况，并结合学生的错误答案，以教师的口吻，重复一下学生情况，并设计一个教学方案" +
                 "你需要提在下列范围内，寻找一个（只有一个）最为接近的基本类型与一个（只有一个）细分类型\n" +
 
                 "基本类型列表为：" +
@@ -91,9 +92,11 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
                 "下面是原始问题:"+question+
                 "下面是学生提供的错误解题步骤:"+content+
-                "请分析学生所犯的错误类型，并且只返回一个基本类型 与 一个细分类型，不要过多解释！\n" +
+                "请分析学生所犯的错误类型，并且只返回一个基本类型 与 一个细分类型,与一份教学方案，不要过多解释！\n" +
                 "基本类型：用[]括起来 "+
-                "细分类型：用[]括起来 ";
+                "细分类型：用[]括起来 "+
+                "教学方案：用[]括起来 ";
+
 
         JSON result = connectWithBigModel(require);
 
@@ -225,7 +228,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
             sessions.put(qid, session); // 将新的会话对象放入 sessions 中
             // 在这里可以执行第一次创建会话的相关逻辑
             String front = "我将提供一个含有LaTex公式的数学题目，并提供我的有错误的解题思路，以及该我犯错误的原因.\n";
-            content =  front+"题目为："+question+"  我的错解为"+wrongText+"  我的错因为："+wrongReason+ " 请结合我犯错误的原因，以教师的口吻分析我犯错的地方在哪。";
+            content =  front+"题目为："+question+"  我的错解为"+wrongText+"  我的错因为："+wrongReason+ " 请结合我犯错误的原因，以教师的口吻分析我犯错的地方在哪";
         }
 
         //如果获得了会话对象，说明并不是第一次创建，则直接在Session里面添加接下来的问题

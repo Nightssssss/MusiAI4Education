@@ -37,6 +37,8 @@ public class QuestionController {
     private OSSService ossService;
     @Autowired
     private StudentProfileService studentProfileService;
+    @Autowired
+    private StudentService studentService;
 
     @PostMapping("/bigModel")
     public CommonResponse<Map<String, Object>> createQuestion(MultipartFile question) throws Exception {
@@ -167,6 +169,25 @@ public class QuestionController {
             //获取题目犯错信息
             String wrongType = wrongTypes.get(0);
             String wrongDetails = wrongTypes.get(1);
+            String teachMethod = wrongTypes.get(2);
+
+            String sid = StpUtil.getLoginIdAsString();
+            String description = studentService.getStudentBySid(sid).getDescription();
+
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println("*****************************教学方案******************************");
+            System.out.println("学生的基础情况为："+description);
+            System.out.println("学生的错解文本为："+question_text);
+            System.out.println("属于："+wrongType+"中的"+wrongDetails);
+            System.out.println("根据情况，设计的教学方案为："+teachMethod);
+            System.out.println("*****************************教学方案******************************");
+            System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println();
 
             basicQuestion.setWrongText(wrong_answer_text);
             basicQuestion.setWrongType(wrongType);
@@ -174,7 +195,7 @@ public class QuestionController {
 
             basicQuestionService.modifyBasicQuestion(basicQuestion);
 
-            String sid = StpUtil.getLoginIdAsString();
+//            String sid = StpUtil.getLoginIdAsString();
             //存储学生档案
             StudentProfile studentProfileTemp = new StudentProfile();
             studentProfileTemp.setSid(sid);

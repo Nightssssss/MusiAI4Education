@@ -22,7 +22,6 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
 
     public List<HashMap<String,String>> useWenxinToCommunicateWithUserWithWrongAnswer(BasicQuestion basicQuestion, String wrongText, String wrongReason,String content) throws IOException, JSONException;
 
-
     public String getQuestionStepByQuestionNumber(String qid,int number);
 
     public List<String> getQuestionKnowledgesByQid(String qid);
