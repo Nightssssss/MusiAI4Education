@@ -24,5 +24,8 @@ public interface ChatGPTService extends IService<ChatHistory> {
 
     public FeimanChatHistory getFeimanChatHistoryByQid(String qid);
 
+    public String getTextByPcm(String filePath);
+
+    public Boolean getWavByText(String text);
 
 }
