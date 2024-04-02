@@ -46,6 +46,8 @@ public class QuestionController {
     private StudentProfileService studentProfileService;
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private ChatGPTService chatGPTservice;
 
 
     @PostMapping("/bigModel")
@@ -330,9 +332,20 @@ public class QuestionController {
         return concreteQuestionService.useWenxinStreamTransformToCommunicateWithUser(qid,content);
     }
 
+    @GetMapping(value = "/question/communicationWithUser/audio", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> communicateWithWenxinByAudio(MultipartFile file,@RequestParam String qid) throws IOException, JSONException {
+
+        String url = ossService.uploadPCMFileAndReturnName(file);
+        System.out.println("图片存储路径："+url);
+        String content = chatGPTservice.getTextByPcm(url);
+        System.out.println("语音识别内容：" + content);
+        return concreteQuestionService.useWenxinStreamTransformToCommunicateWithUser(qid,content);
+
+    }
+
+
     @GetMapping("/question/communicationWithUser/wrongAnswer")
     public Flux<String> communicateWithWenxinWithWrongAnswer(@RequestParam String content,@RequestParam String qid) throws IOException, JSONException {
-
         BasicQuestion basicQuestion = new BasicQuestion();
         basicQuestion.setQid(qid);
         BasicQuestion basicQuestion2 = basicQuestionService.getBasicQuestionByQid(basicQuestion);
@@ -340,6 +353,24 @@ public class QuestionController {
         String wrongReason = basicQuestion2.getWrongType()+"中的"+basicQuestion2.getWrongDetails();
         return concreteQuestionService.useWenxinStreamTransformToCommunicateWithUserWithWrongAnswer(qid, String.valueOf(wrong_text),wrongReason,content);
     }
+
+    @GetMapping(value = "/question/communicationWithUser/wrongAnswer/audio", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> communicateWithWenxinByAudioWithWrongAnswer(MultipartFile file,@RequestParam String qid) throws IOException, JSONException {
+
+        BasicQuestion basicQuestion = new BasicQuestion();
+        basicQuestion.setQid(qid);
+        BasicQuestion basicQuestion2 = basicQuestionService.getBasicQuestionByQid(basicQuestion);
+        String wrong_text = basicQuestion2.getWrongText();
+        String wrongReason = basicQuestion2.getWrongType()+"中的"+basicQuestion2.getWrongDetails();
+
+        String url = ossService.uploadPCMFileAndReturnName(file);
+        System.out.println("图片存储路径："+url);
+        String content = chatGPTservice.getTextByPcm(url);
+        System.out.println("语音识别内容：" + content);
+        return concreteQuestionService.useWenxinStreamTransformToCommunicateWithUserWithWrongAnswer(qid, String.valueOf(wrong_text),wrongReason,content);
+
+    }
+
 
     @GetMapping("/question/communication")
     public CommonResponse<ChatHistory> getChatHistroyByQid(@RequestParam String qid) throws IOException {

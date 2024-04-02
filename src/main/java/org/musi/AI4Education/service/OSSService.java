@@ -12,6 +12,5 @@ import java.io.IOException;
 public interface OSSService extends IService<AliyunOSS> {
     public String uploadFile(MultipartFile file)  throws Exception;
     public void downloadFile(String qid,String url);
-//    public File downloadFileByUrl(String url) throws IOException;
-
+    public String uploadPCMFileAndReturnName(MultipartFile file);
     }

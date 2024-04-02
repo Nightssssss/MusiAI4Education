@@ -86,6 +86,28 @@ public class OSSServiceImpl extends ServiceImpl<OSSMapper, AliyunOSS> implements
         ossClient.shutdown();
     }
 
+    @Override
+    public String uploadPCMFileAndReturnName(MultipartFile file) {
+        if (!file.isEmpty()) {
+            try {
+                // 获取文件名
+                String fileName = file.getOriginalFilename();
+                // 指定文件保存路径
+                String filePath = "G:\\AudioFile\\" + fileName;
+                // 创建文件输出流
+                FileOutputStream outputStream = new FileOutputStream(new File(filePath));
+                // 将上传的文件写入到输出流中
+                outputStream.write(file.getBytes());
+                outputStream.close();
+                return filePath;
+            } catch (IOException e) {
+                return "Failed to upload file: " + e.getMessage();
+            }
+        } else {
+            return "File is empty!";
+        }
+    }
+
 //    public File downloadFileByUrl(String url) throws IOException {
 //
 //        // 创建 OSS 客户端

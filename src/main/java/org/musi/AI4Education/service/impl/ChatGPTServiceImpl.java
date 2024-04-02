@@ -78,7 +78,7 @@ public class ChatGPTServiceImpl extends ServiceImpl<ChatHistoryMapper, ChatHisto
         try {
             ProcessBuilder pb;
 //                pb = new ProcessBuilder("/root/miniconda3/bin/python3.12", "/MusiProject/Python_API/TextAudioConversion/pcm_to_text.py");
-            pb = new ProcessBuilder("python", "E:\\Program Files (x86)\\musi\\AI4Education_greenfarm\\src\\main\\java\\Python_API\\TextAudioConversion\\pcm_to_text.py", filePath);
+            pb = new ProcessBuilder("G:\\connectChatGPT\\venv\\Scripts\\python.exe", "G:\\green-farm\\src\\main\\java\\Python_API\\TextAudioConversion\\pcm_to_text.py", filePath);
             Process p = pb.start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(),"gb2312"));
             String line;

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 @RestController
@@ -24,6 +26,28 @@ public class OssController {
         String url = ossService.uploadFile(file);
         //将URL保存到数据库
         return url;
+    }
+
+    @PostMapping("/upload/audio")
+    public String handleFileUpload(MultipartFile file) {
+        if (!file.isEmpty()) {
+            try {
+                // 获取文件名
+                String fileName = file.getOriginalFilename();
+                // 指定文件保存路径
+                String filePath = "G:\\AudioFile\\" + fileName;
+                // 创建文件输出流
+                FileOutputStream outputStream = new FileOutputStream(new File(filePath));
+                // 将上传的文件写入到输出流中
+                outputStream.write(file.getBytes());
+                outputStream.close();
+                return "File uploaded successfully. Path: " + filePath;
+            } catch (IOException e) {
+                return "Failed to upload file: " + e.getMessage();
+            }
+        } else {
+            return "File is empty!";
+        }
     }
 
     @GetMapping("/pic/download")
