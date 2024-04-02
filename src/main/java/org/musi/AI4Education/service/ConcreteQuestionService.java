@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,12 +31,9 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
 
     public List<String> useWenxinStreamTransformToAnalyseWrongType(String question,String content) throws IOException, JSONException;
 
+    public Flux<String> useWenxinStreamTransformToCommunicateWithUser(String qid, String content) throws IOException, JSONException;
 
-    public List<HashMap<String,String>> useWenxinStreamTransformToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException;
-
-    public List<HashMap<String,String>> useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException;
-
-    public List<HashMap<String,String>> useWenxinToCommunicateWithUserWithWrongAnswer(BasicQuestion basicQuestion, String wrongText, String wrongReason,String content) throws IOException, JSONException;
+    public Flux<String> useWenxinStreamTransformToCommunicateWithUserWithWrongAnswer(String qid, String wrongText, String wrongReason,String content) throws IOException, JSONException;
 
     public String getQuestionStepByQuestionNumber(String qid,int number);
 

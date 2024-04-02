@@ -198,7 +198,7 @@ public class GptServiceImpl {
 
             //存入MongoDB
             //获取当前该用户的该题的聊天记录
-            ChatSession session2 = sessions.getOrDefault(qid, new ChatSession());
+            ChatSession session2 = sessions.getOrDefault(qidForChatHistory, new ChatSession());
             List<HashMap<String, String>> messages1 = session2.getMessages();
             List<HashMap<String,String>> chatHistoryTemp = new ArrayList<>();
             for (HashMap<String, String> message : messages1) {
@@ -212,25 +212,26 @@ public class GptServiceImpl {
 
 
             // 组合多个查询条件，并在MongoDB中查询
-            String sid = StpUtil.getLoginIdAsString();
+//            String sid = StpUtil.getLoginIdAsString();
+            String sid = "1707103528830";
             Criteria criteria1 = Criteria.where("sid").is(sid);
             Criteria criteria2 = Criteria.where("qid").is(qidForChatHistory);
             Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
             Query query = new Query(criteria);
-            List<ChatHistory> result = mongoTemplate.find(query, ChatHistory.class);
+            List<InspirationChatHistory> result = mongoTemplate.find(query, InspirationChatHistory.class);
 
 
             if (result.isEmpty()) {
                 System.out.println("查询结果为空");
-                ChatHistory chatHistory = new ChatHistory();
-                chatHistory.setQid(qid);
+                InspirationChatHistory chatHistory = new InspirationChatHistory();
+                chatHistory.setQid(qidForChatHistory);
                 chatHistory.setSid(sid);
                 chatHistory.setWenxinChatHistory(chatHistoryTemp);
                 mongoTemplate.insert(chatHistory);
             } else {
                 System.out.println("查询结果不为空");
                 Update update = new Update().set("wenxinChatHistory",chatHistoryTemp);
-                mongoTemplate.updateFirst(query, update, "chatHistory");
+                mongoTemplate.updateFirst(query, update, "inspirationChatHistory");
             }
 
 
@@ -284,6 +285,7 @@ public class GptServiceImpl {
             Query query = new Query();
             query.addCriteria(Criteria.where("qid").is(qid));
             ConcreteQuestion concreteQuestion = mongoTemplate.findOne(query, ConcreteQuestion.class);
+
             String question_analysis = concreteQuestion.getQuestionAnalysis();
 
             String front = "这是我要向你询问的题目：" + question_text + "这道题的正确解法是：" + question_analysis;
@@ -401,7 +403,7 @@ public class GptServiceImpl {
 
             //存入MongoDB
             //获取当前该用户的该题的聊天记录
-            ChatSession session2 = sessions.getOrDefault(qid, new ChatSession());
+            ChatSession session2 = sessions.getOrDefault(qidForChatHistory, new ChatSession());
             List<HashMap<String, String>> messages1 = session2.getMessages();
             List<HashMap<String,String>> chatHistoryTemp = new ArrayList<>();
             for (HashMap<String, String> message : messages1) {
@@ -415,25 +417,26 @@ public class GptServiceImpl {
 
 
             // 组合多个查询条件，并在MongoDB中查询
-            String sid = StpUtil.getLoginIdAsString();
+//            String sid = StpUtil.getLoginIdAsString();
+            String sid = "1707103528830";
             Criteria criteria1 = Criteria.where("sid").is(sid);
             Criteria criteria2 = Criteria.where("qid").is(qidForChatHistory);
             Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
             Query query = new Query(criteria);
-            List<ChatHistory> result = mongoTemplate.find(query, ChatHistory.class);
+            List<ExplanationChatHistory> result = mongoTemplate.find(query, ExplanationChatHistory.class);
 
 
             if (result.isEmpty()) {
                 System.out.println("查询结果为空");
-                ChatHistory chatHistory = new ChatHistory();
-                chatHistory.setQid(qid);
+                ExplanationChatHistory chatHistory = new ExplanationChatHistory();
+                chatHistory.setQid(qidForChatHistory);
                 chatHistory.setSid(sid);
                 chatHistory.setWenxinChatHistory(chatHistoryTemp);
                 mongoTemplate.insert(chatHistory);
             } else {
                 System.out.println("查询结果不为空");
                 Update update = new Update().set("wenxinChatHistory",chatHistoryTemp);
-                mongoTemplate.updateFirst(query, update, "chatHistory");
+                mongoTemplate.updateFirst(query, update, "explanationChatHistory");
             }
 
 
@@ -600,7 +603,7 @@ public class GptServiceImpl {
 
             //存入MongoDB
             //获取当前该用户的该题的聊天记录
-            ChatSession session2 = sessions.getOrDefault(qid, new ChatSession());
+            ChatSession session2 = sessions.getOrDefault(qidForChatHistory, new ChatSession());
             List<HashMap<String, String>> messages1 = session2.getMessages();
             List<HashMap<String,String>> chatHistoryTemp = new ArrayList<>();
             for (HashMap<String, String> message : messages1) {
@@ -614,25 +617,26 @@ public class GptServiceImpl {
 
 
             // 组合多个查询条件，并在MongoDB中查询
-            String sid = StpUtil.getLoginIdAsString();
+//            String sid = StpUtil.getLoginIdAsString();
+            String sid = "1707103528830";
             Criteria criteria1 = Criteria.where("sid").is(sid);
             Criteria criteria2 = Criteria.where("qid").is(qidForChatHistory);
             Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
             Query query = new Query(criteria);
-            List<ChatHistory> result = mongoTemplate.find(query, ChatHistory.class);
+            List<FeimanChatHistory> result = mongoTemplate.find(query, FeimanChatHistory.class);
 
 
             if (result.isEmpty()) {
                 System.out.println("查询结果为空");
-                ChatHistory chatHistory = new ChatHistory();
-                chatHistory.setQid(qid);
+                FeimanChatHistory chatHistory = new FeimanChatHistory();
+                chatHistory.setQid(qidForChatHistory);
                 chatHistory.setSid(sid);
                 chatHistory.setWenxinChatHistory(chatHistoryTemp);
                 mongoTemplate.insert(chatHistory);
             } else {
                 System.out.println("查询结果不为空");
                 Update update = new Update().set("wenxinChatHistory",chatHistoryTemp);
-                mongoTemplate.updateFirst(query, update, "chatHistory");
+                mongoTemplate.updateFirst(query, update, "feimanChatHistory");
             }
 
 

@@ -22,18 +22,18 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import reactor.core.publisher.Flux;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -61,6 +61,8 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     private final ConcurrentMap<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
+    List<Map<String,String>> listMessage = new ArrayList<>();
+    private static final WebClient WEB_CLIENT = WebClient.builder().baseUrl("https://aip.baidubce.com").defaultHeader(HttpHeaders.CONTENT_TYPE, org.springframework.http.MediaType.APPLICATION_STREAM_JSON_VALUE).build();
 
 
     /**
@@ -134,7 +136,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
                         "教学方案：用[]括起来 ";
 
 
-        String stringWithAnswer = connectWithBigModelStreamTransition(question);
+        String stringWithAnswer = connectWithBigModelStreamTransition(require);
         System.out.println(stringWithAnswer);
 
         List<String> resultList = new ArrayList<>();
@@ -148,199 +150,187 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     }
 
     @Override
-    public List<HashMap<String, String>> useWenxinStreamTransformToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException {
-        return null;
-    }
+    public Flux<String> useWenxinStreamTransformToCommunicateWithUser(String qid, String content) throws IOException, JSONException {
 
-
-    @Override
-    public List<HashMap<String,String>> useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException {
-
+        //获得学生基本信息
+//        String sid = StpUtil.getLoginIdAsString();
+        String sid = "1707103528830";
+        String qidForChatHistory = qid+"001";
+        BasicQuestion basicQuestion = new BasicQuestion();
+        basicQuestion.setQid(qid);
         String question = String.valueOf(basicQuestionService.getQuestionTextByQid(basicQuestion));
-        String access_token = new WenxinConfig().getWenxinToken();
-        String requestMethod = "POST";
-        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token=" + access_token;
 
-        //获取用户ID与题目ID
-        String sid = StpUtil.getLoginIdAsString();
-        String qid = basicQuestion.getQid()+"001";
 
         // 直接尝试获取会话对象
-        ChatSession session = sessions.get(qid);
+        ChatSession session = sessions.get(qidForChatHistory);
 
         if (session == null) { // 如果获取的会话对象为空
             // 说明这是第一次创建
             session = new ChatSession(); // 创建新的会话对象
-            sessions.put(qid, session); // 将新的会话对象放入 sessions 中
+            sessions.put(qidForChatHistory, session); // 将新的会话对象放入 sessions 中
             // 在这里可以执行第一次创建会话的相关逻辑
             String front = "我将提供一个含有LaTex公式的数学题目，请根据这个题目回答下列问题，题目为：";
             content =  front+question+" 请回答我的提问："+content;
         }
 
-        //如果获得了会话对象，说明并不是第一次创建，则直接在Session里面添加接下来的问题
-        //将用户的问题存入Session
-        HashMap<String, String> msg = new HashMap<>();
-        msg.put("role", "user");
-        msg.put("content", content);
-        session.addMessage(msg);
-        sessions.put(qid, session);
 
-        //请求大模型，获得大模型的回答
-        HashMap<String, Object> requestBody = new HashMap<>();
-        requestBody.put("messages", session.getMessages());
-        String outputStr = JSON.toJSONString(requestBody);
-        JSON json = HttpRequest.httpRequest(url, requestMethod, outputStr, "application/json");
+        //设置请求体 这一部分可以放到Service
+        HashMap<String, String> user = new HashMap<>();
+        user.put("role","user");
+        user.put("content",content);
+        listMessage.add(user);
+        String requestJson = constructRequestJson(1,0.95,0.8,1.0,true,listMessage);
 
-        JSONObject answerJSONObject= new JSONObject(String.valueOf(json));
-        String answer = answerJSONObject.getString("result");
+        //进行数据访问 返回String类型的数据
+        StringBuffer answer=new StringBuffer();
+        return WEB_CLIENT.post().uri(wenXinConfig.ERNIE_Bot_4_0_URL + "?access_token=" + wenXinConfig.flushAccessToken())
+                .bodyValue(requestJson)
+                .retrieve()
+                .bodyToFlux(String.class)
+                // 可能需要其他流处理，比如map、filter等
+                .map(data -> {
+                    String result=JSON.parseObject(data).getString("result");
+                    System.out.println(result);
+                    answer.append(result);
+                    return result;
+                }).doOnComplete(() -> {
+                    // 当Flux完成时，输出结束消息
+                    System.out.println("处理完毕，流已关闭。");
+                    System.out.println(answer);
+                    //将回复的内容添加到消息中
+                    HashMap<String, String> assistant = new HashMap<>();
+                    assistant.put("role","assistant");
+                    assistant.put("content",answer.toString());
+                    listMessage.add(assistant);
 
-        //首先获取之前的Session，将大模型答案添加到Session中
-        HashMap<String, String> msg1 = new HashMap<>();
-        ChatSession session1 = sessions.getOrDefault(qid, new ChatSession());
-        List<HashMap<String, String>> messages = session1.getMessages();
-        for (HashMap<String, String> message : messages) {
-            String role1 = message.get("role");
-            String content1 = message.get("content");
-            msg1.put(role1, content1);
-        }
-        msg1.put("role", "assistant");
-        msg1.put("content", answer);
-        session1.addMessage(msg1);
-        sessions.put(qid, session1);
+                    //将数据存入MongoDB数据库
 
-        //打印
-        ChatSession session2 = sessions.getOrDefault(qid, new ChatSession());
-        List<HashMap<String, String>> messages2 = session2.getMessages();
-        List<HashMap<String,String>> chatHistoryTemp = new ArrayList<>();
-        for (HashMap<String, String> message : messages2) {
-            String role1 = message.get("role");
-            String content1 = message.get("content");
-            System.out.println(role1 + ": " + content1);
-            HashMap<String,String> temp = new HashMap<>();
-            temp.put(role1,content1);
-            chatHistoryTemp.add(temp);
-        }
+                    // 组合多个查询条件，并在MongoDB中查询
+//                    String sid = StpUtil.getLoginIdAsString();
+                    Criteria criteria1 = Criteria.where("sid").is(sid);
+                    Criteria criteria2 = Criteria.where("qid").is(qidForChatHistory);
+                    Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
+                    Query query = new Query(criteria);
+                    List<ChatHistory> result = mongoTemplate.find(query, ChatHistory.class);
 
-        Criteria criteria1 = Criteria.where("sid").is(sid);
-        Criteria criteria2 = Criteria.where("qid").is(qid);
 
-        // 组合多个查询条件
-        Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
+                    List<HashMap<String,String>> chatHistoryTemp = new ArrayList<>();
+                    //存入MongoDB
+                    //获取当前该用户的该题的聊天记录
+                    for (Map<String, String> message : listMessage) {
+                        String role1 = message.get("role");
+                        String content1 = message.get("content");
+                        HashMap<String,String> temp = new HashMap<>();
+                        temp.put(role1,content1);
+                        chatHistoryTemp.add(temp);
+                    }
 
-        // 创建查询对象
-        Query query = new Query(criteria);
+                    if (result.isEmpty()) {
+                        System.out.println("查询结果为空");
+                        ChatHistory chatHistory = new ChatHistory();
+                        chatHistory.setQid(qidForChatHistory);
+                        chatHistory.setSid(sid);
+                        chatHistory.setWenxinChatHistory(chatHistoryTemp);
+                        mongoTemplate.insert(chatHistory);
+                    } else {
+                        System.out.println("查询结果不为空");
+                        Update update = new Update().set("wenxinChatHistory",chatHistoryTemp);
+                        mongoTemplate.updateFirst(query, update, "chatHistory");
+                    }
 
-        List<ChatHistory> result = mongoTemplate.find(query, ChatHistory.class);
-
-        if (result.isEmpty()) {
-            System.out.println("查询结果为空");
-            ChatHistory chatHistory = new ChatHistory();
-            chatHistory.setQid(qid);
-            chatHistory.setSid(sid);
-            chatHistory.setWenxinChatHistory(chatHistoryTemp);
-            mongoTemplate.insert(chatHistory);
-        } else {
-            System.out.println("查询结果不为空");
-            Update update = new Update().set("wenxinChatHistory",chatHistoryTemp);
-            mongoTemplate.updateFirst(query, update, "chatHistory");
-        }
-        return chatHistoryTemp;
-
+                }).log();
     }
 
     @Override
-    public List<HashMap<String, String>> useWenxinToCommunicateWithUserWithWrongAnswer(BasicQuestion basicQuestion,String wrongText,String wrongReason,String content) throws IOException, JSONException {
-        String question = String.valueOf(basicQuestionService.getQuestionTextByQid(basicQuestion));
-        String access_token = new WenxinConfig().getWenxinToken();
-        String requestMethod = "POST";
-        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token=" + access_token;
+    public Flux<String> useWenxinStreamTransformToCommunicateWithUserWithWrongAnswer(String qid, String wrongText, String wrongReason, String content) throws IOException, JSONException {
 
         //获取用户ID与题目ID
-        String sid = StpUtil.getLoginIdAsString();
-        String qid = basicQuestion.getQid()+"002";
+//        String sid = StpUtil.getLoginIdAsString();
+        String sid = "1707103528830";
+
+        String qidForChatHistory = qid+"002";
+        BasicQuestion basicQuestion = new BasicQuestion();
+        basicQuestion.setQid(qid);
+        String question = String.valueOf(basicQuestionService.getQuestionTextByQid(basicQuestion));
+
 
         // 直接尝试获取会话对象
-        ChatSession session = sessions.get(qid);
+        ChatSession session = sessions.get(qidForChatHistory);
 
         if (session == null) { // 如果获取的会话对象为空
             // 说明这是第一次创建
             session = new ChatSession(); // 创建新的会话对象
-            sessions.put(qid, session); // 将新的会话对象放入 sessions 中
+            sessions.put(qidForChatHistory, session); // 将新的会话对象放入 sessions 中
             // 在这里可以执行第一次创建会话的相关逻辑
             String front = "我将提供一个含有LaTex公式的数学题目，并提供我的有错误的解题思路，以及该我犯错误的原因.\n";
             content =  front+"题目为："+question+"  我的错解为"+wrongText+"  我的错因为："+wrongReason+ " 请结合我犯错误的原因，以教师的口吻分析我犯错的地方在哪";
         }
 
-        //如果获得了会话对象，说明并不是第一次创建，则直接在Session里面添加接下来的问题
-        //将用户的问题存入Session
-        HashMap<String, String> msg = new HashMap<>();
-        msg.put("role", "user");
-        msg.put("content", content);
-        session.addMessage(msg);
-        sessions.put(qid, session);
+        //设置请求体 这一部分可以放到Service
+        HashMap<String, String> user = new HashMap<>();
+        user.put("role","user");
+        user.put("content",content);
+        listMessage.add(user);
+        String requestJson = constructRequestJson(1,0.95,0.8,1.0,true,listMessage);
 
-        //请求大模型，获得大模型的回答
-        HashMap<String, Object> requestBody = new HashMap<>();
-        requestBody.put("messages", session.getMessages());
-        String outputStr = JSON.toJSONString(requestBody);
-        JSON json = HttpRequest.httpRequest(url, requestMethod, outputStr, "application/json");
+        //进行数据访问 返回String类型的数据
+        StringBuffer answer=new StringBuffer();
+        return WEB_CLIENT.post().uri(wenXinConfig.ERNIE_Bot_4_0_URL + "?access_token=" + wenXinConfig.flushAccessToken())
+                .bodyValue(requestJson)
+                .retrieve()
+                .bodyToFlux(String.class)
+                // 可能需要其他流处理，比如map、filter等
+                .map(data -> {
+                    String result=JSON.parseObject(data).getString("result");
+                    System.out.println(result);
+                    answer.append(result);
+                    return result;
+                }).doOnComplete(() -> {
+                    // 当Flux完成时，输出结束消息
+                    System.out.println("处理完毕，流已关闭。");
+                    System.out.println(answer);
+                    //将回复的内容添加到消息中
+                    HashMap<String, String> assistant = new HashMap<>();
+                    assistant.put("role","assistant");
+                    assistant.put("content",answer.toString());
+                    listMessage.add(assistant);
 
-        JSONObject answerJSONObject= new JSONObject(String.valueOf(json));
-        String answer = answerJSONObject.getString("result");
+                    //将数据存入MongoDB数据库
 
-        //首先获取之前的Session，将大模型答案添加到Session中
-        HashMap<String, String> msg1 = new HashMap<>();
-        ChatSession session1 = sessions.getOrDefault(qid, new ChatSession());
-        List<HashMap<String, String>> messages = session1.getMessages();
-        for (HashMap<String, String> message : messages) {
-            String role1 = message.get("role");
-            String content1 = message.get("content");
-            msg1.put(role1, content1);
-        }
-        msg1.put("role", "assistant");
-        msg1.put("content", answer);
-        session1.addMessage(msg1);
-        sessions.put(qid, session1);
+                    // 组合多个查询条件，并在MongoDB中查询
+//                    String sid = StpUtil.getLoginIdAsString();
+                    Criteria criteria1 = Criteria.where("sid").is(sid);
+                    Criteria criteria2 = Criteria.where("qid").is(qidForChatHistory);
+                    Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
+                    Query query = new Query(criteria);
+                    List<WrongReasonChatHistory> result = mongoTemplate.find(query, WrongReasonChatHistory.class);
 
-        //打印
-        ChatSession session2 = sessions.getOrDefault(qid, new ChatSession());
-        List<HashMap<String, String>> messages2 = session2.getMessages();
-        List<HashMap<String,String>> chatHistoryTemp = new ArrayList<>();
-        for (HashMap<String, String> message : messages2) {
-            String role1 = message.get("role");
-            String content1 = message.get("content");
-            System.out.println(role1 + ": " + content1);
-            HashMap<String,String> temp = new HashMap<>();
-            temp.put(role1,content1);
-            chatHistoryTemp.add(temp);
-        }
 
-        Criteria criteria1 = Criteria.where("sid").is(sid);
-        Criteria criteria2 = Criteria.where("qid").is(qid);
+                    List<HashMap<String,String>> chatHistoryTemp = new ArrayList<>();
+                    //存入MongoDB
+                    //获取当前该用户的该题的聊天记录
+                    for (Map<String, String> message : listMessage) {
+                        String role1 = message.get("role");
+                        String content1 = message.get("content");
+                        HashMap<String,String> temp = new HashMap<>();
+                        temp.put(role1,content1);
+                        chatHistoryTemp.add(temp);
+                    }
 
-        // 组合多个查询条件
-        Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
+                    if (result.isEmpty()) {
+                        System.out.println("查询结果为空");
+                        WrongReasonChatHistory chatHistory = new WrongReasonChatHistory();
+                        chatHistory.setQid(qidForChatHistory);
+                        chatHistory.setSid(sid);
+                        chatHistory.setWenxinChatHistory(chatHistoryTemp);
+                        mongoTemplate.insert(chatHistory);
+                    } else {
+                        System.out.println("查询结果不为空");
+                        Update update = new Update().set("wenxinChatHistory",chatHistoryTemp);
+                        mongoTemplate.updateFirst(query, update, "wrongReasonChatHistory");
+                    }
 
-        // 创建查询对象
-        Query query = new Query(criteria);
-
-        List<WrongReasonChatHistory> result = mongoTemplate.find(query, WrongReasonChatHistory.class);
-
-        if (result.isEmpty()) {
-            System.out.println("查询结果为空");
-
-            WrongReasonChatHistory wrongReasonChatHistory = new WrongReasonChatHistory();
-            wrongReasonChatHistory.setQid(qid);
-            wrongReasonChatHistory.setSid(sid);
-            wrongReasonChatHistory.setWenxinChatHistory(chatHistoryTemp);
-
-            mongoTemplate.insert(wrongReasonChatHistory);
-        } else {
-            System.out.println("查询结果不为空");
-            Update update = new Update().set("wenxinChatHistory",chatHistoryTemp);
-            mongoTemplate.updateFirst(query, update, "wrongReasonChatHistory");
-        }
-        return chatHistoryTemp;
+                }).log();
     }
 
     @Override

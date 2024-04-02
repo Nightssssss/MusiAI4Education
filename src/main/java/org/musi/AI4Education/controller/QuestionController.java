@@ -5,18 +5,25 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.musi.AI4Education.common.CommonResponse;
+import org.musi.AI4Education.config.Wen_XinConfig;
 import org.musi.AI4Education.domain.*;
 import org.musi.AI4Education.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 import java.sql.Date;
@@ -39,6 +46,7 @@ public class QuestionController {
     private StudentProfileService studentProfileService;
     @Autowired
     private StudentService studentService;
+
 
     @PostMapping("/bigModel")
     public CommonResponse<Map<String, Object>> createQuestion(MultipartFile question) throws Exception {
@@ -244,7 +252,6 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
-
     @PostMapping("/question/concrete")
     public CommonResponse<ConcreteQuestion> getConcreteQuestionByQid(@RequestBody ConcreteQuestion concreteQuestion){
         if (StpUtil.isLogin()){
@@ -253,7 +260,6 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
-
     @GetMapping("/question/base")
     public CommonResponse<List<BasicQuestion>> getBasicQuestionList(){
         if (StpUtil.isLogin()){
@@ -270,7 +276,6 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
-
     @GetMapping("/question/base/mark")
     public CommonResponse<List<BasicQuestion>> getMarkedBasicQuestionList(){
         if (StpUtil.isLogin()){
@@ -279,7 +284,6 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
-
     @PostMapping("/question/mark")
     public CommonResponse<BasicQuestion> addQuestionMark(@RequestBody BasicQuestion basicQuestion){
         if(StpUtil.isLogin()){
@@ -288,7 +292,6 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
-
     @DeleteMapping("/question/mark")
     public CommonResponse<BasicQuestion> deleteQuestionMark(@RequestBody BasicQuestion basicQuestion){
         if(StpUtil.isLogin()){
@@ -297,7 +300,6 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
-
     @GetMapping("/question/position")
     public CommonResponse<BasicQuestion> getQuestionPosition(@RequestBody BasicQuestion basicQuestion){
         if(StpUtil.isLogin()){
@@ -306,7 +308,6 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
-
     @PostMapping("/question/position")
     public CommonResponse<BasicQuestion> addQuestionPosition(@RequestBody BasicQuestion basicQuestion){
         if(StpUtil.isLogin()){
@@ -315,7 +316,6 @@ public class QuestionController {
             return CommonResponse.creatForError("请先登录");
         }
     }
-
     @PutMapping("/question/position")
     public CommonResponse<BasicQuestion> modifyQuestionPosition(@RequestBody BasicQuestion basicQuestion){
         if(StpUtil.isLogin()){
@@ -325,40 +325,20 @@ public class QuestionController {
         }
     }
 
-    @PostMapping("/question/communication")
-    public CommonResponse<List<HashMap<String,String>>> communicateWithWenxin(@RequestBody Map<String,Object> map) throws IOException, JSONException {
-        if(StpUtil.isLogin()){
-            Object basicQuestion =  map.get("basicQuestion");
-            String json = JSONUtil.toJsonStr(basicQuestion);
-            ObjectMapper objectMapper = new ObjectMapper();
-            BasicQuestion basicQuestion1 = objectMapper.readValue(json, new TypeReference<BasicQuestion>() {});
-            String content  = (String) map.get("content");
-
-            List<HashMap<String,String>> result = concreteQuestionService.useWenxinToCommunicateWithUser(basicQuestion1,content);
-            return CommonResponse.creatForSuccess(result);
-        }else{
-            return CommonResponse.creatForError("请先登录");
-        }
+    @GetMapping(value = "/question/communicationWithUser", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> communicateWithWenxin(@RequestParam String content,@RequestParam String qid) throws IOException, JSONException {
+        return concreteQuestionService.useWenxinStreamTransformToCommunicateWithUser(qid,content);
     }
 
-    @PostMapping("/question/communication/wrongAnswer")
-    public CommonResponse<List<HashMap<String,String>>> communicateWithWenxinWithWrongAnswer(@RequestBody Map<String,Object> map) throws IOException, JSONException {
-        if(StpUtil.isLogin()){
-            Object basicQuestion =  map.get("basicQuestion");
-            String json = JSONUtil.toJsonStr(basicQuestion);
-            ObjectMapper objectMapper = new ObjectMapper();
-            BasicQuestion basicQuestion1 = objectMapper.readValue(json, new TypeReference<BasicQuestion>() {});
-            String content  = (String) map.get("content");
+    @GetMapping("/question/communicationWithUser/wrongAnswer")
+    public Flux<String> communicateWithWenxinWithWrongAnswer(@RequestParam String content,@RequestParam String qid) throws IOException, JSONException {
 
-            BasicQuestion basicQuestion2 = basicQuestionService.getBasicQuestionByQid(basicQuestion1);
-            String wrong_text = basicQuestion2.getWrongText();
-            String wrongReason = basicQuestion2.getWrongType()+"中的"+basicQuestion2.getWrongDetails();
-
-            List<HashMap<String,String>> result = concreteQuestionService.useWenxinToCommunicateWithUserWithWrongAnswer(basicQuestion1, String.valueOf(wrong_text),wrongReason,content);
-            return CommonResponse.creatForSuccess(result);
-        }else{
-            return CommonResponse.creatForError("请先登录");
-        }
+        BasicQuestion basicQuestion = new BasicQuestion();
+        basicQuestion.setQid(qid);
+        BasicQuestion basicQuestion2 = basicQuestionService.getBasicQuestionByQid(basicQuestion);
+        String wrong_text = basicQuestion2.getWrongText();
+        String wrongReason = basicQuestion2.getWrongType()+"中的"+basicQuestion2.getWrongDetails();
+        return concreteQuestionService.useWenxinStreamTransformToCommunicateWithUserWithWrongAnswer(qid, String.valueOf(wrong_text),wrongReason,content);
     }
 
     @GetMapping("/question/communication")

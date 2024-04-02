@@ -29,7 +29,6 @@ public class ChatGPTController {
     GptServiceImpl gptService;
     @Autowired
     private ChatGPTService chatGPTservice;
-
     @Autowired
     private StudentProfileService studentProfileService;
 
@@ -48,7 +47,8 @@ public class ChatGPTController {
     @GetMapping(value = "/chat/explanation", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<AIAnswerDTO>> getChatGPTForExplanationStream(@RequestParam String content,@RequestParam String qid) throws JSONException {
 
-        String sid = StpUtil.getLoginIdAsString();
+//        String sid = StpUtil.getLoginIdAsString();
+        String sid = "1707103528830";
         List<String> result1 = studentProfileService.getStudentTopWrongTypeAndDetails(sid);
         String studentCharactor = result1.get(0)+"中的"+result1.get(1);
 
