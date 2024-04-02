@@ -3,18 +3,20 @@ package org.musi.AI4Education.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import org.json.JSONException;
 import org.musi.AI4Education.common.CommonResponse;
-import org.musi.AI4Education.domain.ChatHistory;
-import org.musi.AI4Education.domain.ExplanationChatHistory;
-import org.musi.AI4Education.domain.FeimanChatHistory;
-import org.musi.AI4Education.domain.InspirationChatHistory;
+import org.musi.AI4Education.domain.*;
 import org.musi.AI4Education.service.ChatGPTService;
 import org.musi.AI4Education.service.StudentProfileService;
+import org.musi.AI4Education.service.impl.GptServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -23,32 +25,55 @@ import java.util.List;
 @RequestMapping("/student")
 public class ChatGPTController {
 
+    @Resource
+    GptServiceImpl gptService;
     @Autowired
     private ChatGPTService chatGPTservice;
 
     @Autowired
     private StudentProfileService studentProfileService;
 
-    @GetMapping("/chat/inspiration")
-    public List<HashMap<String,String>>  connectWithChatGPTForInspiration(@RequestParam String question,@RequestParam String qid) throws JSONException {
-        List<HashMap<String,String>> result = chatGPTservice.connectWithChatGPTForinspiration(question,qid);
-        return result;
+
+    @GetMapping(value = "/chat/inspiration", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<AIAnswerDTO>> getChatGPTForInspirationStream(@RequestParam String content, @RequestParam String qid) {
+        System.out.println("Question："+content);
+        return gptService.doChatGPTStreamForInspiration(qid,content)
+                .map(aiAnswerDTO -> ServerSentEvent.<AIAnswerDTO>builder()//进行结果的封装，再返回给前端
+                        .data(aiAnswerDTO)
+                        .build()
+                )
+                .onErrorResume(e -> Flux.empty());
     }
 
-    @GetMapping("/chat/explanation")
-    public List<HashMap<String,String>>  connectWithChatGPTForExplanation(@RequestParam String question,@RequestParam String qid) throws JSONException {
+    @GetMapping(value = "/chat/explanation", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ServerSentEvent<AIAnswerDTO>> getChatGPTForExplanationStream(@RequestParam String content,@RequestParam String qid) throws JSONException {
+
         String sid = StpUtil.getLoginIdAsString();
         List<String> result1 = studentProfileService.getStudentTopWrongTypeAndDetails(sid);
         String studentCharactor = result1.get(0)+"中的"+result1.get(1);
-        List<HashMap<String,String>> result = chatGPTservice.connectWithChatGPTForExplanation(question,qid,studentCharactor);
-        return result;
+
+        System.out.println("Question："+content);
+        return gptService.doChatGPTStreamForExplanation(qid,content,studentCharactor)
+                .map(aiAnswerDTO -> ServerSentEvent.<AIAnswerDTO>builder()//进行结果的封装，再返回给前端
+                        .data(aiAnswerDTO)
+                        .build()
+                )
+                .onErrorResume(e -> Flux.empty());
+
     }
 
     @GetMapping("/chat/feiman")
-    public List<HashMap<String,String>>  connectWithChatGPTForFeiman(@RequestParam String question,@RequestParam String qid) throws JSONException {
-        List<HashMap<String,String>> result = chatGPTservice.connectWithChatGPTForFeiman(question,qid);
-        return result;
+    public Flux<ServerSentEvent<AIAnswerDTO>> getChatGPTForFeimanStream(@RequestParam String content,@RequestParam String qid) throws JSONException {
+
+        System.out.println("Question："+content);
+        return gptService.doChatGPTStreamForFeiman(qid,content)
+                .map(aiAnswerDTO -> ServerSentEvent.<AIAnswerDTO>builder()//进行结果的封装，再返回给前端
+                        .data(aiAnswerDTO)
+                        .build()
+                )
+                .onErrorResume(e -> Flux.empty());
     }
+
 
     @GetMapping("/chat/inspiration/history")
     public CommonResponse<InspirationChatHistory> getInspirationChatHistroyByQid(@RequestParam String qid) throws IOException {

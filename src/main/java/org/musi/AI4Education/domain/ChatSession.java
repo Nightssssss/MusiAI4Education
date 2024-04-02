@@ -7,6 +7,21 @@ import java.util.List;
 public class ChatSession {
     private List<HashMap<String, String>> messages = new ArrayList<>(); // Store messages
 
+    private String wholeDialog = "";
+
+    public void addContent(String content){
+        this.wholeDialog = this.wholeDialog + content;
+    }
+
+    public String getContent(){
+        return this.wholeDialog;
+    }
+
+    public void ClearContent(){
+        wholeDialog= "";
+
+    }
+
     public void addMessage(HashMap<String, String> message) {
         messages.add(message);
     }

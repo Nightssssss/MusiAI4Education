@@ -44,7 +44,9 @@ public class Wen_XinConfig {
      */
     public synchronized String flushAccessToken(){
         //判断当前AccessToken是否为空且判断是否过期
-        if(ACCESS_TOKEN != null && EXPIRATION_TIME.getTime() > CREATE_TIME.getTime()) return ACCESS_TOKEN;
+        if(ACCESS_TOKEN != null && EXPIRATION_TIME.getTime() > CREATE_TIME.getTime()) {
+            return ACCESS_TOKEN;
+        }
 
         //构造请求体 包含请求参数和请求头等信息
         RequestBody body = RequestBody.create(MediaType.parse("application/json"),"");

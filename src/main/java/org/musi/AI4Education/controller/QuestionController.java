@@ -56,22 +56,13 @@ public class QuestionController {
             String question_text = res.getString("latex");
             System.out.println("题干文本信息: "+question_text);
 
+            String answerAndExplanationAndKnoeledges=concreteQuestionService.useWenxinStreamTransformToGetAnswerAndExplanationAndKnowledge(question_text);
+            String steps=concreteQuestionService.useWenxinStreamTransformToGetSteps(question_text);
 
-            //根据文本信息，大模型生成答案(这部分后期要优化)
-            JSON answerAndExplanationJSON=concreteQuestionService.useWenxinToGetAnswerAndExplanation(question_text);
-            JSON stepsJSON=concreteQuestionService.useWenxinToGetSteps(question_text);
+            System.out.println(answerAndExplanationAndKnoeledges);
+            System.out.println(steps);
 
-            System.out.println(answerAndExplanationJSON);
-            System.out.println(stepsJSON);
-
-            //提取大模型生成的答案（正确答案、题目解析、题目解题步骤）
-            JSONObject answerAndExplanationJSONObject= new JSONObject(String.valueOf(answerAndExplanationJSON));
-            JSONObject stepsJSONObject= new JSONObject(String.valueOf(stepsJSON));
-
-            String answerAndExplanation = answerAndExplanationJSONObject.getString("result");
-            String steps = stepsJSONObject.getString("result");
-
-            List<String> result = concreteQuestionService.splitAnswerAndExplanation(answerAndExplanation);
+            List<String> result = concreteQuestionService.splitAnswerAndExplanation(answerAndExplanationAndKnoeledges);
             String answer = result.get(0);
             String explanation = result.get(1);
             String knowledgesList = result.get(2);
@@ -163,7 +154,7 @@ public class QuestionController {
             String question_text = basicQuestionService.getQuestionTextByQid(basicQuestion);
 
             //根据文本信息，大模型生成答案(这部分后期要优化)
-            List<String> wrongTypes = concreteQuestionService.useWenxinToAnalyseWrongType(String.valueOf(question_text),wrong_answer_text);
+            List<String> wrongTypes = concreteQuestionService.useWenxinStreamTransformToAnalyseWrongType(String.valueOf(question_text),wrong_answer_text);
             System.out.println(wrongTypes);
 
             //获取题目犯错信息
@@ -195,7 +186,6 @@ public class QuestionController {
 
             basicQuestionService.modifyBasicQuestion(basicQuestion);
 
-//            String sid = StpUtil.getLoginIdAsString();
             //存储学生档案
             StudentProfile studentProfileTemp = new StudentProfile();
             studentProfileTemp.setSid(sid);
@@ -335,30 +325,6 @@ public class QuestionController {
         }
     }
 
-    @GetMapping("/question/wrongAnswer")
-    public CommonResponse<JSON> createWrongAnswerByQuestion(@RequestParam String question) throws IOException {
-        if(StpUtil.isLogin()){
-            JSON result = concreteQuestionService.useWenxinToCreateWrongAnswer(question);
-            return CommonResponse.creatForSuccess(result);
-        }else{
-            return CommonResponse.creatForError("请先登录");
-        }
-    }
-
-    @PostMapping("/question/analyse")
-    public CommonResponse<List<String>> getWrongTypeByQuestion(MultipartFile question,MultipartFile wrongAnswer) throws IOException, JSONException {
-        if(StpUtil.isLogin()){
-            String question_latex = latexOcr(question);
-            String wrongAnswer_latex = latexOcr(wrongAnswer);
-            System.out.println(question_latex);
-            System.out.println(wrongAnswer_latex);
-            List<String> result = concreteQuestionService.useWenxinToAnalyseWrongType(question_latex,wrongAnswer_latex);
-            return CommonResponse.creatForSuccess(result);
-        }else{
-            return CommonResponse.creatForError("请先登录");
-        }
-    }
-
     @PostMapping("/question/communication")
     public CommonResponse<List<HashMap<String,String>>> communicateWithWenxin(@RequestBody Map<String,Object> map) throws IOException, JSONException {
         if(StpUtil.isLogin()){
@@ -457,7 +423,7 @@ public class QuestionController {
         }
     }
 
-    @GetMapping("/question/note")
+    @PostMapping("/question/getnote")
     public CommonResponse<String> getQuestionNoteByQid(@RequestBody ConcreteQuestion concreteQuestion) throws IOException, JSONException {
         if(StpUtil.isLogin()){
             ConcreteQuestion result = concreteQuestionService.getQuestionNotesByQid(concreteQuestion.getQid());

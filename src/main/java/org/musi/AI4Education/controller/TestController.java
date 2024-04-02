@@ -5,8 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.musi.AI4Education.config.Wen_XinConfig;
+import org.musi.AI4Education.domain.BasicQuestion;
+import org.musi.AI4Education.service.ConcreteQuestionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -15,12 +21,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @RestController
 @Slf4j
 public class TestController {
     @Resource
     private Wen_XinConfig wenXinConfig;
+
+    @Autowired
+    private ConcreteQuestionService concreteQuestionService;
 
     //历史对话，需要按照user,assistant
     List<Map<String,String>> messages = new ArrayList<>();
@@ -113,4 +124,12 @@ public class TestController {
         System.out.println(JSON.toJSONString(request));
         return JSON.toJSONString(request);
     }
+
+    private final ConcurrentMap<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
+
+    @PostMapping("/stream")
+    public void test(@RequestParam String content) throws IOException{
+        concreteQuestionService.test(content);
+    }
+
 }

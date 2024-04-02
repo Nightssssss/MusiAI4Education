@@ -3,10 +3,13 @@ package org.musi.AI4Education.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
 import org.bson.Document;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.musi.AI4Education.common.CommonResponse;
+import org.musi.AI4Education.config.Wen_XinConfig;
 import org.musi.AI4Education.config.WenxinConfig;
 import org.musi.AI4Education.domain.*;
 import org.musi.AI4Education.mapper.ConcreteQuestionMapper;
@@ -20,16 +23,27 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import javax.annotation.Resource;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 @Service
+@Slf4j
 public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMapper, ConcreteQuestion> implements ConcreteQuestionService {
 
     private Map<String, ChatSession> sessions = new HashMap<>(); // Store sessions using user IDs
@@ -40,68 +54,88 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     @Autowired
     private StudentService studentService;
 
+    @Resource
+    private Wen_XinConfig wenXinConfig;
+    //历史对话，需要按照user,assistant
+    List<Map<String,String>> messages = new ArrayList<>();
+
+    private final ConcurrentMap<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
+
+
+
+    /**
+     * 构造请求的请求参数
+     * @param userId
+     * @param temperature
+     * @param topP
+     * @param penaltyScore
+     * @param messages
+     * @return
+     */
     @Override
-    public JSON useWenxinToGetAnswerAndExplanation(String content) throws IOException {
-        return connectWithBigModel("我将会传输带有latex公式的数学题目，只需要给出题目的标准答案，题目的大致解析与题目考察的与数学相关的知识点，分别用[]括起来，例如“[答案：2],[解析：1+1=2],[{知识点1的具体内容},{知识点2的具体内容}]”,下面是题目： "+content);
+    public String constructRequestJson(Integer userId,
+                                       Double temperature,
+                                       Double topP,
+                                       Double penaltyScore,
+                                       boolean stream,
+                                       List<Map<String, String>> messages) {
+        Map<String,Object> request = new HashMap<>();
+        request.put("user_id",userId.toString());
+        request.put("temperature",temperature);
+        request.put("top_p",topP);
+        request.put("penalty_score",penaltyScore);
+        request.put("stream",stream);
+        request.put("messages",messages);
+        System.out.println(JSON.toJSONString(request));
+        return JSON.toJSONString(request);
     }
 
     @Override
-    public JSON useWenxinToGetSteps(String content) throws IOException {
+    public String useWenxinStreamTransformToGetAnswerAndExplanationAndKnowledge(String question) throws IOException {
+        question = "我将会传输带有latex公式的数学题目，只需要给出题目的标准答案，题目的大致解析与题目考察的与数学相关的知识点，分别用[]括起来，例如“[答案：2],[解析：1+1=2],[{知识点1的具体内容},{知识点2的具体内容}]”,下面是题目： "+question;
+        return connectWithBigModelStreamTransition(question);
+    }
+
+    @Override
+    public String useWenxinStreamTransformToGetSteps(String question) throws IOException {
+
         String sid = StpUtil.getLoginIdAsString();
         String description = studentService.getStudentBySid(sid).getDescription();
-        String require = "我将会提供带有 LaTeX 公式的数学题目，"+"，只需要给出题目的解题步骤。" + "每一个步骤都用[]括起来表示，如[1. 步骤一的内容],[2. 步骤二的内容]以此类推，"+description+"下面是题目："+content;
-        return connectWithBigModel(require);
-    }
-    @Override
-    public JSON useWenxinToCreateWrongAnswer(String content) throws IOException {
+        question = "我将会提供带有 LaTeX 公式的数学题目，"+"，只需要给出题目的解题步骤。" + "每一个步骤都用[]括起来表示，如[1. 步骤一的内容],[2. 步骤二的内容]以此类推，"+description+"下面是题目："+question;
+        return connectWithBigModelStreamTransition(question);
 
-        String require = "我需要你模拟学生在解决数学问题时生成错误的回答。你将扮演一个中学生，他在数学学习中遇到了一些挑战。你在回答数学问题时需要根据给定的学生个性档案生成错误回答。\n" +
-                "学生个性档案：\n" +
-                "常见错误类型: 运算错误\n"+
-                "错误模式: 忽略负负得正\n" +
-                "我需要你：第一步，给出正确答案。" +
-                "第二步，生成错误回答，要确保答案是错误的，并且这种错误符合上述学生个性档案的特点。\n" +
-                "下面是你需要生成错误答案的问题:"+content+
-                "请先生成正确答案，之后把错误回答以解题步骤的形式写出来，以正式解题的口吻，你只需要写解题步骤，不要分析\n" +
-                "正确答案："+
-                "解题步骤：";
-
-        return connectWithBigModel(require);
     }
 
     @Override
-    public List<String> useWenxinToAnalyseWrongType(String question,String content) throws IOException, JSONException {
-
+    public List<String> useWenxinStreamTransformToAnalyseWrongType(String question, String content) throws IOException, JSONException {
         String sid = StpUtil.getLoginIdAsString();
         String description = studentService.getStudentBySid(sid).getDescription();
 
         String require =
                 "我需要你分析学生在解决数学问题时生成错误解题步骤的错误类型,该学生情况为："+description+"，请结合学生的个人情况，并结合学生的错误答案，以教师的口吻，重复一下学生情况，并设计一个教学方案" +
-                "你需要提在下列范围内，寻找一个（只有一个）最为接近的基本类型与一个（只有一个）细分类型\n" +
+                        "你需要提在下列范围内，寻找一个（只有一个）最为接近的基本类型与一个（只有一个）细分类型\n" +
 
-                "基本类型列表为：" +
-                "{计算错误、概念错误、读题错误、解题错误}\n" +
+                        "基本类型列表为：" +
+                        "{计算错误、概念错误、读题错误、解题错误}\n" +
 
-                "对应的细分类型为："+
-                "[{\"计算错误\":\"{代数,正负值错误,单位转换,值错误}\"},"+
-                " {\"概念错误\":\"{理解错误,抄写题目信息疏忽}\"},"+
-                " {\"读题错误\":\"{方程设立错误,错误格式,概念遗忘}\"},"+
-                " {\"解题错误\":\"{解题步骤不完整,结论错误,猜答案}\"}]"+
+                        "对应的细分类型为："+
+                        "[{\"计算错误\":\"{代数,正负值错误,单位转换,值错误}\"},"+
+                        " {\"概念错误\":\"{理解错误,抄写题目信息疏忽}\"},"+
+                        " {\"读题错误\":\"{方程设立错误,错误格式,概念遗忘}\"},"+
+                        " {\"解题错误\":\"{解题步骤不完整,结论错误,猜答案}\"}]"+
 
-                "如果没有与之匹配的的基本类型与细分类型，请新建一个基本类型与细分类型！\n"+
+                        "如果没有与之匹配的的基本类型与细分类型，请新建一个基本类型与细分类型！\n"+
 
-                "下面是原始问题:"+question+
-                "下面是学生提供的错误解题步骤:"+content+
-                "请分析学生所犯的错误类型，并且只返回一个基本类型 与 一个细分类型,与一份教学方案，不要过多解释！\n" +
-                "基本类型：用[]括起来 "+
-                "细分类型：用[]括起来 "+
-                "教学方案：用[]括起来 ";
+                        "下面是原始问题:"+question+
+                        "下面是学生提供的错误解题步骤:"+content+
+                        "请分析学生所犯的错误类型，并且只返回一个基本类型 与 一个细分类型,与一份教学方案，不要过多解释！\n" +
+                        "基本类型：用[]括起来 "+
+                        "细分类型：用[]括起来 "+
+                        "教学方案：用[]括起来 ";
 
 
-        JSON result = connectWithBigModel(require);
-
-        JSONObject resultJSON= new JSONObject(String.valueOf(result));
-        String stringWithAnswer = resultJSON.getString("result");
+        String stringWithAnswer = connectWithBigModelStreamTransition(question);
+        System.out.println(stringWithAnswer);
 
         List<String> resultList = new ArrayList<>();
         Pattern pattern = Pattern.compile("\\[(.*?)\\]");
@@ -112,6 +146,12 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         }
         return resultList;
     }
+
+    @Override
+    public List<HashMap<String, String>> useWenxinStreamTransformToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException {
+        return null;
+    }
+
 
     @Override
     public List<HashMap<String,String>> useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException {
@@ -386,22 +426,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         return "删除成功";
     }
 
-    @Override
-    public JSON connectWithBigModel(String content) throws IOException {
-        String access_token = new WenxinConfig().getWenxinToken();
-        String requestMethod = "POST";
-        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token="+access_token;//post请求时格式
-        HashMap<String, String> msg = new HashMap<>();
-        msg.put("role","user");
-        msg.put("content", content);
-        ArrayList<HashMap> messages = new ArrayList<>();
-        messages.add(msg);
-        HashMap<String, Object> requestBody = new HashMap<>();
-        requestBody.put("messages", messages);
-        String outputStr = JSON.toJSONString(requestBody);
-        JSON json = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
-        return json;
-    }
+
 
     @Override
     public ChatHistory getChatHistoryByQid(String qid) throws IOException {
@@ -491,6 +516,169 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         query.addCriteria(Criteria.where("qid").is(concreteQuestion.getQid()));
         ConcreteQuestion concreteQuestion1 = mongoTemplate.findOne(query, ConcreteQuestion.class);
         return concreteQuestion1;
+    }
+
+
+    @Override
+    public JSON connectWithBigModel(String content) throws IOException {
+        String access_token = new WenxinConfig().getWenxinToken();
+        String requestMethod = "POST";
+        String url = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro?access_token="+access_token;//post请求时格式
+        HashMap<String, String> msg = new HashMap<>();
+        msg.put("role","user");
+        msg.put("content", content);
+        ArrayList<HashMap> messages = new ArrayList<>();
+        messages.add(msg);
+        HashMap<String, Object> requestBody = new HashMap<>();
+        requestBody.put("messages", messages);
+        String outputStr = JSON.toJSONString(requestBody);
+        JSON json = HttpRequest.httpRequest(url,requestMethod,outputStr,"application/json");
+        return json;
+    }
+
+    @Override
+    public String connectWithBigModelStreamTransition(String question) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+
+        HashMap<String, String> user = new HashMap<>();
+        user.put("role","user");
+        user.put("content",question);
+        messages.add(user);
+        String requestJson = constructRequestJson(1,0.95,0.8,1.0,true,messages);
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestJson);
+        Request request = new Request.Builder()
+                .url(wenXinConfig.ERNIE_Bot_4_0_URL + "?access_token=" + wenXinConfig.flushAccessToken())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        StringBuilder answer = new StringBuilder();
+        // 发起异步请求
+        try {
+            Response response = client.newCall(request).execute();
+            // 检查响应是否成功
+            if (response.isSuccessful()) {
+                // 获取响应流
+                try (ResponseBody responseBody = response.body()) {
+                    if (responseBody != null) {
+                        InputStream inputStream = responseBody.byteStream();
+                        // 以流的方式处理响应内容，输出到控制台
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            // 在控制台输出每个数据块
+                            System.out.write(buffer, 0, bytesRead);
+                            //将结果汇总起来
+                            answer.append(new String(buffer, 0, bytesRead));
+                        }
+                    }
+                }
+            } else {
+                System.out.println("Unexpected code " + response);
+            }
+
+        } catch (IOException e) {
+            log.error("流式请求出错");
+            throw new RuntimeException(e);
+        }
+        //将回复的内容添加到消息中
+        HashMap<String, String> assistant = new HashMap<>();
+        assistant.put("role","assistant");
+        assistant.put("content","");
+        //取出我们需要的内容,也就是result部分
+        String[] answerArray = answer.toString().split("data: ");
+        for (int i=1;i<answerArray.length;++i) {
+            answerArray[i] = answerArray[i].substring(0,answerArray[i].length() - 2);
+            assistant.put("content",assistant.get("content") + JSON.parseObject(answerArray[i]).get("result"));
+        }
+        messages.add(assistant);
+        return assistant.get("content");
+    }
+
+    @Override
+    public String test(String content) throws IOException {
+
+        Long qid = Long.valueOf("123456"+"001");
+        SseEmitter emitter = new SseEmitter();
+        emitters.put(qid, emitter);
+
+        System.out.println(content);
+
+        OkHttpClient client = new OkHttpClient();
+
+        HashMap<String, String> user = new HashMap<>();
+        user.put("role","user");
+        user.put("content",content);
+        messages.add(user);
+        String requestJson = constructRequestJson(1,0.95,0.8,1.0,true,messages);
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestJson);
+        Request request = new Request.Builder()
+                .url(wenXinConfig.ERNIE_Bot_4_0_URL + "?access_token=" + wenXinConfig.flushAccessToken())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        StringBuilder answer = new StringBuilder();
+        // 发起异步请求
+        try {
+            Response response = client.newCall(request).execute();
+            // 检查响应是否成功
+            if (response.isSuccessful()) {
+                // 获取响应流
+                try (ResponseBody responseBody = response.body()) {
+                    if (responseBody != null) {
+                        InputStream inputStream = responseBody.byteStream();
+                        // 以流的方式处理响应内容，输出到控制台
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            // 在控制台输出每个数据块
+                            System.out.write(buffer, 0, bytesRead);
+                            //将结果汇总起来
+                            answer.append(new String(buffer, 0, bytesRead));
+                        }
+                    }
+                }
+            } else {
+                System.out.println("Unexpected code " + response);
+            }
+
+        } catch (IOException e) {
+            log.error("流式请求出错");
+            throw new RuntimeException(e);
+        }
+        //将回复的内容添加到消息中
+        HashMap<String, String> assistant = new HashMap<>();
+        assistant.put("role","assistant");
+        assistant.put("content","");
+        //取出我们需要的内容,也就是result部分
+        String[] answerArray = answer.toString().split("data: ");
+        for (int i=1;i<answerArray.length;++i) {
+            answerArray[i] = answerArray[i].substring(0,answerArray[i].length() - 2);
+            assistant.put("content",assistant.get("content") + JSON.parseObject(answerArray[i]).get("result"));
+            sendDataToClient(qid,assistant.get("content"));
+        }
+        messages.add(assistant);
+
+
+        emitter.onCompletion(() -> emitters.remove(emitter.hashCode()));
+        emitter.onTimeout(() -> emitters.remove(emitter.hashCode()));
+
+        return assistant.get("content");
+    }
+
+    @Override
+    public void sendDataToClient(Long clientId, String data) {
+
+        SseEmitter emitter = emitters.get(clientId);
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event().data(data));
+            } catch (IOException e) {
+                emitter.complete();
+                emitters.remove(clientId);
+            }
+        }
     }
 
 }

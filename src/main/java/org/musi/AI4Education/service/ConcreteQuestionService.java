@@ -5,19 +5,34 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.json.JSONException;
 import org.musi.AI4Education.common.CommonResponse;
 import org.musi.AI4Education.domain.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
 
-    //调用大模型生成答案
-    public JSON useWenxinToGetAnswerAndExplanation(String content) throws IOException;
-    public JSON useWenxinToGetSteps(String content) throws IOException;
-    public JSON useWenxinToCreateWrongAnswer(String content) throws IOException;
-    public List<String> useWenxinToAnalyseWrongType(String question,String content) throws IOException, JSONException;
+    public String test(String content) throws IOException;
+    public void sendDataToClient(Long clientId, String data);
+
+    public String constructRequestJson(Integer userId,
+                                       Double temperature,
+                                       Double topP,
+                                       Double penaltyScore,
+                                       boolean stream,
+                                       List<Map<String, String>> messages);
+    public String useWenxinStreamTransformToGetAnswerAndExplanationAndKnowledge(String question) throws IOException;
+
+    public String useWenxinStreamTransformToGetSteps(String question) throws IOException;
+
+    public List<String> useWenxinStreamTransformToAnalyseWrongType(String question,String content) throws IOException, JSONException;
+
+
+    public List<HashMap<String,String>> useWenxinStreamTransformToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException;
+
     public List<HashMap<String,String>> useWenxinToCommunicateWithUser(BasicQuestion basicQuestion, String content) throws IOException, JSONException;
 
     public List<HashMap<String,String>> useWenxinToCommunicateWithUserWithWrongAnswer(BasicQuestion basicQuestion, String wrongText, String wrongReason,String content) throws IOException, JSONException;
@@ -36,6 +51,9 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
 
     public JSON connectWithBigModel(String content) throws IOException;
 
+    public String connectWithBigModelStreamTransition(String question) throws IOException;
+
+
     public ChatHistory getChatHistoryByQid(String qid) throws IOException;
 
     public WrongReasonChatHistory getWrongAnswerChatHistoryByQid(String qid) throws IOException;
@@ -47,7 +65,6 @@ public interface ConcreteQuestionService extends IService<ConcreteQuestion> {
     public List<String> splitAnswerAndExplanation(String steps);
 
     public List<String> splitKnowledges(String knowledges);
-
 
     //查询单个错题的详细信息
     public ConcreteQuestion getConcreteQuestionByQid(ConcreteQuestion concreteQuestion);
