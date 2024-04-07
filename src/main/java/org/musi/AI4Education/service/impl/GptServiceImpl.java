@@ -143,11 +143,16 @@ public class GptServiceImpl {
         chatRequestDTO.setMessages(messages);//设置请求消息
 
         //构建请求json
-        String paramJson = JSONUtil.toJsonStr(chatRequestDTO);;
+        String paramJson = JSONUtil.toJsonStr(chatRequestDTO);
+
+        // Windows 系统获取方法
+        String OPENAI_KEY = System.getenv("OPENAI_KEY");
+        //  Linux  系统获取方法
+
 
         return this.webClient.post()
                 .uri("/chat/completions")//请求uri
-                .header("Authorization", "Bearer sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")//设置成自己的key，获得key的方式可以在下文查看
+                .header("Authorization", OPENAI_KEY)//设置成自己的key，获得key的方式可以在下文查看
                 .header(HttpHeaders.ACCEPT, MediaType.TEXT_EVENT_STREAM_VALUE)//设置流式响应
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(paramJson))
