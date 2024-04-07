@@ -147,7 +147,7 @@ public class GptServiceImpl {
 
         return this.webClient.post()
                 .uri("/chat/completions")//请求uri
-                .header("Authorization", "Bearer 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")//设置成自己的key，获得key的方式可以在下文查看
+                .header("Authorization", "Bearer sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")//设置成自己的key，获得key的方式可以在下文查看
                 .header(HttpHeaders.ACCEPT, MediaType.TEXT_EVENT_STREAM_VALUE)//设置流式响应
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(paramJson))

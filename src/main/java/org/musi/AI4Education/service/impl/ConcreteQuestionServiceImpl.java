@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -94,7 +95,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
     @Override
     public String useWenxinStreamTransformToGetAnswerAndExplanationAndKnowledge(String question) throws IOException {
-        question = "我将会传输带有latex公式的数学题目，只需要给出题目的标准答案，题目的大致解析与题目考察的与数学相关的知识点，分别用[]括起来，例如“[答案：2],[解析：1+1=2],[{知识点1的具体内容},{知识点2的具体内容}]”,下面是题目： "+question;
+        question = "我将会传输带有latex公式的数学题目，只需要给出(1)题目的标准答案(2)题目的简略解析(3)题目考察的与数学相关的知识点，分别用[]括起来，例如“[答案：2],[解析：1+1=2],[{知识点1的具体内容},{知识点2的具体内容}]，注意解题内容中不要包含‘[]’”,下面是题目： "+question;
         return connectWithBigModelStreamTransition(question);
     }
 
@@ -103,7 +104,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
         String sid = StpUtil.getLoginIdAsString();
         String description = studentService.getStudentBySid(sid).getDescription();
-        question = "我将会提供带有 LaTeX 公式的数学题目，"+"，只需要给出题目的解题步骤。" + "每一个步骤都用[]括起来表示，如[1. 步骤一的内容],[2. 步骤二的内容]以此类推，"+description+"下面是题目："+question;
+        question = "我将会提供带有 LaTeX 公式的数学题目，"+"，只需要给出题目的解题步骤。" + "每一个单独的解题步骤都要用[]中括号括起来表示，如[1.步骤一...],[2.步骤2...]以此类推，"+description+"下面是题目："+question;
         return connectWithBigModelStreamTransition(question);
 
     }
@@ -188,11 +189,13 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
                 .retrieve()
                 .bodyToFlux(String.class)
                 // 可能需要其他流处理，比如map、filter等
-                .map(data -> {
-                    String result=JSON.parseObject(data).getString("result");
+                .flatMap(data -> {
+                    String result = JSON.parseObject(data).getString("result");
+                    //终结符会对后续的传输造成影响
+                    result = result.replace("\n", " ");
                     System.out.println(result);
                     answer.append(result);
-                    return result;
+                    return Mono.just(result); // 使用Mono.just将结果包装为一个发布者
                 }).doOnComplete(() -> {
                     // 当Flux完成时，输出结束消息
                     System.out.println("处理完毕，流已关闭。");
@@ -206,7 +209,6 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
                     //将数据存入MongoDB数据库
 
                     // 组合多个查询条件，并在MongoDB中查询
-//                    String sid = StpUtil.getLoginIdAsString();
                     Criteria criteria1 = Criteria.where("sid").is(sid);
                     Criteria criteria2 = Criteria.where("qid").is(qidForChatHistory);
                     Criteria criteria = new Criteria().andOperator(criteria1, criteria2);
@@ -245,8 +247,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     public Flux<String> useWenxinStreamTransformToCommunicateWithUserWithWrongAnswer(String qid, String wrongText, String wrongReason, String content) throws IOException, JSONException {
 
         //获取用户ID与题目ID
-//        String sid = StpUtil.getLoginIdAsString();
-        String sid = "1707103528830";
+        String sid = StpUtil.getLoginIdAsString();
 
         String qidForChatHistory = qid+"002";
         BasicQuestion basicQuestion = new BasicQuestion();
@@ -280,11 +281,13 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
                 .retrieve()
                 .bodyToFlux(String.class)
                 // 可能需要其他流处理，比如map、filter等
-                .map(data -> {
-                    String result=JSON.parseObject(data).getString("result");
+                .flatMap(data -> {
+                    String result = JSON.parseObject(data).getString("result");
+                    //终结符会对后续的传输造成影响
+                    result = result.replace("\n", " ");
                     System.out.println(result);
                     answer.append(result);
-                    return result;
+                    return Mono.just(result); // 使用Mono.just将结果包装为一个发布者
                 }).doOnComplete(() -> {
                     // 当Flux完成时，输出结束消息
                     System.out.println("处理完毕，流已关闭。");
@@ -298,7 +301,6 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
                     //将数据存入MongoDB数据库
 
                     // 组合多个查询条件，并在MongoDB中查询
-//                    String sid = StpUtil.getLoginIdAsString();
                     Criteria criteria1 = Criteria.where("sid").is(sid);
                     Criteria criteria2 = Criteria.where("qid").is(qidForChatHistory);
                     Criteria criteria = new Criteria().andOperator(criteria1, criteria2);

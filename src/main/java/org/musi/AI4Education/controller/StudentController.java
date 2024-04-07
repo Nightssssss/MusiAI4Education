@@ -32,7 +32,6 @@ public class StudentController {
             Student student = studentService.getStudentBySid(sid);
             //更新学生登录状态，设置为已登录
             studentService.updateStudentState(sid,1);
-            Student student1 = studentService.getStudentBySid(sid);
             return CommonResponse.creatForSuccess(resultList);
         } else {
             return CommonResponse.creatForError("用户名或密码错误");
