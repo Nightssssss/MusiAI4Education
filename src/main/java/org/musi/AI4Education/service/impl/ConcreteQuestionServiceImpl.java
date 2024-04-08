@@ -104,7 +104,11 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
 
         String sid = StpUtil.getLoginIdAsString();
         String description = studentService.getStudentBySid(sid).getDescription();
-        question = "我将会提供带有 LaTeX 公式的数学题目，"+"，只需要给出题目的解题步骤。" + "每一个单独的解题步骤都要用[]中括号括起来表示，如[1.步骤一...],[2.步骤2...]以此类推，"+description+"下面是题目："+question;
+        question = "我将会提供带有 LaTeX 公式的数学题目，"+description+"，只需要给出题目的解题步骤。" + "每一个单独的解题步骤的全部内容都分别要用[]中括号括起来表示，如\n" +
+                "[1.理解题意：这是一道双向而行的问题,两辆车由相向而行变成背向而行，如果设两地之间的距离为x，那么甲车行驶的距离为（2/3x），乙车行驶的距离为(45%x)],\n" +
+                "[2.列方程：（2/3）x+(45%)x-35=x，接下来是解题步骤],\n" +
+                "[3.解方程：x=300，解题完成],\n" +
+                "以此类推下面是题目："+question;
         return connectWithBigModelStreamTransition(question);
 
     }
@@ -247,7 +251,8 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
     public Flux<String> useWenxinStreamTransformToCommunicateWithUserWithWrongAnswer(String qid, String wrongText, String wrongReason, String content) throws IOException, JSONException {
 
         //获取用户ID与题目ID
-        String sid = StpUtil.getLoginIdAsString();
+//        String sid = StpUtil.getLoginIdAsString();
+        String sid = "1707103528830";
 
         String qidForChatHistory = qid+"002";
         BasicQuestion basicQuestion = new BasicQuestion();
@@ -456,7 +461,7 @@ public class ConcreteQuestionServiceImpl extends ServiceImpl<ConcreteQuestionMap
         ArrayList<QuestionStep> questionStepList = new ArrayList<QuestionStep>();
 
         ArrayList<String> contents = new ArrayList<>();
-        Pattern pattern = Pattern.compile("\\[(.*?)\\]"); // 匹配被"[]"括起来的内容
+        Pattern pattern = Pattern.compile("\\[([^\\[\\]]*)\\]"); // 匹配被"[]"括起来的内容
         Matcher matcher = pattern.matcher(steps);
 
         // 使用正则表达式逐个匹配并提取内容
